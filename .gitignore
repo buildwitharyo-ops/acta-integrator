@@ -1,0 +1,32 @@
+# Spec docs — internal reference only, never committed
+docs/
+
+# Brand partner logos staged for Supabase Storage seeding — CMS-managed, not a repo asset
+seed-assets/
+
+# Next.js
+/.next/
+/out/
+/build/
+
+# Dependencies
+/node_modules/
+
+# Env — secrets never committed
+.env
+.env*.local
+
+# Testing
+/coverage/
+/playwright-report/
+/test-results/
+
+# Misc
+.DS_Store
+*.pem
+.vercel
+next-env.d.ts
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
