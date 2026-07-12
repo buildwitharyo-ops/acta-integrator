@@ -14,6 +14,8 @@ const buttonVariants = cva(
         secondary:
           "rounded-pill bg-transparent text-foreground ring-1 ring-inset ring-border hover:bg-card hover:-translate-y-0.5",
         pill: "rounded-pill bg-transparent text-foreground ring-1 ring-inset ring-border hover:bg-card hover:-translate-y-0.5",
+        glass:
+          "rounded-pill bg-foreground/[0.08] text-foreground ring-1 ring-inset ring-foreground/25 backdrop-blur-xl shadow-[inset_0_1px_0_hsl(var(--foreground)/0.22),0_8px_24px_-12px_hsl(var(--foreground)/0.35)] hover:bg-foreground/[0.14] hover:ring-foreground/40 hover:-translate-y-0.5 active:translate-y-0",
         ghost: "rounded-pill text-foreground hover:bg-muted",
         whatsapp:
           "rounded-pill bg-primary text-primary-foreground hover:bg-accent-hover hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]",

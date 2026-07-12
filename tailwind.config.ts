@@ -83,12 +83,17 @@ export default {
           "0%, 100%": { opacity: "1", transform: "scale(1)" },
           "50%": { opacity: "0.55", transform: "scale(0.82)" },
         },
+        orbit: {
+          from: { transform: "translate(-50%, -50%) rotate(0turn)" },
+          to: { transform: "translate(-50%, -50%) rotate(1turn)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         marquee: "marquee 32s linear infinite",
         "status-pulse": "status-pulse 2s ease-in-out infinite",
+        orbit: "orbit 3.5s linear infinite",
       },
     },
   },

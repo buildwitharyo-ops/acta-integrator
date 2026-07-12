@@ -1,0 +1,35 @@
+// Generated from seed-assets/brands (trimmed to alpha bbox). Rendered as monochrome
+// masks in the trust strip so 29 mismatched brand marks read as one consistent wall.
+export type BrandLogo = { slug: string; name: string; src: string; aspect: number };
+
+export const BRAND_LOGOS: BrandLogo[] = [
+  { slug: "allen-and-heath", name: "Allen & Heath", src: "/brands/allen-and-heath.png", aspect: 7.388 },
+  { slug: "audac", name: "AUDAC", src: "/brands/audac.png", aspect: 0.929 },
+  { slug: "avmatrix", name: "AVMatrix", src: "/brands/avmatrix.png", aspect: 10.375 },
+  { slug: "behringer", name: "Behringer", src: "/brands/behringer.png", aspect: 1.44 },
+  { slug: "belden", name: "Belden", src: "/brands/belden.png", aspect: 4.615 },
+  { slug: "blackmagic", name: "Blackmagic", src: "/brands/blackmagic.png", aspect: 2.994 },
+  { slug: "canare", name: "Canare", src: "/brands/canare.png", aspect: 9.829 },
+  { slug: "d-and-b-audiotechnik", name: "d&b audiotechnik", src: "/brands/d-and-b-audiotechnik.png", aspect: 3.979 },
+  { slug: "dante", name: "Dante", src: "/brands/dante.png", aspect: 4.114 },
+  { slug: "jbl", name: "JBL", src: "/brands/jbl.png", aspect: 1.187 },
+  { slug: "lampro", name: "Lampro", src: "/brands/lampro.png", aspect: 3.979 },
+  { slug: "lindy", name: "Lindy", src: "/brands/lindy.png", aspect: 4.706 },
+  { slug: "magewell", name: "Magewell", src: "/brands/magewell.png", aspect: 7.589 },
+  { slug: "martin-audio", name: "Martin Audio", src: "/brands/martin-audio.png", aspect: 0.987 },
+  { slug: "midas", name: "Midas", src: "/brands/midas.png", aspect: 5.523 },
+  { slug: "mipro", name: "MIPRO", src: "/brands/mipro.png", aspect: 2.623 },
+  { slug: "ndi", name: "NDI", src: "/brands/ndi.png", aspect: 2.266 },
+  { slug: "neutrik", name: "Neutrik", src: "/brands/neutrik.png", aspect: 2.207 },
+  { slug: "new-avion", name: "New Avion", src: "/brands/new-avion.png", aspect: 5.614 },
+  { slug: "novastar", name: "Novastar", src: "/brands/novastar.png", aspect: 5.265 },
+  { slug: "relacart", name: "Relacart", src: "/brands/relacart.png", aspect: 5.569 },
+  { slug: "rgblink", name: "RGBlink", src: "/brands/rgblink.png", aspect: 5.134 },
+  { slug: "shure", name: "Shure", src: "/brands/shure.png", aspect: 6.0 },
+  { slug: "sommer", name: "Sommer", src: "/brands/sommer.png", aspect: 10.211 },
+  { slug: "telycam", name: "Telycam", src: "/brands/telycam.png", aspect: 1.638 },
+  { slug: "waves", name: "Waves", src: "/brands/waves.png", aspect: 0.966 },
+  { slug: "wharfedale", name: "Wharfedale", src: "/brands/wharfedale.png", aspect: 1.233 },
+  { slug: "xilica", name: "Xilica", src: "/brands/xilica.png", aspect: 4.333 },
+  { slug: "yamaha", name: "Yamaha", src: "/brands/yamaha.png", aspect: 0.768 },
+];

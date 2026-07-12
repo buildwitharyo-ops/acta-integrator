@@ -11,7 +11,14 @@ type WhatsAppCTAProps = {
   items?: string[];
   label?: string;
   size?: "sm" | "default" | "lg";
+  emphasis?: "default" | "orbit";
   className?: string;
+};
+
+const FACE_SIZE: Record<NonNullable<WhatsAppCTAProps["size"]>, string> = {
+  sm: "h-9 px-5 text-sm",
+  default: "h-11 px-7 text-[0.95rem]",
+  lg: "h-[52px] px-8 text-base",
 };
 
 export function WhatsAppCTA({
@@ -20,21 +27,50 @@ export function WhatsAppCTA({
   items,
   label = "Minta Penawaran",
   size = "default",
+  emphasis = "default",
   className,
 }: WhatsAppCTAProps) {
   const href = buildWaLink({ context, name, items });
+  const track = () =>
+    trackEvent("whatsapp_click", { context, item: name ?? items?.join(", ") ?? null });
+
+  if (emphasis === "orbit") {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={track}
+        className={cn(
+          "group relative inline-flex rounded-pill focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          className,
+        )}
+      >
+        <span aria-hidden className="absolute inset-0 overflow-hidden rounded-pill">
+          <span className="absolute inset-0 rounded-pill bg-accent-text/70" />
+          <span className="absolute left-1/2 top-1/2 aspect-square w-[220%] -translate-x-1/2 -translate-y-1/2 animate-orbit bg-[conic-gradient(from_0deg,transparent_0deg,transparent_205deg,hsl(var(--primary))_285deg,#fff_320deg,transparent_345deg)] motion-reduce:hidden" />
+        </span>
+        <span
+          className={cn(
+            "relative z-10 m-[2px] inline-flex items-center justify-center gap-2 rounded-pill bg-primary font-medium text-primary-foreground transition-transform duration-150",
+            "shadow-[0_5px_0_-1px_hsl(var(--accent-text)),0_12px_22px_-8px_hsl(var(--accent-text)/0.6)]",
+            "group-hover:-translate-y-0.5 group-active:translate-y-[3px] group-active:shadow-[0_2px_0_-1px_hsl(var(--accent-text))]",
+            FACE_SIZE[size],
+          )}
+        >
+          <WhatsAppGlyph className="h-4 w-4" />
+          {label}
+        </span>
+      </a>
+    );
+  }
 
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      onClick={() =>
-        trackEvent("whatsapp_click", {
-          context,
-          item: name ?? items?.join(", ") ?? null,
-        })
-      }
+      onClick={track}
       className={cn(buttonVariants({ variant: "whatsapp", size }), className)}
     >
       <WhatsAppGlyph className="h-4 w-4" />
