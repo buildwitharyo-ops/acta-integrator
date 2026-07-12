@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SignalMeter } from "./SignalMeter";
+import { ActaLogo } from "./ActaLogo";
 import { buildWaLink } from "@/lib/wa";
 
 type FooterSettings = {
@@ -43,7 +44,9 @@ export function Footer({
 
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.1fr]">
           <div>
-            <span className="font-display text-2xl font-bold tracking-tight">ACTA</span>
+            <Link href="/" aria-label="ACTA — Beranda" className="inline-block">
+              <ActaLogo className="h-12" />
+            </Link>
             <p className="display-md mt-4 max-w-[16ch] text-foreground">
               {settings?.tagline ?? "Smarter Systems. Real Impact."}
             </p>
@@ -74,17 +77,17 @@ export function Footer({
 
           <FooterColumn label="Kontak">
             <li>
-              <a href={waHref} target="_blank" rel="noopener noreferrer" className="mono-spec text-muted-foreground transition-colors hover:text-foreground">
+              <a href={waHref} target="_blank" rel="noopener noreferrer" className="mono-spec inline-block py-1 text-muted-foreground transition-colors hover:text-foreground">
                 {formatWa(settings?.whatsapp_number)}
               </a>
             </li>
             <li>
-              <a href={`mailto:${settings?.email ?? "acta.arc@gmail.com"}`} className="mono-spec text-muted-foreground transition-colors hover:text-foreground">
+              <a href={`mailto:${settings?.email ?? "acta.arc@gmail.com"}`} className="mono-spec inline-block py-1 text-muted-foreground transition-colors hover:text-foreground">
                 {settings?.email ?? "acta.arc@gmail.com"}
               </a>
             </li>
             <li>
-              <a href={`https://instagram.com/${(settings?.instagram ?? "@acta.integrator").replace("@", "")}`} target="_blank" rel="noopener noreferrer" className="mono-spec text-muted-foreground transition-colors hover:text-foreground">
+              <a href={`https://instagram.com/${(settings?.instagram ?? "@acta.integrator").replace("@", "")}`} target="_blank" rel="noopener noreferrer" className="mono-spec inline-block py-1 text-muted-foreground transition-colors hover:text-foreground">
                 {settings?.instagram ?? "@acta.integrator"}
               </a>
             </li>
@@ -119,7 +122,7 @@ function FooterColumn({ label, children }: { label: string; children: React.Reac
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <li>
-      <Link href={href} className="body-sm text-muted-foreground transition-colors hover:text-foreground">
+      <Link href={href} className="body-sm inline-block py-1 text-muted-foreground transition-colors hover:text-foreground">
         {children}
       </Link>
     </li>

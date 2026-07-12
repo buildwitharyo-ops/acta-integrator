@@ -61,7 +61,7 @@ export function SolutionsBento({
                 {i > 0 && <div className="my-4 h-px bg-border" />}
                 <Link
                   href={`/solutions/${s.slug}`}
-                  className="flex items-baseline gap-3 transition-colors hover:text-accent-text"
+                  className="flex items-baseline gap-3 py-2 -my-2 transition-colors hover:text-accent-text"
                 >
                   <span className="mono-spec text-muted-foreground">
                     S-{String(i + 6).padStart(2, "0")}

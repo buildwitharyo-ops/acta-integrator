@@ -132,7 +132,7 @@ export function FeatureCarousel({
               <p className="body-md mt-2 max-w-[52ch] text-muted-foreground">{current.description}</p>
               <Link
                 href={current.href}
-                className="mono-label mt-4 inline-block text-accent-text underline-offset-4 hover:underline"
+                className="mono-label mt-3 inline-flex min-h-[44px] items-center text-accent-text underline-offset-4 hover:underline"
               >
                 {ctaLabel}
               </Link>

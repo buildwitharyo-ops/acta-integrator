@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
@@ -66,8 +66,17 @@ const CLOSED_HEIGHTS = [300, 340, 400, 440];
 export function ImpactSection() {
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
   const spring = reduce ? { duration: 0 } : { type: "spring" as const, stiffness: 220, damping: 28 };
   const heightSpring = reduce ? { duration: 0 } : { type: "spring" as const, stiffness: 260, damping: 30 };
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   const move = (delta: number) => setOpen((o) => (o + delta + CARDS.length) % CARDS.length);
 
@@ -104,20 +113,23 @@ export function ImpactSection() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:gap-2">
-          {CARDS.map((card, idx) => {
-            const isOpen = open === idx;
-            return (
-              <motion.div
-                key={idx}
-                animate={{ flex: isOpen ? 4.8 : 1.5 }}
-                transition={spring}
-                className={cn(
-                  "relative h-[320px] overflow-hidden rounded-lg md:h-auto",
-                  card.bg,
-                  card.text,
-                )}
-              >
+        {!isDesktop ? (
+          <div className="mt-8 flex flex-col gap-3">
+            {CARDS.map((card, idx) => (
+              <MobileCard key={idx} card={card} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-row items-end gap-2">
+            {CARDS.map((card, idx) => {
+              const isOpen = open === idx;
+              return (
+                <motion.div
+                  key={idx}
+                  animate={{ flex: isOpen ? 4.8 : 1.5 }}
+                  transition={spring}
+                  className={cn("relative h-auto overflow-hidden rounded-lg", card.bg, card.text)}
+                >
                 <motion.div
                   animate={{ height: isOpen ? 470 : CLOSED_HEIGHTS[idx] }}
                   transition={heightSpring}
@@ -163,9 +175,10 @@ export function ImpactSection() {
                   className="absolute inset-0 z-10 cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 />
               </motion.div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         <Link
           href="/contact"
@@ -178,5 +191,24 @@ export function ImpactSection() {
         </Link>
       </div>
     </section>
+  );
+}
+
+// On mobile the horizontal bar chart collapses to full, natural-height cards.
+function MobileCard({ card }: { card: ImpactCard }) {
+  return (
+    <div className={cn("overflow-hidden rounded-lg p-6", card.bg, card.text)}>
+      <p className="text-[10px] font-semibold uppercase tracking-[1.3px] opacity-80">Standard</p>
+      <h3 className="heading-lg mt-2">{card.title}</h3>
+      <p className="body-sm mt-3 opacity-90">{card.description}</p>
+      <div className="mt-5 flex items-end justify-between gap-4">
+        <p className="font-display text-[clamp(2.5rem,13vw,3.5rem)] font-semibold leading-none">
+          {card.metric}
+        </p>
+        <div className="relative h-[112px] w-2/5 shrink-0 overflow-hidden rounded-md border border-black/10">
+          <Image src={card.image} alt="" fill sizes="40vw" className="object-cover" />
+        </div>
+      </div>
+    </div>
   );
 }

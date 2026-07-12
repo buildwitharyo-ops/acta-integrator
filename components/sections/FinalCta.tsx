@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SignalMeter } from "@/components/shared/SignalMeter";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
 import { Button } from "@/components/ui/button";
+import { DottedSurface } from "@/components/ui/dotted-surface";
 import { formatWaDisplay } from "@/lib/wa";
 
 type Settings = {
@@ -26,9 +27,13 @@ export function FinalCta({
   ].join(" · ");
 
   return (
-    <section className="dark relative bg-card text-foreground">
-      <div className="texture-grid pointer-events-none absolute inset-0 opacity-[0.06]" />
-      <div className="container relative py-expansive text-center">
+    <section className="dark relative overflow-hidden bg-card text-foreground">
+      <DottedSurface />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_center,hsl(var(--card)/0.85),transparent_75%)]"
+      />
+      <div className="container relative z-10 py-expansive text-center">
         <SignalMeter variant="footer" className="mx-auto mb-10 max-w-[440px]" />
         <h2 className="display-xl mx-auto max-w-[16ch]">
           {content.headline ?? "Have a Project? Let's Talk."}

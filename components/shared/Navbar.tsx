@@ -13,6 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { ActaLogo } from "@/components/shared/ActaLogo";
 import { CornerTicks } from "@/components/shared/CornerTicks";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
@@ -88,8 +89,8 @@ export function Navbar({
       )}
     >
       <div className="container flex h-[72px] items-center justify-between">
-        <Link href="/" className="font-display text-xl font-bold tracking-tight">
-          ACTA
+        <Link href="/" aria-label="ACTA — Beranda" className="shrink-0">
+          <ActaLogo className="h-9 md:h-10" priority />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -347,8 +348,12 @@ function MobileMenu({
   return (
     <SheetContent side="right" className="flex w-full max-w-sm flex-col p-0">
       <div className="flex items-center justify-between border-b border-border px-6 py-5">
-        <SheetTitle className="font-display text-xl font-bold tracking-tight">ACTA</SheetTitle>
-        <button aria-label="Tutup menu" onClick={onClose} className="inline-flex h-9 w-9 items-center justify-center rounded-pill ring-1 ring-border">
+        <SheetTitle asChild>
+          <Link href="/" aria-label="ACTA — Beranda" onClick={onClose}>
+            <ActaLogo className="h-9" />
+          </Link>
+        </SheetTitle>
+        <button aria-label="Tutup menu" onClick={onClose} className="inline-flex h-10 w-10 items-center justify-center rounded-pill ring-1 ring-border">
           <X className="h-[18px] w-[18px]" />
         </button>
       </div>
@@ -363,7 +368,7 @@ function MobileMenu({
                   <li key={s.slug}>
                     <Link
                       href={`/solutions/${s.slug}`}
-                      className="flex items-center gap-3 py-1.5 text-muted-foreground hover:text-foreground"
+                      className="flex items-center gap-3 py-2.5 text-muted-foreground hover:text-foreground"
                     >
                       <HugeiconsIcon icon={solutionIcon(s.slug)} size={20} strokeWidth={1.5} className="shrink-0" />
                       <span className="body-md">{s.name}</span>
@@ -382,7 +387,7 @@ function MobileMenu({
                   <li key={c.slug}>
                     <Link
                       href={`/products/c/${c.slug}`}
-                      className="flex items-center gap-3 py-1.5 text-muted-foreground hover:text-foreground"
+                      className="flex items-center gap-3 py-2.5 text-muted-foreground hover:text-foreground"
                     >
                       <HugeiconsIcon icon={categoryIcon(c.slug)} size={20} strokeWidth={1.5} className="shrink-0" />
                       <span className="body-md flex-1">{c.name}</span>

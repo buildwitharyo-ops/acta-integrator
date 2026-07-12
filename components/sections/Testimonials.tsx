@@ -176,7 +176,7 @@ export function Testimonials() {
               type="button"
               aria-pressed={paused}
               onClick={() => setPaused((p) => !p)}
-              className="mono-label inline-flex items-center gap-2 rounded-pill border border-border px-4 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+              className="mono-label inline-flex min-h-[40px] items-center gap-2 rounded-pill border border-border px-4 py-2 text-muted-foreground transition-colors hover:text-foreground"
             >
               <HugeiconsIcon icon={paused ? PlayIcon : PauseIcon} size={13} strokeWidth={2} />
               {paused ? "Play" : "Pause"}
