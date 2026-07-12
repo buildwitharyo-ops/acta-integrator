@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
+import { useTheme } from "next-themes";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowLeft01Icon, ArrowRight01Icon, ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
+import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
+import { SparklesCore } from "@/components/ui/sparkles";
 import { cn } from "@/lib/utils";
 
 type ImpactCard = {
@@ -19,7 +21,7 @@ type ImpactCard = {
 };
 
 // AV-integration outcomes (honest engineering/service commitments, not fabricated
-// business stats) — replaces the demo's SaaS conversion/churn metrics.
+// business stats). Card styles are tuned for the dark "Control Room" band.
 const CARDS: ImpactCard[] = [
   {
     metric: "1-Touch",
@@ -37,7 +39,7 @@ const CARDS: ImpactCard[] = [
     description:
       "Ruang di-tuning ke target RT60 terukur, sehingga setiap kursi mendengar jelas — dari baris depan sampai belakang.",
     image: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=1200&q=80",
-    bg: "bg-card ring-1 ring-inset ring-border",
+    bg: "bg-foreground/[0.04] ring-1 ring-inset ring-foreground/10",
     text: "text-foreground",
   },
   {
@@ -46,7 +48,7 @@ const CARDS: ImpactCard[] = [
     description:
       "Monitoring jarak jauh dan dukungan on-site yang responsif menjaga sistem tetap berjalan jauh setelah instalasi selesai.",
     image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
-    bg: "dark bg-card",
+    bg: "bg-foreground/[0.07] ring-1 ring-inset ring-foreground/15",
     text: "text-foreground",
     feature: true,
   },
@@ -56,15 +58,17 @@ const CARDS: ImpactCard[] = [
     description:
       "Setiap project diserahterimakan dengan dokumentasi as-built dan pelatihan operator — tim Anda benar-benar menguasai ruangnya.",
     image: "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?auto=format&fit=crop&w=1200&q=80",
-    bg: "bg-primary/[0.12] ring-1 ring-inset ring-primary/25",
+    bg: "bg-primary/[0.14] ring-1 ring-inset ring-primary/30",
     text: "text-foreground",
   },
 ];
 
-const CLOSED_HEIGHTS = [300, 340, 400, 440];
+const CLOSED_HEIGHTS = [260, 300, 350, 390];
 
 export function ImpactSection() {
   const reduce = useReducedMotion();
+  const { resolvedTheme } = useTheme();
+  const sparkColor = resolvedTheme === "dark" ? "#FFFFFF" : "#475569";
   const [open, setOpen] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);
   const spring = reduce ? { duration: 0 } : { type: "spring" as const, stiffness: 220, damping: 28 };
@@ -78,39 +82,38 @@ export function ImpactSection() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  const move = (delta: number) => setOpen((o) => (o + delta + CARDS.length) % CARDS.length);
-
   return (
-    <section className="w-full py-section">
-      <div className="container">
-        <div className="mb-8 flex items-end justify-between gap-6">
-          <div className="max-w-[620px]">
-            <p className="mono-label text-accent-text">05 / WHAT WE DELIVER</p>
-            <h2 className="display-lg mt-3">Results that speak for themselves</h2>
-            <p className="body-lg mt-4 max-w-[560px] text-muted-foreground">
-              Dari akustik ruang sampai dukungan pasca-instalasi — dampak yang bisa diukur di setiap
-              sistem yang kami serahkan.
-            </p>
+    <section className="relative isolate overflow-hidden bg-background py-section text-foreground">
+      <div className="container relative z-20">
+        <div className="relative flex flex-col items-center text-center">
+          <p className="mono-label text-accent-text">WHAT WE DELIVER</p>
+          <h2 className="display-lg mt-3 max-w-[22ch]">Results that speak for themselves</h2>
+
+          <div className="relative mt-4 h-36 w-full max-w-[44rem]">
+            <div className="absolute inset-x-[22%] top-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent blur-sm" />
+            <div className="absolute inset-x-[22%] top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+            <div className="absolute inset-x-[35%] top-0 h-[3px] bg-gradient-to-r from-transparent via-accent-hover to-transparent blur-sm" />
+            <div className="absolute inset-x-[35%] top-0 h-px bg-gradient-to-r from-transparent via-accent-hover to-transparent" />
+            {!reduce ? (
+              <SparklesCore
+                key={resolvedTheme}
+                id="impact-sparkles"
+                background="transparent"
+                minSize={0.4}
+                maxSize={1}
+                particleDensity={800}
+                speed={0.8}
+                particleColor={sparkColor}
+                className="absolute inset-0 h-full w-full"
+              />
+            ) : null}
+            <div className="absolute inset-0 bg-background [mask-image:radial-gradient(360px_150px_at_top,transparent_16%,black_68%)]" />
           </div>
 
-          <div className="hidden shrink-0 items-center gap-2 md:flex">
-            <button
-              type="button"
-              onClick={() => move(-1)}
-              aria-label="Sorotan sebelumnya"
-              className="flex h-10 w-10 items-center justify-center rounded-pill text-foreground/70 ring-1 ring-border transition-colors hover:bg-card hover:text-foreground"
-            >
-              <HugeiconsIcon icon={ArrowLeft01Icon} size={18} strokeWidth={1.8} />
-            </button>
-            <button
-              type="button"
-              onClick={() => move(1)}
-              aria-label="Sorotan berikutnya"
-              className="flex h-10 w-10 items-center justify-center rounded-pill text-foreground/70 ring-1 ring-border transition-colors hover:bg-card hover:text-foreground"
-            >
-              <HugeiconsIcon icon={ArrowRight01Icon} size={18} strokeWidth={1.8} />
-            </button>
-          </div>
+          <p className="body-lg -mt-8 max-w-[560px] text-muted-foreground">
+            Dari akustik ruang sampai dukungan pasca-instalasi — dampak yang bisa diukur di setiap
+            sistem yang kami serahkan.
+          </p>
         </div>
 
         {!isDesktop ? (
@@ -120,7 +123,7 @@ export function ImpactSection() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-row items-end gap-2">
+          <div className="mt-10 flex flex-row items-end gap-2">
             {CARDS.map((card, idx) => {
               const isOpen = open === idx;
               return (
@@ -130,51 +133,52 @@ export function ImpactSection() {
                   transition={spring}
                   className={cn("relative h-auto overflow-hidden rounded-lg", card.bg, card.text)}
                 >
-                <motion.div
-                  animate={{ height: isOpen ? 470 : CLOSED_HEIGHTS[idx] }}
-                  transition={heightSpring}
-                  className="h-full"
-                >
-                  {isOpen ? (
-                    <div className="flex h-full flex-col p-6 md:p-8">
-                      <p className="text-[10px] font-semibold uppercase tracking-[1.3px] opacity-80">
-                        Standard
-                      </p>
-                      <h3 className="heading-lg mt-2 max-w-[16ch]">{card.title}</h3>
-                      <p className="body-sm mt-3 max-w-[42ch] opacity-90">{card.description}</p>
-                      <div className="mt-6 grid flex-1 grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_1fr]">
-                        <p className="font-display text-[clamp(2.75rem,5vw,4.25rem)] font-semibold leading-none">
-                          {card.metric}
+                  <motion.div
+                    animate={{ height: isOpen ? 430 : CLOSED_HEIGHTS[idx] }}
+                    transition={heightSpring}
+                    className="h-full"
+                  >
+                    {isOpen ? (
+                      <div className="flex h-full flex-col p-6 md:p-7">
+                        <p className="text-[10px] font-semibold uppercase tracking-[1.3px] opacity-80">
+                          Standard
                         </p>
-                        <div
-                          className={cn(
-                            "relative w-full overflow-hidden rounded-md border border-black/10",
-                            card.feature ? "h-[190px] md:h-[210px]" : "h-[160px] md:h-[180px]",
-                          )}
-                        >
-                          <Image src={card.image} alt="" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover" />
+                        <h3 className="heading-lg mt-2 max-w-[16ch]">{card.title}</h3>
+                        <p className="body-sm mt-3 max-w-[42ch] opacity-90">{card.description}</p>
+                        <div className="mt-6 grid flex-1 grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_1fr]">
+                          <p className="font-display text-[clamp(2.5rem,4.6vw,3.9rem)] font-semibold leading-none">
+                            {card.metric}
+                          </p>
+                          <div
+                            className={cn(
+                              "relative w-full overflow-hidden rounded-md border border-foreground/10",
+                              card.feature ? "h-[170px] md:h-[190px]" : "h-[150px] md:h-[165px]",
+                            )}
+                          >
+                            <Image src={card.image} alt="" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex h-full flex-col justify-end p-5 md:p-6">
-                      <p className="font-display text-[clamp(1.75rem,2.4vw,2.1rem)] font-semibold leading-none">
-                        {card.metric}
-                      </p>
-                      <p className="mono-spec mt-2 max-w-[14ch] uppercase opacity-80">{card.title}</p>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="flex h-full flex-col justify-end p-5 md:p-6">
+                        <p className="font-display text-[clamp(1.75rem,2.4vw,2.1rem)] font-semibold leading-none">
+                          {card.metric}
+                        </p>
+                        <h3 className="mono-spec mt-2 max-w-[14ch] uppercase opacity-80">{card.title}</h3>
+                        <p className="sr-only">{card.description}</p>
+                      </div>
+                    )}
+                  </motion.div>
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-label={`${card.metric} — ${card.title}`}
+                    onMouseEnter={() => setOpen(idx)}
+                    onFocus={() => setOpen(idx)}
+                    onClick={() => setOpen(idx)}
+                    className="absolute inset-0 z-10 cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  />
                 </motion.div>
-                <button
-                  type="button"
-                  aria-expanded={isOpen}
-                  aria-label={`${card.metric} — ${card.title}`}
-                  onMouseEnter={() => setOpen(idx)}
-                  onFocus={() => setOpen(idx)}
-                  onClick={() => setOpen(idx)}
-                  className="absolute inset-0 z-10 cursor-pointer rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                />
-              </motion.div>
               );
             })}
           </div>
@@ -205,7 +209,7 @@ function MobileCard({ card }: { card: ImpactCard }) {
         <p className="font-display text-[clamp(2.5rem,13vw,3.5rem)] font-semibold leading-none">
           {card.metric}
         </p>
-        <div className="relative h-[112px] w-2/5 shrink-0 overflow-hidden rounded-md border border-black/10">
+        <div className="relative h-[112px] w-2/5 shrink-0 overflow-hidden rounded-md border border-foreground/10">
           <Image src={card.image} alt="" fill sizes="40vw" className="object-cover" />
         </div>
       </div>

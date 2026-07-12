@@ -54,9 +54,11 @@ export function FeatureCarousel({
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
       onTouchStart={() => setPaused(true)}
-      className={cn("grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-6", className)}
+      onTouchEnd={() => setPaused(false)}
+      onTouchCancel={() => setPaused(false)}
+      className={cn("grid gap-5 lg:grid-cols-2 lg:items-stretch lg:gap-6", className)}
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2.5">
         {items.map((item, i) => {
           const on = i === active;
           return (
@@ -68,11 +70,11 @@ export function FeatureCarousel({
               onFocus={() => setActive(i)}
               onMouseEnter={() => setActive(i)}
               className={cn(
-                "group relative overflow-hidden rounded-[14px] border px-4 py-3.5 text-left transition-colors",
+                "group relative flex items-center overflow-hidden rounded-[14px] border px-4 py-3.5 text-left transition-colors lg:flex-1",
                 on ? "border-primary/45 bg-card" : "border-border hover:border-border hover:bg-card/60",
               )}
             >
-              <span className="flex items-center gap-3">
+              <span className="flex w-full items-center gap-3">
                 <HugeiconsIcon
                   icon={item.icon}
                   size={22}

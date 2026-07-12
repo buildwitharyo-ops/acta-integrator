@@ -42,12 +42,10 @@ export default async function Home() {
 
       <MarqueeStrip logos={BRAND_LOGOS} heading={trust.label ?? "Technology We Work With"} />
 
-      <Reveal>
-        <SolutionsBento
-          content={get<{ headline?: string; subheadline?: string }>("solutions")}
-          solutions={solutions}
-        />
-      </Reveal>
+      <SolutionsBento
+        content={get<{ headline?: string; subheadline?: string }>("solutions")}
+        solutions={solutions}
+      />
 
       <HowWeWork
         content={get<{

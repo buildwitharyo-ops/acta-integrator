@@ -84,10 +84,10 @@ insert into page_sections (page_key, section_key, content, is_enabled) values
 
 -- ---- home ----------------------------------------------------------
 ('home', 'hero', '{
-  "eyebrow": "COMMERCIAL AV / MULTIMEDIA SYSTEMS INTEGRATOR — TANGERANG, ID",
-  "headline_1": "AV Systems, Engineered.",
-  "headline_2": "Not Just Installed.",
-  "subheadline": "Dari ruang rapat hingga auditorium — ACTA merancang, memasang, dan mengintegrasikan sistem audio visual komersial yang bekerja sebagai satu kesatuan. Konsultasi, desain, instalasi, sampai pelatihan tim Anda.",
+  "eyebrow": "COMMERCIAL AV / MULTIMEDIA SYSTEMS INTEGRATOR",
+  "headline_1": "Technology,",
+  "headline_2": "Without Friction.",
+  "subheadline": "We design, integrate, and support AV environments that feel effortless to use, reliable to operate, and built for the way people work.",
   "cta_primary": {"label": "Konsultasi Gratis", "href": "https://wa.me/6281563905555?text=Halo%20ACTA,%20saya%20ingin%20konsultasi%20kebutuhan%20AV"},
   "cta_secondary": {"label": "Lihat Solutions", "href": "/solutions"},
   "annotations": [{"label": "RT60 0.6s"}, {"label": "SPL 98dB"}, {"label": "4K@60"}]

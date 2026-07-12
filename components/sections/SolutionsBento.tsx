@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { CornerTicks } from "@/components/shared/CornerTicks";
-import { SignalMeter } from "@/components/shared/SignalMeter";
+import { motion, useReducedMotion } from "motion/react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { mediaUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +18,20 @@ type Solution = {
   hero_image_alt: string | null;
 };
 
-const CORE_SPANS = ["lg:col-span-7", "lg:col-span-5", "lg:col-span-8", "lg:col-span-4", "lg:col-span-5"];
+const CORE_SPANS = [
+  "lg:col-span-7",
+  "lg:col-span-5",
+  "lg:col-span-8",
+  "lg:col-span-4",
+  "lg:col-span-12",
+];
+const CORE_SIZES = [
+  "(min-width: 1024px) 58vw, 100vw",
+  "(min-width: 1024px) 42vw, 100vw",
+  "(min-width: 1024px) 67vw, 100vw",
+  "(min-width: 1024px) 33vw, 100vw",
+  "100vw",
+];
 const CORE_ANNOTATIONS: Record<string, string> = {
   "smart-meeting-room": "ONE-TOUCH JOIN",
   "auditorium-performance-hall": "RT60 0.6s",
@@ -31,14 +47,15 @@ export function SolutionsBento({
   content: { headline?: string; subheadline?: string };
   solutions: Solution[];
 }) {
+  const reduce = useReducedMotion();
   const core = solutions.filter((s) => s.tier === "core").slice(0, 5);
   const supporting = solutions.filter((s) => s.tier === "supporting").slice(0, 3);
 
   return (
     <section className="container py-section">
-      <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="mono-label text-accent-text">02 / SOLUTIONS</p>
+          <p className="mono-label text-accent-text">SOLUTIONS</p>
           <h2 className="display-lg mt-3 max-w-[16ch]">
             {content.headline ?? "A Solution for Every Space."}
           </h2>
@@ -51,33 +68,46 @@ export function SolutionsBento({
 
       <div className="grid gap-4 lg:grid-cols-12">
         {core.map((s, i) => (
-          <CoreCard key={s.slug} solution={s} className={CORE_SPANS[i]} />
+          <SolutionCard
+            key={s.slug}
+            solution={s}
+            className={CORE_SPANS[i]}
+            sizes={CORE_SIZES[i]}
+            index={i}
+            reduce={reduce}
+          />
         ))}
-        <div className="rounded-[24px] bg-card p-6 ring-1 ring-border lg:col-span-7">
-          <p className="mono-label mb-4 text-muted-foreground">Supporting</p>
-          <ul>
-            {supporting.map((s, i) => (
-              <li key={s.slug}>
-                {i > 0 && <div className="my-4 h-px bg-border" />}
-                <Link
-                  href={`/solutions/${s.slug}`}
-                  className="flex items-baseline gap-3 py-2 -my-2 transition-colors hover:text-accent-text"
-                >
-                  <span className="mono-spec text-muted-foreground">
-                    S-{String(i + 6).padStart(2, "0")}
-                  </span>
-                  <span className="heading-md">{s.name}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
+
+      {supporting.length > 0 ? (
+        <div className="mt-4">
+          <p className="mono-label mb-3 text-muted-foreground">Supporting</p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {supporting.map((s, i) => (
+              <SolutionCard key={s.slug} solution={s} index={i} compact reduce={reduce} />
+            ))}
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
 
-function CoreCard({ solution, className }: { solution: Solution; className?: string }) {
+function SolutionCard({
+  solution,
+  className,
+  sizes,
+  index,
+  compact,
+  reduce,
+}: {
+  solution: Solution;
+  className?: string;
+  sizes?: string;
+  index: number;
+  compact?: boolean;
+  reduce: boolean | null;
+}) {
   const img = mediaUrl({
     storage_path: solution.hero_image_path,
     external_url: solution.hero_image_url_ext,
@@ -85,10 +115,15 @@ function CoreCard({ solution, className }: { solution: Solution; className?: str
   const annotation = solution.slug ? CORE_ANNOTATIONS[solution.slug] : undefined;
 
   return (
-    <Link
-      href={`/solutions/${solution.slug}`}
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      whileHover={reduce ? undefined : { scale: 0.985, rotate: 0.3 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.55, delay: index * 0.07, ease: "easeOut" }}
       className={cn(
-        "dark group relative flex min-h-[280px] flex-col justify-end overflow-hidden rounded-[24px] bg-muted p-6 text-foreground",
+        "dark group relative flex flex-col justify-end overflow-hidden rounded-[22px] bg-muted p-5 text-foreground",
+        compact ? "min-h-[150px]" : "min-h-[240px]",
         className,
       )}
     >
@@ -97,21 +132,43 @@ function CoreCard({ solution, className }: { solution: Solution; className?: str
           src={img}
           alt={solution.hero_image_alt ?? solution.name ?? "Solusi ACTA"}
           fill
-          sizes="(min-width: 1024px) 60vw, 100vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          sizes={compact ? "(min-width: 640px) 33vw, 100vw" : (sizes ?? "(min-width: 1024px) 60vw, 100vw")}
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : null}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
-      <CornerTicks />
-      <div className="relative">
-        {annotation ? <span className="mono-spec text-foreground/70">{annotation}</span> : null}
-        <p className="heading-lg mt-1">{solution.name}</p>
-        <p className="body-sm mt-1 line-clamp-1 text-foreground/70">{solution.value_prop}</p>
-        <SignalMeter
-          variant="divider"
-          className="mt-4 max-w-[90px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-0 h-[135%] bg-gradient-to-t from-background via-background/45 to-transparent transition-[height] duration-500 group-hover:h-full" />
+
+      <div className="relative z-0 flex items-end gap-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <p className={compact ? "heading-md" : "heading-lg"}>{solution.name}</p>
+          {!compact && annotation ? (
+            <span className="mono-spec w-fit rounded-md bg-foreground/15 px-2 py-0.5 text-foreground/90 backdrop-blur-md">
+              {annotation}
+            </span>
+          ) : null}
+          {!compact ? (
+            <p className="body-sm line-clamp-1 text-foreground/70">{solution.value_prop}</p>
+          ) : null}
+        </div>
+        <CardArrow />
       </div>
-    </Link>
+
+      <Link
+        href={`/solutions/${solution.slug}`}
+        aria-label={solution.name ?? "Solusi"}
+        className="absolute inset-0 z-20 rounded-[22px] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+      />
+    </motion.div>
+  );
+}
+
+function CardArrow() {
+  return (
+    <HugeiconsIcon
+      icon={ArrowRight01Icon}
+      size={30}
+      strokeWidth={1.5}
+      className="shrink-0 text-foreground transition-transform duration-300 group-hover:translate-x-1.5"
+    />
   );
 }

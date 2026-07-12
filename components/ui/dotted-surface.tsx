@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type ComponentPropsWithoutRef } from "react";
 import { useReducedMotion } from "motion/react";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 
 type DottedSurfaceProps = ComponentPropsWithoutRef<"div">;
@@ -36,6 +37,7 @@ function readHsl(el: Element, name: string, fallback: [number, number, number]):
 // parent section, token-themed, and reduced-motion safe.
 export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
   const reduce = useReducedMotion();
+  const { resolvedTheme } = useTheme();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,19 +59,6 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
     let width = 0;
     let height = 0;
     let dpr = 1;
-
-    const resize = () => {
-      const rect = container.getBoundingClientRect();
-      width = rect.width;
-      height = rect.height;
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.max(1, Math.round(width * dpr));
-      canvas.height = Math.max(1, Math.round(height * dpr));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-    const ro = new ResizeObserver(resize);
-    ro.observe(container);
 
     const draw = (count: number) => {
       ctx.clearRect(0, 0, width, height);
@@ -103,6 +92,20 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
         }
       }
     };
+
+    const resize = () => {
+      const rect = container.getBoundingClientRect();
+      width = rect.width;
+      height = rect.height;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(width * dpr));
+      canvas.height = Math.max(1, Math.round(height * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (reduce) draw(0); // repaint the static frame (RO clears the bitmap on resize)
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(container);
 
     if (reduce) {
       draw(0);
@@ -142,7 +145,7 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
       ro.disconnect();
       canvas.remove();
     };
-  }, [reduce]);
+  }, [reduce, resolvedTheme]);
 
   return (
     <div

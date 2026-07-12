@@ -21,7 +21,7 @@ export function ArticlesPreview({ articles }: { articles: Article[] }) {
     <section className="container py-section">
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="mono-label text-accent-text">07 / INSIGHTS</p>
+          <p className="mono-label text-accent-text">INSIGHTS</p>
           <h2 className="display-lg mt-3 max-w-[16ch]">Insights from the AV Industry</h2>
         </div>
         <Button asChild variant="pill">

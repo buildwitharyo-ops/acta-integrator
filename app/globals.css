@@ -171,23 +171,23 @@
 @layer utilities {
   /* Density tokens (13 O8) — three distinct vertical rhythms */
   .py-compact {
-    padding-block: 4rem;
+    padding-block: 3rem;
   }
   .py-section {
-    padding-block: 6rem;
+    padding-block: 4rem;
   }
   .py-expansive {
-    padding-block: 10rem;
+    padding-block: 6rem;
   }
   @media (min-width: 768px) {
     .py-compact {
-      padding-block: 5rem;
+      padding-block: 3.5rem;
     }
     .py-section {
-      padding-block: 8rem;
+      padding-block: 5.5rem;
     }
     .py-expansive {
-      padding-block: 12.5rem;
+      padding-block: 8rem;
     }
   }
 

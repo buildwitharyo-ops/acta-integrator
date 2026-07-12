@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -50,10 +50,18 @@ export function HowWeWork({
   const steps = content.steps && content.steps.length > 0 ? content.steps : DEFAULT_STEPS;
   const reduce = useReducedMotion();
   const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
   const total = steps.length;
   const no = (s: Step, i: number) => s.no ?? String(i + 1).padStart(2, "0");
   const tabId = (i: number) => `hww-tab-${i}`;
-  const panelId = (i: number) => `hww-panel-${i}`;
+  const PANEL_ID = "hww-panel";
+
+  useEffect(() => {
+    if (reduce || paused || total <= 1) return;
+    const t = setInterval(() => setActive((a) => (a + 1) % total), 1500);
+    return () => clearInterval(t);
+  }, [reduce, paused, total, active]);
+
   const current = steps[active] ?? steps[0];
   if (!current) return null;
 
@@ -88,10 +96,16 @@ export function HowWeWork({
         <div className="texture-grid absolute inset-0 opacity-[0.05]" />
       </div>
 
-      <div className="container relative py-section">
+      <div
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocusCapture={() => setPaused(true)}
+        onBlurCapture={() => setPaused(false)}
+        className="container relative py-section"
+      >
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="mono-label text-accent-text">03 / HOW WE WORK</p>
+            <p className="mono-label text-accent-text">HOW WE WORK</p>
             <h2 className="display-lg mt-3 max-w-[20ch]">
               {content.headline ?? "From Consultation to Handover."}
             </h2>
@@ -116,7 +130,7 @@ export function HowWeWork({
                 id={tabId(i)}
                 role="tab"
                 aria-selected={on}
-                aria-controls={panelId(i)}
+                aria-controls={PANEL_ID}
                 tabIndex={on ? 0 : -1}
                 type="button"
                 onClick={() => setActive(i)}
@@ -160,7 +174,7 @@ export function HowWeWork({
           </span>
           <div
             role="tabpanel"
-            id={panelId(active)}
+            id={PANEL_ID}
             aria-labelledby={tabId(active)}
             tabIndex={0}
             className="min-h-[7rem]"

@@ -35,26 +35,26 @@ export function Footer({
   return (
     <footer className="dark bg-background text-foreground">
       <div className="container py-compact">
-        <div className="mb-14 flex items-center gap-4">
+        <div className="mb-9 flex items-center gap-4">
           <SignalMeter variant="footer" className="flex-1" />
           <span className="mono-label shrink-0 text-muted-foreground">
             OUTPUT — TANGERANG, ID
           </span>
         </div>
 
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.1fr]">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.1fr] lg:gap-10">
           <div>
             <Link href="/" aria-label="ACTA — Beranda" className="inline-block">
-              <ActaLogo className="h-12" />
+              <ActaLogo className="h-10" />
             </Link>
-            <p className="display-md mt-4 max-w-[16ch] text-foreground">
+            <p className="heading-lg mt-4 max-w-[16ch] text-foreground">
               {settings?.tagline ?? "Smarter Systems. Real Impact."}
             </p>
-            <p className="body-sm mt-4 max-w-[42ch] text-muted-foreground">
+            <p className="body-sm mt-3 max-w-[42ch] text-muted-foreground">
               {settings?.footer_description ??
                 "Integrator sistem audio visual komersial untuk ruang rapat, auditorium, hall, dan gedung komersial di Jakarta & Tangerang."}
             </p>
-            <p className="mono-spec mt-6 text-muted-foreground">
+            <p className="mono-spec mt-4 text-muted-foreground">
               PT ACTA SOLUSI TEKNOLOGI — {(settings?.city ?? "Tangerang, Indonesia").toUpperCase()}
             </p>
           </div>
@@ -97,7 +97,7 @@ export function Footer({
           </FooterColumn>
         </div>
 
-        <div className="mt-16 flex flex-col gap-1 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-1 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="caption text-muted-foreground">
             © {year} PT ACTA Solusi Teknologi. All rights reserved.
           </p>
@@ -113,8 +113,8 @@ export function Footer({
 function FooterColumn({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mono-label mb-5 text-muted-foreground">{label}</p>
-      <ul className="space-y-3">{children}</ul>
+      <p className="mono-label mb-4 text-muted-foreground">{label}</p>
+      <ul className="space-y-2">{children}</ul>
     </div>
   );
 }

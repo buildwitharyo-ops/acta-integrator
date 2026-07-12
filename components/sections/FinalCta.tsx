@@ -27,7 +27,7 @@ export function FinalCta({
   ].join(" · ");
 
   return (
-    <section className="dark relative overflow-hidden bg-card text-foreground">
+    <section className="relative overflow-hidden bg-card text-foreground">
       <DottedSurface />
       <div
         aria-hidden
