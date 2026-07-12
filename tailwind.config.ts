@@ -87,6 +87,10 @@ export default {
           from: { transform: "translate(-50%, -50%) rotate(0turn)" },
           to: { transform: "translate(-50%, -50%) rotate(1turn)" },
         },
+        "scroll-y": {
+          from: { transform: "translateY(0)" },
+          to: { transform: "translateY(-50%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -94,6 +98,7 @@ export default {
         marquee: "marquee 32s linear infinite",
         "status-pulse": "status-pulse 2s ease-in-out infinite",
         orbit: "orbit 3.5s linear infinite",
+        "scroll-y": "scroll-y 40s linear infinite",
       },
     },
   },

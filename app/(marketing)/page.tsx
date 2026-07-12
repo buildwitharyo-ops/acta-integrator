@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
 import { MarqueeStrip } from "@/components/shared/MarqueeStrip";
-import { MeterDivider } from "@/components/shared/MeterDivider";
 import { Reveal } from "@/components/shared/Reveal";
 import { ArticlesPreview } from "@/components/sections/ArticlesPreview";
 import { CatalogTeaser } from "@/components/sections/CatalogTeaser";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Hero, type HeroContent } from "@/components/sections/Hero";
 import { HowWeWork } from "@/components/sections/HowWeWork";
-import { Proof } from "@/components/sections/Proof";
+import { ImpactSection } from "@/components/sections/ImpactSection";
 import { SolutionsBento } from "@/components/sections/SolutionsBento";
-import { WhyActa } from "@/components/sections/WhyActa";
+import { Testimonials } from "@/components/sections/Testimonials";
 import { BRAND_LOGOS } from "@/lib/brand-logos";
 import { getMixedArticleFeed } from "@/lib/queries/articles";
 import { getCategoryPreviews } from "@/lib/queries/products";
-import { getPublishedProjects } from "@/lib/queries/projects";
 import { getPageSections } from "@/lib/queries/pages";
 import { getSiteSettings } from "@/lib/queries/settings";
 import { getSolutions } from "@/lib/queries/solutions";
@@ -27,15 +25,13 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function Home() {
-  const [sections, settings, solutions, categoryPreviews, projects, articles] =
-    await Promise.all([
-      getPageSections("home"),
-      getSiteSettings(),
-      getSolutions(),
-      getCategoryPreviews(),
-      getPublishedProjects(),
-      getMixedArticleFeed(),
-    ]);
+  const [sections, settings, solutions, categoryPreviews, articles] = await Promise.all([
+    getPageSections("home"),
+    getSiteSettings(),
+    getSolutions(),
+    getCategoryPreviews(),
+    getMixedArticleFeed(),
+  ]);
 
   const get = <T,>(key: string): T => (sections[key] ?? {}) as unknown as T;
   const trust = get<{ label?: string }>("trust_strip");
@@ -67,20 +63,12 @@ export default async function Home() {
         />
       </Reveal>
 
-      <MeterDivider annotation="05 / SELECTED WORK" className="container my-4" />
-
       <Reveal>
-        <Proof content={get<{ eyebrow?: string; headline?: string }>("proof")} projects={projects} />
+        <ImpactSection />
       </Reveal>
 
       <Reveal>
-        <WhyActa
-          content={get<{
-            headline?: string;
-            intro?: string;
-            points?: { title?: string; description?: string }[];
-          }>("why_acta")}
-        />
+        <Testimonials />
       </Reveal>
 
       <Reveal>
