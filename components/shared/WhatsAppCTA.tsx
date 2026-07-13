@@ -9,9 +9,12 @@ type WhatsAppCTAProps = {
   context: WaContext;
   name?: string;
   items?: string[];
+  message?: string;
   label?: string;
   size?: "sm" | "default" | "lg";
   emphasis?: "default" | "orbit";
+  buttonVariant?: "whatsapp" | "secondary" | "glass";
+  trackContext?: string;
   className?: string;
 };
 
@@ -25,14 +28,17 @@ export function WhatsAppCTA({
   context,
   name,
   items,
+  message,
   label = "Minta Penawaran",
   size = "default",
   emphasis = "default",
+  buttonVariant = "whatsapp",
+  trackContext,
   className,
 }: WhatsAppCTAProps) {
-  const href = buildWaLink({ context, name, items });
+  const href = buildWaLink({ context, name, items, message });
   const track = () =>
-    trackEvent("whatsapp_click", { context, item: name ?? items?.join(", ") ?? null });
+    trackEvent("whatsapp_click", { context: trackContext ?? context, item: name ?? items?.join(", ") ?? null });
 
   if (emphasis === "orbit") {
     return (
@@ -71,7 +77,7 @@ export function WhatsAppCTA({
       target="_blank"
       rel="noopener noreferrer"
       onClick={track}
-      className={cn(buttonVariants({ variant: "whatsapp", size }), className)}
+      className={cn(buttonVariants({ variant: buttonVariant, size }), className)}
     >
       <WhatsAppGlyph className="h-4 w-4" />
       {label}

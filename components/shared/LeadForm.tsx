@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { cloneElement, useState, type ReactElement } from "react";
 import { usePathname } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -86,25 +86,29 @@ export function LeadForm({
         </label>
       </div>
 
-      <Field label="Nama" error={errors.name?.message}>
+      <Field id="lead-name" label="Nama" error={errors.name?.message}>
         <Input placeholder="Nama Anda" {...register("name")} />
       </Field>
-      <Field label="Perusahaan">
+      <Field id="lead-company" label="Perusahaan">
         <Input placeholder="Nama perusahaan (opsional)" {...register("company")} />
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Email" error={errors.email?.message}>
+        <Field id="lead-email" label="Email" error={errors.email?.message}>
           <Input type="email" placeholder="nama@perusahaan.com" {...register("email")} />
         </Field>
-        <Field label="No. WhatsApp" error={errors.phone?.message}>
+        <Field id="lead-phone" label="No. WhatsApp" error={errors.phone?.message}>
           <Input placeholder="0812…" {...register("phone")} />
         </Field>
       </div>
-      <Field label="Kebutuhan">
+      <Field id="lead-message" label="Kebutuhan">
         <Textarea rows={4} placeholder="Ceritakan kebutuhan sistem AV Anda." {...register("message")} />
       </Field>
 
-      {status === "error" && <p className="body-sm text-destructive">{errorMsg}</p>}
+      {status === "error" && (
+        <p role="alert" className="body-sm text-destructive">
+          {errorMsg}
+        </p>
+      )}
 
       <Button type="submit" disabled={status === "submitting"} className="w-full">
         {status === "submitting" ? "Mengirim…" : "Kirim Permintaan"}
@@ -117,19 +121,32 @@ export function LeadForm({
 }
 
 function Field({
+  id,
   label,
   error,
   children,
 }: {
+  id: string;
   label: string;
   error?: string;
-  children: React.ReactNode;
+  children: ReactElement<Record<string, unknown>>;
 }) {
+  const errorId = `${id}-error`;
   return (
     <div className="space-y-1.5">
-      <Label className="body-sm font-medium">{label}</Label>
-      {children}
-      {error ? <p className="body-sm text-destructive">{error}</p> : null}
+      <Label htmlFor={id} className="body-sm font-medium">
+        {label}
+      </Label>
+      {cloneElement(children, {
+        id,
+        "aria-invalid": error ? true : undefined,
+        "aria-describedby": error ? errorId : undefined,
+      })}
+      {error ? (
+        <p id={errorId} role="alert" className="body-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

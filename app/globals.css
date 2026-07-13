@@ -210,3 +210,16 @@
     }
   }
 }
+
+/* Global reduced-motion guard — neutralises all CSS transitions/animations (hover lifts,
+   meters, gallery zoom, etc.). motion/react components handle reduced motion separately. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

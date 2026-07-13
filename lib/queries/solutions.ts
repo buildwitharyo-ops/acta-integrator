@@ -83,7 +83,26 @@ export async function getSolutionBySlugOrNotFound(slug: string, opts?: { preview
   return solution;
 }
 
+// Solutions relevant to a product category — category landing internal linking (03 §6.2).
+export function getSolutionsForCategory(categorySlug: string) {
+  return unstable_cache(
+    async () => {
+      const supabase = createPublicClient();
+      const { data } = await supabase
+        .from("v_solutions")
+        .select("slug, name, tier, value_prop")
+        .contains("related_category_slugs", [categorySlug])
+        .order("tier")
+        .order("sort_order");
+      return data ?? [];
+    },
+    ["category-solutions", categorySlug],
+    { tags: ["solutions", "products"] },
+  )();
+}
+
 // Related products on solution detail: manual product_solutions order, else category fallback (keputusan #21).
+// Attaches the first product image (public columns only — never internal_price).
 export function getSolutionProducts(slug: string) {
   return unstable_cache(
     async () => {
@@ -101,22 +120,45 @@ export function getSolutionProducts(slug: string) {
         .eq("solution_id", solution.id!)
         .order("sort_order");
 
-      if (rel && rel.length > 0) {
-        const ids = rel.map((r) => r.product_id);
+      let products: Awaited<ReturnType<typeof loadByIds>> = [];
+      async function loadByIds(ids: string[]) {
         const { data } = await supabase.from("v_products").select("*").in("id", ids);
         const order = new Map(ids.map((id, i) => [id, i]));
-        return (data ?? []).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+        return (data ?? []).sort((a, b) => (order.get(a.id ?? "") ?? 0) - (order.get(b.id ?? "") ?? 0));
       }
 
-      const categories = solution.related_category_slugs ?? [];
-      if (categories.length === 0) return [];
-      const { data } = await supabase
-        .from("v_products")
-        .select("*")
-        .in("category_slug", categories)
-        .order("created_at", { ascending: false })
-        .limit(4);
-      return data ?? [];
+      if (rel && rel.length > 0) {
+        const relIds = rel.map((r) => r.product_id).filter((id): id is string => Boolean(id));
+        products = await loadByIds(relIds);
+      } else {
+        const categories = solution.related_category_slugs ?? [];
+        if (categories.length === 0) return [];
+        const { data } = await supabase
+          .from("v_products")
+          .select("*")
+          .in("category_slug", categories)
+          .order("created_at", { ascending: false })
+          .limit(4);
+        products = data ?? [];
+      }
+
+      products = products.slice(0, 4);
+      const ids = products.map((p) => p.id).filter((id): id is string => Boolean(id));
+      const { data: images } = ids.length
+        ? await supabase
+            .from("v_product_images")
+            .select("product_id, sort_order, storage_path, external_url")
+            .in("product_id", ids)
+            .order("sort_order")
+        : { data: [] };
+      const firstImage = new Map<string, { storage_path: string | null; external_url: string | null }>();
+      for (const img of images ?? []) {
+        if (img.product_id && !firstImage.has(img.product_id)) {
+          firstImage.set(img.product_id, { storage_path: img.storage_path, external_url: img.external_url });
+        }
+      }
+
+      return products.map((p) => ({ ...p, image: p.id ? firstImage.get(p.id) ?? null : null }));
     },
     ["solution-products", slug],
     { tags: ["solutions", `solution:${slug}`, "products"] },

@@ -96,15 +96,15 @@ export function Navbar({
         <nav className="hidden items-center gap-1 lg:flex">
           <MegaTrigger
             label="Solutions"
+            href="/solutions"
             active={open === "solutions"}
             onOpen={() => setOpen("solutions")}
-            onClose={() => setOpen(null)}
           />
           <MegaTrigger
             label="Products"
+            href="/products"
             active={open === "products"}
             onOpen={() => setOpen("products")}
-            onClose={() => setOpen(null)}
           />
           {LINKS.map((l) => (
             <NavLink key={l.href} href={l.href} active={pathname.startsWith(l.href)}>
@@ -266,30 +266,30 @@ function ProductsMega({ categories }: { categories: NavCategory[] }) {
 
 function MegaTrigger({
   label,
+  href,
   active,
   onOpen,
-  onClose,
 }: {
   label: string;
+  href: string;
   active: boolean;
   onOpen: () => void;
-  onClose: () => void;
 }) {
+  const pathname = usePathname();
   return (
-    <button
-      type="button"
-      aria-haspopup="true"
+    <Link
+      href={href}
       aria-expanded={active}
       onMouseEnter={onOpen}
-      onClick={active ? onClose : onOpen}
+      onFocus={onOpen}
       className={cn(
         "inline-flex items-center gap-1 rounded-pill px-3 py-2 text-[0.95rem] transition-colors",
-        active ? "text-foreground" : "text-foreground/80 hover:text-foreground",
+        active || pathname.startsWith(href) ? "text-foreground" : "text-foreground/80 hover:text-foreground",
       )}
     >
       {label}
       <ChevronDown className={cn("h-4 w-4 transition-transform", active && "rotate-180")} />
-    </button>
+    </Link>
   );
 }
 
@@ -375,6 +375,11 @@ function MobileMenu({
                     </Link>
                   </li>
                 ))}
+                <li className="pt-1">
+                  <Link href="/solutions" className="mono-label text-accent-text">
+                    Lihat Semua Solutions →
+                  </Link>
+                </li>
               </ul>
             </AccordionContent>
           </AccordionItem>

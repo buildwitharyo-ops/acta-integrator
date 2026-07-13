@@ -25,6 +25,22 @@ export function getArticles(type: ArticleType) {
   )();
 }
 
+export function getArticleCategories(type: ArticleType) {
+  return unstable_cache(
+    async () => {
+      const supabase = createPublicClient();
+      const { data } = await supabase
+        .from("v_article_categories")
+        .select("name, slug, sort_order")
+        .eq("type", type)
+        .order("sort_order");
+      return data ?? [];
+    },
+    ["article-categories", type],
+    { tags: [type] },
+  )();
+}
+
 export function getFeaturedArticle(type: ArticleType) {
   return unstable_cache(
     async () => {
@@ -143,6 +159,68 @@ export function getRelatedArticles(type: ArticleType, slug: string, tags: string
     },
     ["article-related", type, slug],
     { tags: [type, `${type}:${slug}`] },
+  )();
+}
+
+// Manual related products on an article detail (07 §4.4). Compact cards, never price. Public columns only.
+export function getArticleProducts(type: ArticleType, slug: string) {
+  return unstable_cache(
+    async () => {
+      const supabase = createPublicClient();
+      const { data: article } = await supabase
+        .from("v_articles")
+        .select("id")
+        .eq("type", type)
+        .eq("slug", slug)
+        .maybeSingle();
+      if (!article) return [];
+
+      const { data: rel } = await supabase
+        .from("v_article_products")
+        .select("product_id, sort_order")
+        .eq("article_id", article.id!)
+        .order("sort_order");
+      const ids = (rel ?? []).map((r) => r.product_id).filter((id): id is string => Boolean(id));
+      if (!ids.length) return [];
+
+      const { data: products } = await supabase.from("v_products").select("*").in("id", ids);
+      const order = new Map(ids.map((id, i) => [id, i]));
+      const sorted = (products ?? []).sort((a, b) => (order.get(a.id ?? "") ?? 0) - (order.get(b.id ?? "") ?? 0)).slice(0, 4);
+
+      const { data: images } = await supabase
+        .from("v_product_images")
+        .select("product_id, sort_order, storage_path, external_url")
+        .in("product_id", sorted.map((p) => p.id!))
+        .order("sort_order");
+      const firstImage = new Map<string, { storage_path: string | null; external_url: string | null }>();
+      for (const img of images ?? []) {
+        if (img.product_id && !firstImage.has(img.product_id)) {
+          firstImage.set(img.product_id, { storage_path: img.storage_path, external_url: img.external_url });
+        }
+      }
+      return sorted.map((p) => ({ ...p, image: p.id ? firstImage.get(p.id) ?? null : null }));
+    },
+    ["article-products", type, slug],
+    { tags: [type, `${type}:${slug}`, "products"] },
+  )();
+}
+
+// Related articles on a solution detail (05 §3.7): union news+learn sharing solution.tags, 3 newest.
+export function getSolutionArticles(slug: string, tags: string[]) {
+  return unstable_cache(
+    async () => {
+      if (!tags || tags.length === 0) return [];
+      const supabase = createPublicClient();
+      const { data } = await supabase
+        .from("v_articles")
+        .select("*")
+        .overlaps("tags", tags)
+        .order("published_at", { ascending: false })
+        .limit(3);
+      return data ?? [];
+    },
+    ["solution-articles", slug],
+    { tags: ["news", "learn", `solution:${slug}`] },
   )();
 }
 

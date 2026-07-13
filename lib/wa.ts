@@ -7,9 +7,14 @@ type BuildWaLinkArgs = {
   name?: string;
   slug?: string;
   items?: string[];
+  message?: string;
 };
 
-export function buildWaLink({ context, name, slug, items }: BuildWaLinkArgs): string {
+export function buildWaLink({ context, name, slug, items, message }: BuildWaLinkArgs): string {
+  if (message?.trim()) {
+    return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message.trim())}`;
+  }
+
   let text: string;
 
   switch (context) {

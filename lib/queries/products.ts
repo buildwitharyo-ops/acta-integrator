@@ -160,6 +160,198 @@ export const getCategoryPreviews = unstable_cache(
   { tags: ["products"] },
 );
 
+export type CatalogSpecValue = {
+  key: string | null;
+  label: string | null;
+  spec_group: string | null;
+  data_type: string | null;
+  unit: string | null;
+  is_filterable: boolean | null;
+  value_text: string | null;
+  value_number: number | null;
+  value_boolean: boolean | null;
+  value_options: string[] | null;
+};
+
+// Full published catalog as ONE cached SSG dataset — the client grid filters/searches over this (06 §1.3, 09 §0 #12).
+export const getCatalogProducts = unstable_cache(
+  async () => {
+    const supabase = createPublicClient();
+    const { data: products } = await supabase
+      .from("v_products")
+      .select("id,name,slug,brand_name,brand_slug,category_slug,short_spec,is_featured,created_at")
+      .order("created_at", { ascending: false });
+    if (!products?.length) return [];
+
+    const ids = products.map((p) => p.id).filter((id): id is string => Boolean(id));
+    const [{ data: images }, { data: links }, { data: specVals }] = await Promise.all([
+      supabase
+        .from("v_product_images")
+        .select("product_id, sort_order, storage_path, external_url")
+        .in("product_id", ids)
+        .order("sort_order"),
+      supabase.from("v_product_solutions").select("product_id, solution_id").in("product_id", ids),
+      supabase
+        .from("v_product_spec_values")
+        .select("product_id, key, label, spec_group, data_type, unit, is_filterable, value_text, value_number, value_boolean, value_options")
+        .in("product_id", ids),
+    ]);
+
+    const firstImage = new Map<string, { storage_path: string | null; external_url: string | null }>();
+    for (const img of images ?? []) {
+      if (img.product_id && !firstImage.has(img.product_id)) {
+        firstImage.set(img.product_id, { storage_path: img.storage_path, external_url: img.external_url });
+      }
+    }
+    const solByProduct = new Map<string, string[]>();
+    for (const l of links ?? []) {
+      if (l.product_id && l.solution_id) {
+        const arr = solByProduct.get(l.product_id) ?? [];
+        arr.push(l.solution_id);
+        solByProduct.set(l.product_id, arr);
+      }
+    }
+    const specByProduct = new Map<string, CatalogSpecValue[]>();
+    for (const s of specVals ?? []) {
+      if (!s.product_id) continue;
+      const arr = specByProduct.get(s.product_id) ?? [];
+      arr.push(s as CatalogSpecValue);
+      specByProduct.set(s.product_id, arr);
+    }
+
+    return products.map((p) => ({
+      ...p,
+      image: p.id ? firstImage.get(p.id) ?? null : null,
+      solution_ids: p.id ? solByProduct.get(p.id) ?? [] : [],
+      specs: p.id ? specByProduct.get(p.id) ?? [] : [],
+    }));
+  },
+  ["catalog-products"],
+  { tags: ["products"] },
+);
+
+export type CatalogProduct = Awaited<ReturnType<typeof getCatalogProducts>>[number];
+
+// Spec definitions with resolved category_slug — drives dynamic per-category filters (06 §1.2) + compare rows.
+export const getSpecDefinitions = unstable_cache(
+  async () => {
+    const supabase = createPublicClient();
+    const [{ data: defs }, { data: cats }] = await Promise.all([
+      supabase.from("v_spec_definitions").select("*").order("sort_order"),
+      supabase.from("v_product_categories").select("id, slug"),
+    ]);
+    const catSlug = new Map((cats ?? []).map((c) => [c.id, c.slug]));
+    return (defs ?? []).map((d) => ({
+      ...d,
+      category_slug: d.category_id ? catSlug.get(d.category_id) ?? null : null,
+    }));
+  },
+  ["spec-definitions"],
+  { tags: ["products"] },
+);
+
+export type SpecDefinition = Awaited<ReturnType<typeof getSpecDefinitions>>[number];
+
+// Compare dataset: requested products (by slug) with per-key spec values + comparable defs per category (06 §3).
+export function getCompareData(slugs: string[]) {
+  const key = [...slugs].sort().join(",");
+  return unstable_cache(
+    async () => {
+      const supabase = createPublicClient();
+      const { data: products } = await supabase.from("v_products").select("*").in("slug", slugs);
+      if (!products?.length) return { products: [], specDefsByCategory: {} as Record<string, SpecDefinition[]> };
+
+      const ids = products.map((p) => p.id).filter((id): id is string => Boolean(id));
+      const catSlugs = [...new Set(products.map((p) => p.category_slug).filter((s): s is string => Boolean(s)))];
+
+      const [{ data: images }, { data: specVals }, { data: cats }] = await Promise.all([
+        supabase
+          .from("v_product_images")
+          .select("product_id, sort_order, storage_path, external_url")
+          .in("product_id", ids)
+          .order("sort_order"),
+        supabase.from("v_product_spec_values").select("*").in("product_id", ids),
+        supabase.from("v_product_categories").select("id, slug, name").in("slug", catSlugs),
+      ]);
+
+      const catIds = (cats ?? []).map((c) => c.id).filter((id): id is string => Boolean(id));
+      const { data: defs } = catIds.length
+        ? await supabase.from("v_spec_definitions").select("*").in("category_id", catIds).order("sort_order")
+        : { data: [] };
+
+      const idToSlug = new Map((cats ?? []).map((c) => [c.id, c.slug]));
+      const nameBySlug = new Map((cats ?? []).map((c) => [c.slug, c.name]));
+
+      const specDefsByCategory: Record<string, SpecDefinition[]> = {};
+      for (const d of defs ?? []) {
+        const slug = d.category_id ? idToSlug.get(d.category_id) : null;
+        if (!slug) continue;
+        (specDefsByCategory[slug] ??= []).push({ ...d, category_slug: slug } as SpecDefinition);
+      }
+
+      const firstImage = new Map<string, { storage_path: string | null; external_url: string | null }>();
+      for (const img of images ?? []) {
+        if (img.product_id && !firstImage.has(img.product_id)) {
+          firstImage.set(img.product_id, { storage_path: img.storage_path, external_url: img.external_url });
+        }
+      }
+      const specByProduct = new Map<string, Record<string, CatalogSpecValue>>();
+      for (const s of specVals ?? []) {
+        if (!s.product_id || !s.key) continue;
+        const rec = specByProduct.get(s.product_id) ?? {};
+        rec[s.key] = s as CatalogSpecValue;
+        specByProduct.set(s.product_id, rec);
+      }
+
+      const shaped = products.map((p) => ({
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        brand_name: p.brand_name,
+        short_spec: p.short_spec,
+        category_slug: p.category_slug,
+        category_name: p.category_slug ? nameBySlug.get(p.category_slug) ?? null : null,
+        image: p.id ? firstImage.get(p.id) ?? null : null,
+        specValues: (p.id ? specByProduct.get(p.id) : null) ?? ({} as Record<string, CatalogSpecValue>),
+      }));
+
+      return { products: shaped, specDefsByCategory };
+    },
+    ["compare", key],
+    { tags: ["products"] },
+  )();
+}
+
+export type CompareData = Awaited<ReturnType<typeof getCompareData>>;
+export type CompareProduct = CompareData["products"][number];
+
+// Published projects (with a photo) that use this product — "Contoh Implementasi" (06 §2.4). Client names never exposed.
+export function getProductImplementation(slug: string) {
+  return unstable_cache(
+    async () => {
+      const supabase = createPublicClient();
+      const { data: base } = await supabase.from("v_products").select("id").eq("slug", slug).maybeSingle();
+      if (!base) return [];
+
+      const { data: links } = await supabase
+        .from("v_project_products")
+        .select("project_id")
+        .eq("product_id", base.id!);
+      const projectIds = (links ?? []).map((l) => l.project_id).filter((id): id is string => Boolean(id));
+      if (!projectIds.length) return [];
+
+      const { data: projects } = await supabase
+        .from("v_projects")
+        .select("*")
+        .in("id", projectIds)
+        .order("sort_order");
+      return (projects ?? []).filter((p) => p.cover_image_path || p.cover_image_url_ext);
+    },
+    ["product-implementation", slug],
+    { tags: ["products", `product:${slug}`] },
+  )();
+}
+
 async function loadProductDetail(slug: string) {
   const supabase = createPublicClient();
   const { data: product } = await supabase
@@ -217,6 +409,13 @@ export async function getProductBySlug(slug: string, { preview = false } = {}) {
   })();
 }
 
+// Published-only detail (single concrete shape) for the SSG render — draft preview uses getProductBySlug (Fase 10).
+export function getPublishedProductDetail(slug: string) {
+  return unstable_cache(() => loadProductDetail(slug), ["product", slug], {
+    tags: ["products", `product:${slug}`],
+  })();
+}
+
 export async function getProductBySlugOrNotFound(slug: string, opts?: { preview?: boolean }) {
   const product = await getProductBySlug(slug, opts);
   if (!product) notFound();
@@ -241,45 +440,64 @@ export function getSimilarProducts(slug: string) {
         .eq("product_id", base.id!)
         .order("sort_order");
 
+      let result: Awaited<ReturnType<typeof getProducts>> = [];
+
       if (manual && manual.length > 0) {
         const ids = manual.map((m) => m.similar_product_id);
         const { data } = await supabase.from("v_products").select("*").in("id", ids);
         const order = new Map(ids.map((id, i) => [id, i]));
-        return (data ?? []).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+        result = (data ?? []).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)).slice(0, 4);
+      } else {
+        // Fallback: same category, ranked by product_solutions overlap with the base, then newest.
+        const { data: baseLinks } = await supabase
+          .from("v_product_solutions")
+          .select("solution_id")
+          .eq("product_id", base.id!);
+        const baseSolutions = new Set((baseLinks ?? []).map((l) => l.solution_id));
+
+        const { data: candidates } = await supabase
+          .from("v_products")
+          .select("*")
+          .eq("category_slug", base.category_slug!)
+          .neq("id", base.id!);
+        if (!candidates || candidates.length === 0) return [];
+
+        const { data: candLinks } = await supabase
+          .from("v_product_solutions")
+          .select("product_id, solution_id")
+          .in("product_id", candidates.map((c) => c.id!));
+        const overlap = new Map<string, number>();
+        for (const link of candLinks ?? []) {
+          if (link.product_id && baseSolutions.has(link.solution_id)) {
+            overlap.set(link.product_id, (overlap.get(link.product_id) ?? 0) + 1);
+          }
+        }
+
+        result = candidates
+          .sort((a, b) => {
+            const byOverlap = (overlap.get(b.id!) ?? 0) - (overlap.get(a.id!) ?? 0);
+            if (byOverlap !== 0) return byOverlap;
+            return (b.created_at ?? "").localeCompare(a.created_at ?? "");
+          })
+          .slice(0, 4);
       }
 
-      // Fallback: same category, ranked by product_solutions overlap with the base, then newest.
-      const { data: baseLinks } = await supabase
-        .from("v_product_solutions")
-        .select("solution_id")
-        .eq("product_id", base.id!);
-      const baseSolutions = new Set((baseLinks ?? []).map((l) => l.solution_id));
-
-      const { data: candidates } = await supabase
-        .from("v_products")
-        .select("*")
-        .eq("category_slug", base.category_slug!)
-        .neq("id", base.id!);
-      if (!candidates || candidates.length === 0) return [];
-
-      const { data: candLinks } = await supabase
-        .from("v_product_solutions")
-        .select("product_id, solution_id")
-        .in("product_id", candidates.map((c) => c.id!));
-      const overlap = new Map<string, number>();
-      for (const link of candLinks ?? []) {
-        if (link.product_id && baseSolutions.has(link.solution_id)) {
-          overlap.set(link.product_id, (overlap.get(link.product_id) ?? 0) + 1);
+      const ids = result.map((p) => p.id).filter((id): id is string => Boolean(id));
+      const { data: images } = ids.length
+        ? await supabase
+            .from("v_product_images")
+            .select("product_id, sort_order, storage_path, external_url")
+            .in("product_id", ids)
+            .order("sort_order")
+        : { data: [] };
+      const firstImage = new Map<string, { storage_path: string | null; external_url: string | null }>();
+      for (const img of images ?? []) {
+        if (img.product_id && !firstImage.has(img.product_id)) {
+          firstImage.set(img.product_id, { storage_path: img.storage_path, external_url: img.external_url });
         }
       }
 
-      return candidates
-        .sort((a, b) => {
-          const byOverlap = (overlap.get(b.id!) ?? 0) - (overlap.get(a.id!) ?? 0);
-          if (byOverlap !== 0) return byOverlap;
-          return (b.created_at ?? "").localeCompare(a.created_at ?? "");
-        })
-        .slice(0, 4);
+      return result.map((p) => ({ ...p, image: p.id ? firstImage.get(p.id) ?? null : null }));
     },
     ["product-similar", slug],
     { tags: ["products", `product:${slug}`] },

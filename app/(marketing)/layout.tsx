@@ -1,5 +1,7 @@
 import { Footer } from "@/components/shared/Footer";
+import { JsonLd } from "@/components/shared/JsonLd";
 import { Navbar } from "@/components/shared/Navbar";
+import { organizationNode } from "@/lib/jsonld";
 import { mediaUrl } from "@/lib/media";
 import { getCategoryPreviews } from "@/lib/queries/products";
 import { getSiteSettings } from "@/lib/queries/settings";
@@ -33,6 +35,7 @@ export default async function MarketingLayout({
 
   return (
     <>
+      <JsonLd data={organizationNode({ email: settings?.email, instagram: settings?.instagram })} />
       <Navbar
         solutions={navSolutions}
         categories={navCategories}

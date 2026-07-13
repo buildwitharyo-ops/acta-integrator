@@ -168,7 +168,7 @@ function CardArrow() {
       icon={ArrowRight01Icon}
       size={30}
       strokeWidth={1.5}
-      className="shrink-0 text-foreground transition-transform duration-300 group-hover:translate-x-1.5"
+      className="shrink-0 text-foreground transition-transform duration-300 group-hover:translate-x-1"
     />
   );
 }
