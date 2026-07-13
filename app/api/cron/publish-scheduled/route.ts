@@ -4,8 +4,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
-// Vercel Cron (every 15 min) → flip due 'scheduled' articles to 'published' and revalidate (08 §3.5).
-// Protected by CRON_SECRET (Vercel Cron sends it as `Authorization: Bearer <secret>`).
+// Vercel Cron (once daily — Hobby tier caps cron at 1×/day; runs 00:00 UTC = 07:00 WIB) → flips every
+// due 'scheduled' article (scheduled_at <= now) to 'published' and revalidates (08 §3.5). Because the
+// run is daily, a scheduled article goes live at the next daily run at/after its scheduled_at, not at
+// the exact minute. Protected by CRON_SECRET (Vercel Cron sends it as `Authorization: Bearer <secret>`).
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret) return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 500 });
