@@ -26,7 +26,19 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Admin guard: /admin/* (except the login page) requires a session.
+  // Role authorization is verified in the (panel) layout, not here.
+  const path = request.nextUrl.pathname;
+  if (path.startsWith("/admin") && path !== "/admin/login" && !user) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/admin/login";
+    loginUrl.search = `next=${encodeURIComponent(path)}`;
+    return NextResponse.redirect(loginUrl);
+  }
 
   return response;
 }

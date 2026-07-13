@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { draftMode } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ArticleDetail } from "@/components/article/ArticleDetail";
 import { JsonLd } from "@/components/shared/JsonLd";
@@ -32,7 +33,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function LearnArticlePage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
-  const article = await getArticleBySlug("learn", slug);
+  const { isEnabled: preview } = await draftMode();
+  const article = await getArticleBySlug("learn", slug, { preview });
 
   if (!article) {
     const dest = await getRedirectDestination(`/learn/${slug}`);

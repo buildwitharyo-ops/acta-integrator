@@ -378,27 +378,81 @@ async function loadProductDetailDraft(slug: string) {
     .maybeSingle();
   if (!p) return null;
 
-  const [{ data: brand }, { data: cat }, { data: specs }, { data: images }] = await Promise.all([
+  const [{ data: brand }, { data: cat }, { data: rawSpecs }, { data: rawImages }] = await Promise.all([
     admin.from("brands").select("name, slug").eq("id", p.brand_id).maybeSingle(),
     admin.from("product_categories").select("slug").eq("id", p.category_id).maybeSingle(),
     admin
       .from("product_spec_values")
-      .select("product_id, spec_definition_id, value_text, value_number, value_boolean, value_options")
+      .select("spec_definition_id, value_text, value_number, value_boolean, value_options")
       .eq("product_id", p.id),
     admin
       .from("product_images")
-      .select("product_id, media_id, sort_order, image_annotation")
+      .select("media_id, sort_order, image_annotation")
       .eq("product_id", p.id)
       .order("sort_order"),
   ]);
+
+  // Join spec_definitions (skip archived) → match v_product_spec_values shape so SpecTable/compare render labels.
+  const defIds = (rawSpecs ?? []).map((s) => s.spec_definition_id).filter((x): x is string => Boolean(x));
+  const { data: defs } = defIds.length
+    ? await admin
+        .from("spec_definitions")
+        .select("id, key, label, spec_group, data_type, unit, sort_order, is_filterable, is_comparable, better_direction, is_archived")
+        .in("id", defIds)
+    : { data: [] };
+  const defById = new Map((defs ?? []).map((d) => [d.id, d]));
+  const specs = (rawSpecs ?? [])
+    .flatMap((s) => {
+      const d = s.spec_definition_id ? defById.get(s.spec_definition_id) : null;
+      if (!d || d.is_archived) return [];
+      return [{
+        product_id: p.id,
+        key: d.key,
+        label: d.label,
+        spec_group: d.spec_group,
+        data_type: d.data_type,
+        unit: d.unit,
+        sort_order: d.sort_order,
+        is_filterable: d.is_filterable,
+        is_comparable: d.is_comparable,
+        better_direction: d.better_direction,
+        value_text: s.value_text,
+        value_number: s.value_number,
+        value_boolean: s.value_boolean,
+        value_options: s.value_options,
+      }];
+    })
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+  // Join media → match v_product_images shape so the gallery resolves image URLs.
+  const mediaIds = (rawImages ?? []).map((i) => i.media_id).filter((x): x is string => Boolean(x));
+  const { data: mediaRows } = mediaIds.length
+    ? await admin.from("media").select("id, kind, storage_path, external_url, alt, is_placeholder").in("id", mediaIds)
+    : { data: [] };
+  const mediaById = new Map((mediaRows ?? []).map((m) => [m.id, m]));
+  const images = (rawImages ?? []).flatMap((i) => {
+    const m = i.media_id ? mediaById.get(i.media_id) : null;
+    if (!m) return [];
+    return [{
+      product_id: p.id,
+      sort_order: i.sort_order,
+      image_annotation: i.image_annotation,
+      media_id: m.id,
+      kind: m.kind,
+      storage_path: m.storage_path,
+      external_url: m.external_url,
+      alt: m.alt,
+      is_placeholder: m.is_placeholder,
+    }];
+  });
 
   return {
     ...p,
     brand_name: brand?.name ?? null,
     brand_slug: brand?.slug ?? null,
     category_slug: cat?.slug ?? null,
-    specs: specs ?? [],
-    images: images ?? [],
+    specs,
+    images,
   };
 }
 

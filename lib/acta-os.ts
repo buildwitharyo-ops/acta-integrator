@@ -109,3 +109,97 @@ export async function forwardLeadToActaOs(lead: ForwardLead): Promise<ForwardRes
     return { ok: false, error: e instanceof Error ? e.message : "ACTA-OS forward failed" };
   }
 }
+
+// ── Read side (09 §10.4): /admin/leads MONITORS ACTA-OS via the same read-only connection.
+// The site never mutates ACTA-OS from here — source of truth is the CRM.
+
+function osReadClient() {
+  const url = process.env.ACTA_OS_SUPABASE_URL;
+  const key = process.env.ACTA_OS_SUPABASE_SERVICE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+}
+
+// research_notes is written as "web:{page_url}; produk:{slug}; solusi:{slug}; form:{form_type}".
+function parseNotes(notes: string | null): { page_url: string; product_slug: string; solution_slug: string; form: string } {
+  const out = { page_url: "", product_slug: "", solution_slug: "", form: "" };
+  if (!notes) return out;
+  for (const part of notes.split(";")) {
+    const idx = part.indexOf(":");
+    if (idx < 0) continue;
+    const key = part.slice(0, idx).trim();
+    const val = part.slice(idx + 1).trim();
+    if (key === "web") out.page_url = val;
+    else if (key === "produk") out.product_slug = val === "-" ? "" : val;
+    else if (key === "solusi") out.solution_slug = val === "-" ? "" : val;
+    else if (key === "form") out.form = val;
+  }
+  return out;
+}
+
+export type ActaOsLead = {
+  id: string;
+  created_at: string | null;
+  status: string | null;
+  company_name: string | null;
+  contact_name: string | null;
+  target_need: string | null;
+  form: string;
+  page_url: string;
+  product_slug: string;
+  solution_slug: string;
+};
+
+export type ActaOsActivity = { id: string; type: string; body: string | null; created_at: string | null };
+
+type EmbeddedLead = {
+  id: string;
+  created_at: string | null;
+  status: string | null;
+  target_need: string | null;
+  research_notes: string | null;
+  companies: { name: string | null } | null;
+  contacts: { name: string | null } | null;
+};
+
+function shapeLead(row: EmbeddedLead): ActaOsLead {
+  const notes = parseNotes(row.research_notes);
+  return {
+    id: row.id,
+    created_at: row.created_at,
+    status: row.status,
+    company_name: row.companies?.name ?? null,
+    contact_name: row.contacts?.name ?? null,
+    target_need: row.target_need,
+    form: notes.form,
+    page_url: notes.page_url,
+    product_slug: notes.product_slug,
+    solution_slug: notes.solution_slug,
+  };
+}
+
+export async function getActaOsLeads(): Promise<{ ok: true; leads: ActaOsLead[] } | { ok: false; error: string }> {
+  const os = osReadClient();
+  if (!os) return { ok: false, error: "ACTA-OS belum dikonfigurasi." };
+  const { data, error } = await os
+    .from("leads")
+    .select("id, created_at, status, target_need, research_notes, companies(name), contacts(name)")
+    .eq("source", "website")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, leads: (data as unknown as EmbeddedLead[] | null ?? []).map(shapeLead) };
+}
+
+export async function getActaOsLeadDetail(
+  id: string,
+): Promise<{ ok: true; lead: ActaOsLead; activities: ActaOsActivity[] } | { ok: false; error: string }> {
+  const os = osReadClient();
+  if (!os) return { ok: false, error: "ACTA-OS belum dikonfigurasi." };
+  const [{ data: lead, error: lErr }, { data: acts }] = await Promise.all([
+    os.from("leads").select("id, created_at, status, target_need, research_notes, companies(name), contacts(name)").eq("id", id).maybeSingle(),
+    os.from("lead_activities").select("id, type, body, created_at").eq("lead_id", id).order("created_at", { ascending: true }),
+  ]);
+  if (lErr || !lead) return { ok: false, error: lErr?.message ?? "Lead tidak ditemukan." };
+  return { ok: true, lead: shapeLead(lead as unknown as EmbeddedLead), activities: (acts as ActaOsActivity[] | null) ?? [] };
+}

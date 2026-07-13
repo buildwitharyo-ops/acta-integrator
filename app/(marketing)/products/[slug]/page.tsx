@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { draftMode } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ArticleCard } from "@/components/shared/ArticleCard";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
@@ -13,6 +14,7 @@ import { mediaUrl } from "@/lib/media";
 import { getRelatedArticlesForProduct } from "@/lib/queries/articles";
 import { getRedirectDestination } from "@/lib/queries/redirects";
 import {
+  getProductBySlug,
   getProductCategories,
   getProductImplementation,
   getProducts,
@@ -45,7 +47,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function ProductDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
-  const product = await getPublishedProductDetail(slug);
+  const { isEnabled: preview } = await draftMode();
+  const product = await getProductBySlug(slug, { preview });
 
   if (!product) {
     const dest = await getRedirectDestination(`/products/${slug}`);

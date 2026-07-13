@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { IMAGE_REMOTE_HOSTS } from "./lib/image-hosts";
 
 // Legacy SEO slugs → new solution routes (03 §5.2/5.3). permanent: true → 308 (≈301).
 const legacyRedirects = [
@@ -18,14 +19,7 @@ const nextConfig: NextConfig = {
     return legacyRedirects;
   },
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "images.pexels.com" },
-      { protocol: "https", hostname: "**.supabase.co" },
-      { protocol: "https", hostname: "www.crestron.com" },
-      { protocol: "https", hostname: "www.qsc.com" },
-      { protocol: "https", hostname: "www.shure.com" },
-    ],
+    remotePatterns: IMAGE_REMOTE_HOSTS,
   },
 };
 

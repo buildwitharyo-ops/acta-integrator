@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { draftMode } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { JsonLd } from "@/components/shared/JsonLd";
@@ -50,7 +51,8 @@ type ListItem = { title?: string; body?: string; description?: string };
 
 export default async function SolutionDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
-  const solution = await getSolutionBySlug(slug);
+  const { isEnabled: preview } = await draftMode();
+  const solution = await getSolutionBySlug(slug, { preview });
 
   if (!solution) {
     const dest = await getRedirectDestination(`/solutions/${slug}`);
