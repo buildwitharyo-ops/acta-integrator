@@ -184,6 +184,26 @@ export async function setProductStatus(id: string, status: "draft" | "published"
   return { ok: true, id };
 }
 
+// Hard delete. RLS (adm_delete) lets editors remove DRAFTS only; admins remove anything. All child
+// rows (images/specs/relations) cascade; site_settings.featured_product_id is set null automatically.
+export async function deleteProduct(id: string): Promise<SaveResult> {
+  const { ctx, error } = await requireAdmin("editor");
+  if (!ctx) return { ok: false, error };
+  const admin = createAdminClient();
+  const { data: existing } = await admin.from("products").select("slug").eq("id", id).maybeSingle();
+
+  const supabase = await createClient();
+  const { data: deleted, error: delErr } = await supabase.from("products").delete().eq("id", id).select("id");
+  if (delErr) return { ok: false, error: "Gagal menghapus produk." };
+  if (!deleted || deleted.length === 0) return { ok: false, error: "Tidak bisa menghapus (produk published hanya bisa dihapus admin)." };
+
+  revalidateTag("products");
+  if (existing?.slug) revalidateTag(`product:${existing.slug}`);
+  revalidateTag("page:home"); // homepage catalog teaser / featured
+  revalidateTag("settings"); // featured_product_id may have been set null
+  return { ok: true, id };
+}
+
 // Inline "tambah brand" (editors may add brands; only admins may set is_authorized_dealer=true — RLS enforces).
 export async function createBrand(name: string): Promise<{ ok: true; id: string; name: string } | { ok: false; error: string }> {
   const { ctx, error } = await requireAdmin("editor");

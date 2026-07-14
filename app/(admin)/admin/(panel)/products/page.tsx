@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Plus } from "lucide-react";
+import { DeleteProductButton } from "@/components/admin/DeleteProductButton";
 import { StatusBadge } from "@/components/admin/fields";
 import { requireAdminPage } from "@/lib/admin/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -71,8 +72,11 @@ export default async function AdminProductsPage() {
                   <td className="px-4 py-2.5 text-muted-foreground">{p.brand_id ? brandName.get(p.brand_id) : "—"}</td>
                   <td className="px-4 py-2.5 text-muted-foreground">{p.category_id ? catName.get(p.category_id) : "—"}</td>
                   <td className="px-4 py-2.5"><StatusBadge status={p.status} /></td>
-                  <td className="px-4 py-2.5 text-right">
-                    <Link href={`/admin/products/${p.id}`} className="text-sm text-accent-text hover:underline">Edit</Link>
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center justify-end gap-1">
+                      <Link href={`/admin/products/${p.id}`} className="rounded px-2 py-1 text-sm text-accent-text hover:underline">Edit</Link>
+                      <DeleteProductButton id={p.id} name={p.name} status={p.status} />
+                    </div>
                   </td>
                 </tr>
               );
