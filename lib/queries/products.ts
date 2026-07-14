@@ -173,6 +173,14 @@ export type CatalogSpecValue = {
   value_options: string[] | null;
 };
 
+// Same shape, plus the columns getCompareData additionally needs (v_product_spec_values has both;
+// getCatalogProducts doesn't select these since catalog filtering never needed them).
+type CompareSpecValue = CatalogSpecValue & {
+  sort_order: number | null;
+  is_comparable: boolean | null;
+  better_direction: "higher" | "lower" | null;
+};
+
 // Full published catalog as ONE cached SSG dataset — the client grid filters/searches over this (06 §1.3, 09 §0 #12).
 export const getCatalogProducts = unstable_cache(
   async () => {
@@ -261,43 +269,33 @@ export const getSpecDefinitions = unstable_cache(
 
 export type SpecDefinition = Awaited<ReturnType<typeof getSpecDefinitions>>[number];
 
-// Compare dataset: requested products (by slug) with per-key spec values + comparable defs per
-// product TYPE (06 §3) — grouped by type, not category, since types within a category no longer
-// share a field set ("Less is More"; see product_types migration 2026-07-14).
+// Compare dataset: requested products (by slug) with per-key spec values + an ADAPTIVE comparable
+// row set per category — products in one category can now come from different product types with
+// disjoint field sets ("Less is More"), so instead of pulling one type's fixed template, a spec row
+// is shown only if EVERY product being compared side-by-side actually has a value for that key.
+// This lets Compare work across any 2+ products in a category (not just same-type siblings) while
+// never rendering a row that would be empty for someone in the comparison.
 export function getCompareData(slugs: string[]) {
   const key = [...slugs].sort().join(",");
   return unstable_cache(
     async () => {
       const supabase = createPublicClient();
       const { data: products } = await supabase.from("v_products").select("*").in("slug", slugs);
-      if (!products?.length) return { products: [], specDefsByType: {} as Record<string, SpecDefinition[]> };
+      if (!products?.length) return { products: [], specDefsByCategory: {} as Record<string, SpecDefinition[]> };
 
       const ids = products.map((p) => p.id).filter((id): id is string => Boolean(id));
-      const typeSlugs = [...new Set(products.map((p) => p.product_type_slug).filter((s): s is string => Boolean(s)))];
+      const catSlugs = [...new Set(products.map((p) => p.category_slug).filter((s): s is string => Boolean(s)))];
 
-      const [{ data: images }, { data: specVals }, { data: types }] = await Promise.all([
+      const [{ data: images }, { data: specVals }, { data: cats }] = await Promise.all([
         supabase
           .from("v_product_images")
           .select("product_id, sort_order, storage_path, external_url")
           .in("product_id", ids)
           .order("sort_order"),
         supabase.from("v_product_spec_values").select("*").in("product_id", ids),
-        supabase.from("v_product_types").select("id, slug, name").in("slug", typeSlugs),
+        supabase.from("v_product_categories").select("slug, name").in("slug", catSlugs),
       ]);
-
-      const typeIds = (types ?? []).map((t) => t.id).filter((id): id is string => Boolean(id));
-      const { data: defs } = typeIds.length
-        ? await supabase.from("v_spec_definitions").select("*").in("product_type_id", typeIds).order("sort_order")
-        : { data: [] };
-
-      const idToSlug = new Map((types ?? []).map((t) => [t.id, t.slug]));
-
-      const specDefsByType: Record<string, SpecDefinition[]> = {};
-      for (const d of defs ?? []) {
-        const slug = d.product_type_id ? idToSlug.get(d.product_type_id) : null;
-        if (!slug) continue;
-        (specDefsByType[slug] ??= []).push({ ...d, product_type_slug: slug } as SpecDefinition);
-      }
+      const categoryNameBySlug = new Map((cats ?? []).map((c) => [c.slug, c.name]));
 
       const firstImage = new Map<string, { storage_path: string | null; external_url: string | null }>();
       for (const img of images ?? []) {
@@ -305,11 +303,11 @@ export function getCompareData(slugs: string[]) {
           firstImage.set(img.product_id, { storage_path: img.storage_path, external_url: img.external_url });
         }
       }
-      const specByProduct = new Map<string, Record<string, CatalogSpecValue>>();
+      const specByProduct = new Map<string, Record<string, CompareSpecValue>>();
       for (const s of specVals ?? []) {
         if (!s.product_id || !s.key) continue;
         const rec = specByProduct.get(s.product_id) ?? {};
-        rec[s.key] = s as CatalogSpecValue;
+        rec[s.key] = s as CompareSpecValue;
         specByProduct.set(s.product_id, rec);
       }
 
@@ -320,13 +318,60 @@ export function getCompareData(slugs: string[]) {
         brand_name: p.brand_name,
         short_spec: p.short_spec,
         category_slug: p.category_slug,
+        category_name: p.category_slug ? categoryNameBySlug.get(p.category_slug) ?? null : null,
         product_type_slug: p.product_type_slug,
         product_type_name: p.product_type_name,
         image: p.id ? firstImage.get(p.id) ?? null : null,
-        specValues: (p.id ? specByProduct.get(p.id) : null) ?? ({} as Record<string, CatalogSpecValue>),
+        specValues: (p.id ? specByProduct.get(p.id) : null) ?? ({} as Record<string, CompareSpecValue>),
       }));
 
-      return { products: shaped, specDefsByType };
+      // Intersect keys within each category group: a row only exists if ALL products sharing that
+      // category group have a comparable value for it. Metadata (label/group/etc) comes from the
+      // first product's value for that key — fine even across different types, since a shared key
+      // reused across types in this catalog always means the same field (e.g. "connectivity").
+      const specDefsByCategory: Record<string, SpecDefinition[]> = {};
+      const byCategory = new Map<string, typeof shaped>();
+      for (const p of shaped) {
+        const cat = p.category_slug ?? "lainnya";
+        const arr = byCategory.get(cat) ?? [];
+        arr.push(p);
+        byCategory.set(cat, arr);
+      }
+      for (const [cat, group] of byCategory) {
+        const presence = new Map<string, number>();
+        const meta = new Map<string, CompareSpecValue>();
+        for (const p of group) {
+          for (const [k, sv] of Object.entries(p.specValues)) {
+            if (!sv.is_comparable) continue;
+            presence.set(k, (presence.get(k) ?? 0) + 1);
+            if (!meta.has(k)) meta.set(k, sv);
+          }
+        }
+        const rows = [...presence.entries()]
+          .filter(([, count]) => count === group.length)
+          .map(([k]) => {
+            const m = meta.get(k)!;
+            return {
+              id: k,
+              key: k,
+              label: m.label,
+              spec_group: m.spec_group,
+              data_type: m.data_type,
+              unit: m.unit,
+              sort_order: m.sort_order,
+              is_filterable: m.is_filterable,
+              is_comparable: true,
+              better_direction: m.better_direction,
+              category_slug: cat,
+              product_type_slug: null,
+              product_type_name: null,
+            } as unknown as SpecDefinition;
+          })
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+        specDefsByCategory[cat] = rows;
+      }
+
+      return { products: shaped, specDefsByCategory };
     },
     ["compare", key],
     { tags: ["products"] },

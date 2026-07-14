@@ -20,14 +20,17 @@ export const COMPARE_MAX = 4;
 
 type CompareContextValue = {
   items: CompareItem[];
-  // Products only meaningfully compare row-by-row within the same product TYPE — types within a
-  // category have disjoint spec fields since the product_types migration (2026-07-14).
-  activeProductType: string | null;
+  // Gated by CATEGORY, not product type — a category can span several product types with disjoint
+  // spec fields (product_types migration, 2026-07-14), so the compare table renders an ADAPTIVE row
+  // set (only fields every selected product actually has, see getCompareData) rather than a fixed
+  // per-type template. That keeps Compare usable across a whole category even with few products
+  // per exact type. category_slug is never null for a published product (unlike product_type_slug).
+  activeCategory: string | null;
   add: (item: CompareItem) => void;
   remove: (slug: string) => void;
   clear: () => void;
   has: (slug: string) => boolean;
-  canAdd: (productTypeSlug: string | null) => boolean;
+  canAdd: (categorySlug: string | null) => boolean;
 };
 
 const CompareContext = createContext<CompareContextValue | null>(null);
@@ -58,23 +61,15 @@ export function CompareProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, hydrated]);
 
-  const activeProductType = items[0]?.product_type_slug ?? null;
+  const activeCategory = items[0]?.category_slug ?? null;
 
   const add = useCallback(
     (item: CompareItem) => {
       if (items.some((p) => p.slug === item.slug)) return;
       const anchor = items[0];
-      if (anchor) {
-        // A product with no type has no spec template at all, so it can never usefully compare —
-        // not even against another untyped product (their "same null" isn't a real match).
-        if (!item.product_type_slug) {
-          toast("Produk ini belum punya product type — belum bisa dibandingkan.");
-          return;
-        }
-        if (item.product_type_slug !== anchor.product_type_slug) {
-          toast(`Bandingkan hanya untuk produk dengan tipe yang sama (${anchor.product_type_name ?? anchor.product_type_slug ?? "tanpa tipe"})`);
-          return;
-        }
+      if (anchor && item.category_slug !== anchor.category_slug) {
+        toast(`Bandingkan hanya untuk produk sekategori (${anchor.category_name ?? anchor.category_slug})`);
+        return;
       }
       if (items.length >= COMPARE_MAX) {
         toast(`Maksimal ${COMPARE_MAX} produk per perbandingan`);
@@ -95,17 +90,17 @@ export function CompareProvider({ children }: { children: React.ReactNode }) {
   const has = useCallback((slug: string) => items.some((p) => p.slug === slug), [items]);
 
   const canAdd = useCallback(
-    (productTypeSlug: string | null) => {
+    (categorySlug: string | null) => {
       if (items.length === 0) return true;
       if (items.length >= COMPARE_MAX) return false;
-      return productTypeSlug != null && productTypeSlug === activeProductType;
+      return categorySlug != null && categorySlug === activeCategory;
     },
-    [items, activeProductType],
+    [items, activeCategory],
   );
 
   const value = useMemo<CompareContextValue>(
-    () => ({ items, activeProductType, add, remove, clear, has, canAdd }),
-    [items, activeProductType, add, remove, clear, has, canAdd],
+    () => ({ items, activeCategory, add, remove, clear, has, canAdd }),
+    [items, activeCategory, add, remove, clear, has, canAdd],
   );
 
   return <CompareContext.Provider value={value}>{children}</CompareContext.Provider>;
