@@ -15,7 +15,7 @@ import { mediaUrl } from "@/lib/media";
 
 export type SpecDef = {
   id: string;
-  category_id: string | null;
+  product_type_id: string | null;
   key: string;
   label: string;
   spec_group: string;
@@ -25,12 +25,15 @@ export type SpecDef = {
   sort_order: number;
 };
 
+export type ProductType = { id: string; category_id: string; name: string };
+
 export type ProductFormData = {
   id: string | null;
   name: string;
   slug: string;
   brand_id: string;
   category_id: string;
+  product_type_id: string;
   short_spec: string;
   description_md: string;
   suitable_for: string;
@@ -50,6 +53,7 @@ export function ProductForm({
   data,
   brands,
   categories,
+  productTypes,
   specDefs,
   solutions,
   products,
@@ -58,6 +62,7 @@ export function ProductForm({
   data: ProductFormData;
   brands: { id: string; name: string }[];
   categories: { id: string; name: string }[];
+  productTypes: ProductType[];
   specDefs: SpecDef[];
   solutions: PickerOption[];
   products: PickerOption[];
@@ -68,19 +73,32 @@ export function ProductForm({
   const [saving, setSaving] = useState(false);
   const set = <K extends keyof ProductFormData>(k: K, val: ProductFormData[K]) => setF((p) => ({ ...p, [k]: val }));
 
-  const catSpecs = useMemo(
-    () => specDefs.filter((d) => d.category_id === f.category_id).sort((a, b) => a.sort_order - b.sort_order),
-    [specDefs, f.category_id],
+  const typesInCategory = useMemo(
+    () => productTypes.filter((t) => t.category_id === f.category_id),
+    [productTypes, f.category_id],
+  );
+
+  function setCategory(categoryId: string) {
+    setF((p) => {
+      // Product type is category-scoped — clear it when it no longer belongs to the new category.
+      const stillValid = productTypes.some((t) => t.id === p.product_type_id && t.category_id === categoryId);
+      return { ...p, category_id: categoryId, product_type_id: stillValid ? p.product_type_id : "" };
+    });
+  }
+
+  const typeSpecs = useMemo(
+    () => specDefs.filter((d) => d.product_type_id === f.product_type_id).sort((a, b) => a.sort_order - b.sort_order),
+    [specDefs, f.product_type_id],
   );
   const specGroups = useMemo(() => {
     const order: string[] = [];
     const map: Record<string, SpecDef[]> = {};
-    for (const d of catSpecs) {
+    for (const d of typeSpecs) {
       if (!map[d.spec_group]) { map[d.spec_group] = []; order.push(d.spec_group); }
       map[d.spec_group]!.push(d);
     }
     return order.map((g) => ({ group: g, defs: map[g]! }));
-  }, [catSpecs]);
+  }, [typeSpecs]);
 
   const similarInCategory = useMemo(() => {
     // caller passes products already restricted to same category via options; keep all here
@@ -89,7 +107,7 @@ export function ProductForm({
 
   function buildSpecValues() {
     const out: { spec_definition_id: string; value_text: string; value_number: number | null; value_boolean: boolean | null; value_options: string[] | null }[] = [];
-    for (const d of catSpecs) {
+    for (const d of typeSpecs) {
       const raw = (f.spec_inputs[d.id] ?? "").trim();
       if (!raw) continue;
       if (d.data_type === "number") out.push({ spec_definition_id: d.id, value_text: raw, value_number: Number(raw), value_boolean: null, value_options: null });
@@ -100,7 +118,7 @@ export function ProductForm({
     return out;
   }
 
-  const specCount = useMemo(() => catSpecs.filter((d) => (f.spec_inputs[d.id] ?? "").trim()).length, [catSpecs, f.spec_inputs]);
+  const specCount = useMemo(() => typeSpecs.filter((d) => (f.spec_inputs[d.id] ?? "").trim()).length, [typeSpecs, f.spec_inputs]);
 
   async function submit(status: "draft" | "published") {
     setSaving(true);
@@ -171,10 +189,16 @@ export function ProductForm({
                   {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                 </select>
               </Field>
-              <Field label="Kategori" required hint="Mengganti kategori mengganti template spec.">
-                <select className={inputCls} value={f.category_id} onChange={(e) => set("category_id", e.target.value)}>
+              <Field label="Kategori" required>
+                <select className={inputCls} value={f.category_id} onChange={(e) => setCategory(e.target.value)}>
                   <option value="">— pilih —</option>
                   {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </Field>
+              <Field label="Product Type" required hint="Menentukan template spec. Pilih kategori dulu.">
+                <select className={inputCls} value={f.product_type_id} disabled={!f.category_id} onChange={(e) => set("product_type_id", e.target.value)}>
+                  <option value="">— pilih —</option>
+                  {typesInCategory.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
                 </select>
               </Field>
             </div>
@@ -262,9 +286,11 @@ export function ProductForm({
         </TabsContent>
 
         <TabsContent value="specs" className="mt-4">
-          <AdminSection title="Spesifikasi" description={f.category_id ? "Dari template kategori. Kosong = tidak dirender." : "Pilih kategori dulu di tab Info."}>
+          <AdminSection title="Spesifikasi" description={f.product_type_id ? "Dari template product type. Kosong = tidak dirender." : "Pilih kategori & product type dulu di tab Info."}>
             {specGroups.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Tidak ada template spec untuk kategori ini.</p>
+              <p className="text-sm text-muted-foreground">
+                {f.product_type_id ? "Tidak ada template spec untuk product type ini." : "Pilih Product Type di tab Info untuk melihat field spesifikasi."}
+              </p>
             ) : (
               specGroups.map(({ group, defs }) => (
                 <div key={group} className="space-y-3">
@@ -302,6 +328,7 @@ export function ProductForm({
           <AdminSection title="Guardrail publish" description="Semua wajib untuk publish.">
             <ul className="space-y-2 text-sm">
               <GuardItem ok={Boolean(f.category_id)}>Kategori terisi</GuardItem>
+              <GuardItem ok={Boolean(f.product_type_id)}>Product Type terisi</GuardItem>
               <GuardItem ok={Boolean(f.short_spec.trim())}>Short spec terisi</GuardItem>
               <GuardItem ok={f.images.length >= 1}>Minimal 1 foto</GuardItem>
               <GuardItem ok={specCount >= 3}>Minimal 3 spec values (sekarang {specCount})</GuardItem>

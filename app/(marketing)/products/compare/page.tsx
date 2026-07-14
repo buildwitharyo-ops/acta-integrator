@@ -27,9 +27,9 @@ export default async function ComparePage({
   const truncated = dedup.length > 4;
   const requested = dedup.slice(0, 4);
 
-  const { products, specDefsByCategory } = requested.length
+  const { products, specDefsByType } = requested.length
     ? await getCompareData(requested)
-    : { products: [], specDefsByCategory: {} };
+    : { products: [], specDefsByType: {} };
 
   const bySlug = new Map(products.map((p) => [p.slug, p]));
   const ordered = requested.map((s) => bySlug.get(s)).filter((p): p is NonNullable<typeof p> => Boolean(p));
@@ -38,7 +38,7 @@ export default async function ComparePage({
   const catOrder: string[] = [];
   const byCat: Record<string, typeof ordered> = {};
   for (const p of ordered) {
-    const c = p.category_slug ?? "lainnya";
+    const c = p.product_type_slug ?? "lainnya";
     if (!byCat[c]) {
       byCat[c] = [];
       catOrder.push(c);
@@ -66,7 +66,7 @@ export default async function ComparePage({
 
       {ordered.length < 2 ? (
         <div className="mt-10 rounded-lg border border-dashed border-border py-14 text-center">
-          <p className="heading-md">Pilih minimal 2 produk sekategori untuk dibandingkan</p>
+          <p className="heading-md">Pilih minimal 2 produk se-tipe untuk dibandingkan</p>
           <p className="body-sm mt-2 text-muted-foreground">
             Tambahkan produk lewat kotak “Bandingkan” di katalog.
           </p>
@@ -74,7 +74,7 @@ export default async function ComparePage({
             <div className="mx-auto mt-8 max-w-xs text-left">
               <ProductCard product={ordered[0]} showQuoteCta />
               <p className="body-sm mt-3 text-center text-muted-foreground">
-                Tambahkan pembanding dari kategori {ordered[0].category_name ?? ordered[0].category_slug}.
+                Tambahkan pembanding dari tipe {ordered[0].product_type_name ?? ordered[0].product_type_slug ?? "yang sama"}.
               </p>
             </div>
           ) : (
@@ -91,12 +91,12 @@ export default async function ComparePage({
       ) : crossCategory ? (
         <div className="mt-8">
           <div className="rounded-lg border border-border bg-muted/40 p-5">
-            <p className="heading-md">Perbandingan hanya untuk produk dalam kategori yang sama</p>
+            <p className="heading-md">Perbandingan hanya untuk produk dengan tipe yang sama</p>
             <p className="body-sm mt-2 text-muted-foreground">
               {ordered
-                .map((p) => `${p.name} (${p.category_name ?? p.category_slug})`)
+                .map((p) => `${p.name} (${p.product_type_name ?? p.product_type_slug ?? "tanpa tipe"})`)
                 .join(", ")}
-              . Spec antar-kategori tidak sebanding baris-per-baris.
+              . Spec antar-tipe tidak sebanding baris-per-baris.
             </p>
           </div>
           <div className="mt-8 space-y-10">
@@ -105,7 +105,7 @@ export default async function ComparePage({
               return (
                 <div key={cat}>
                   <div className="flex items-center justify-between gap-4">
-                    <p className="mono-label text-foreground">{group[0]?.category_name ?? cat}</p>
+                    <p className="mono-label text-foreground">{group[0]?.product_type_name ?? cat}</p>
                     {group.length >= 2 ? (
                       <Link
                         href={`/products/compare?items=${group.map((p) => p.slug).join(",")}`}
@@ -127,7 +127,13 @@ export default async function ComparePage({
         </div>
       ) : singleCategory ? (
         <div className="mt-8">
-          <CompareTable products={ordered} specDefs={specDefsByCategory[catOrder[0]!] ?? []} />
+          {(specDefsByType[catOrder[0]!] ?? []).length === 0 ? (
+            <Banner>
+              {ordered[0]?.product_type_name ? `Belum ada spec field untuk tipe ${ordered[0].product_type_name}.` : "Produk ini belum punya product type, sehingga belum ada spec yang bisa dibandingkan."}{" "}
+              Foto &amp; info produk tetap ditampilkan di bawah.
+            </Banner>
+          ) : null}
+          <CompareTable products={ordered} specDefs={specDefsByType[catOrder[0]!] ?? []} />
         </div>
       ) : null}
     </section>

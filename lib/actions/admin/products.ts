@@ -28,6 +28,7 @@ const productSchema = z.object({
   slug: z.string().trim().optional().default(""),
   brand_id: z.string().uuid("Brand wajib dipilih"),
   category_id: z.string().uuid("Kategori wajib dipilih"),
+  product_type_id: z.string().uuid().or(z.literal("")).optional().nullable(),
   short_spec: z.string().trim().max(80).optional().nullable(),
   description_md: z.string().trim().optional().nullable(),
   suitable_for: z.string().trim().optional().nullable(),
@@ -57,8 +58,9 @@ export async function saveProduct(input: unknown): Promise<SaveResult> {
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Data tidak valid." };
   const v = parsed.data;
 
-  // Publish guardrail (06 §4 / 08 §5.4): kategori, short_spec, >=1 foto, >=3 spec values.
+  // Publish guardrail (06 §4 / 08 §5.4): kategori, product type, short_spec, >=1 foto, >=3 spec values.
   if (v.status === "published") {
+    if (!v.product_type_id) return { ok: false, error: "Publish butuh product type (menentukan template spec)." };
     if (!v.short_spec) return { ok: false, error: "Publish butuh short spec." };
     if (v.images.length < 1) return { ok: false, error: "Publish butuh minimal 1 foto." };
     if (v.spec_values.length < 3) return { ok: false, error: "Publish butuh minimal 3 spec values." };
@@ -67,6 +69,14 @@ export async function saveProduct(input: unknown): Promise<SaveResult> {
   const supabase = await createClient();
   const admin = createAdminClient();
 
+  const productTypeId = v.product_type_id || null;
+  if (productTypeId) {
+    // Product type is a sub-classification of category — reject a type that belongs to a
+    // different category (would silently show the wrong spec template on the next edit).
+    const { data: type } = await admin.from("product_types").select("category_id").eq("id", productTypeId).maybeSingle();
+    if (!type || type.category_id !== v.category_id) return { ok: false, error: "Product type tidak sesuai dengan kategori." };
+  }
+
   const slug = await uniqueSlug("products", v.slug || slugify(v.name), { excludeId: v.id ?? undefined });
 
   const row = {
@@ -74,6 +84,7 @@ export async function saveProduct(input: unknown): Promise<SaveResult> {
     slug,
     brand_id: v.brand_id,
     category_id: v.category_id,
+    product_type_id: productTypeId,
     short_spec: v.short_spec ?? "",
     description_md: v.description_md || null,
     suitable_for: v.suitable_for || null,
@@ -169,11 +180,12 @@ export async function setProductStatus(id: string, status: "draft" | "published"
 
   if (status === "published") {
     const [{ data: p }, { count: imgCount }, { count: specCount }] = await Promise.all([
-      admin.from("products").select("short_spec, category_id").eq("id", id).maybeSingle(),
+      admin.from("products").select("short_spec, category_id, product_type_id").eq("id", id).maybeSingle(),
       admin.from("product_images").select("product_id", { count: "exact", head: true }).eq("product_id", id),
       admin.from("product_spec_values").select("product_id", { count: "exact", head: true }).eq("product_id", id),
     ]);
     if (!p?.short_spec || !p?.category_id) return { ok: false, error: "Publish butuh kategori + short spec." };
+    if (!p?.product_type_id) return { ok: false, error: "Publish butuh product type." };
     if (!imgCount) return { ok: false, error: "Publish butuh minimal 1 foto." };
     if ((specCount ?? 0) < 3) return { ok: false, error: "Publish butuh minimal 3 spec values." };
   }

@@ -41,9 +41,15 @@ export async function getSpecDefs() {
   const sb = createAdminClient();
   const { data } = await sb
     .from("spec_definitions")
-    .select("id, category_id, key, label, spec_group, data_type, unit, enum_options, sort_order")
+    .select("id, product_type_id, key, label, spec_group, data_type, unit, enum_options, sort_order")
     .eq("is_archived", false)
     .order("sort_order");
+  return data ?? [];
+}
+
+export async function getProductTypes() {
+  const sb = createAdminClient();
+  const { data } = await sb.from("product_types").select("id, category_id, name, slug, sort_order").order("sort_order");
   return data ?? [];
 }
 

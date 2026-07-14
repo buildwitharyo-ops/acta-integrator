@@ -96,7 +96,12 @@ function valueForKey(product: CatalogProduct, key: string) {
 function matchesSpec(product: CatalogProduct, key: string, tokens: string[], def?: SpecDefinition): boolean {
   const sv = valueForKey(product, key);
   if (!sv) return false;
-  const dataType = def?.data_type ?? sv.data_type;
+  // Trust the product's OWN value (joined 1:1 via spec_definition_id — always correct) over the
+  // passed-in `def`, which is only a best-effort lookup by key and can resolve to a DIFFERENT
+  // product type's definition of the same key now that spec_definitions are type-scoped, not
+  // category-scoped (two types in one category may legitimately reuse a key with a different
+  // data_type — e.g. "resolution" as number in one type, enum in another).
+  const dataType = sv.data_type ?? def?.data_type;
   if (dataType === "number") {
     if (sv.value_number == null) return false;
     return tokens.some((tok) => {

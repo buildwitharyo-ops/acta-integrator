@@ -5,15 +5,17 @@ import {
   getCategories,
   getMediaForPicker,
   getProductOptions,
+  getProductTypes,
   getSolutionOptions,
   getSpecDefs,
 } from "@/lib/admin/queries";
 
 export default async function NewProductPage() {
   await requireAdminPage();
-  const [brands, categories, specDefs, solutions, products, media] = await Promise.all([
+  const [brands, categories, productTypes, specDefs, solutions, products, media] = await Promise.all([
     getBrands(),
     getCategories(),
+    getProductTypes(),
     getSpecDefs(),
     getSolutionOptions(),
     getProductOptions(),
@@ -26,6 +28,7 @@ export default async function NewProductPage() {
     slug: "",
     brand_id: "",
     category_id: "",
+    product_type_id: "",
     short_spec: "",
     description_md: "",
     suitable_for: "",
@@ -46,6 +49,7 @@ export default async function NewProductPage() {
       data={data}
       brands={brands}
       categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+      productTypes={productTypes.map((t) => ({ id: t.id, category_id: t.category_id, name: t.name }))}
       specDefs={specDefs}
       solutions={solutions}
       products={products}

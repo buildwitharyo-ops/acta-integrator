@@ -6,6 +6,7 @@ import {
   getCategories,
   getMediaForPicker,
   getProductOptions,
+  getProductTypes,
   getSolutionOptions,
   getSpecDefs,
 } from "@/lib/admin/queries";
@@ -26,6 +27,7 @@ export default async function EditProductPage({ params }: { params: Promise<Para
     { data: similarLinks },
     brands,
     categories,
+    productTypes,
     specDefs,
     solutions,
     products,
@@ -38,6 +40,7 @@ export default async function EditProductPage({ params }: { params: Promise<Para
     sb.from("product_similar").select("similar_product_id, sort_order").eq("product_id", id).order("sort_order"),
     getBrands(),
     getCategories(),
+    getProductTypes(),
     getSpecDefs(),
     getSolutionOptions(),
     getProductOptions(),
@@ -63,6 +66,7 @@ export default async function EditProductPage({ params }: { params: Promise<Para
     slug: product.slug ?? "",
     brand_id: product.brand_id ?? "",
     category_id: product.category_id ?? "",
+    product_type_id: product.product_type_id ?? "",
     short_spec: product.short_spec ?? "",
     description_md: product.description_md ?? "",
     suitable_for: product.suitable_for ?? "",
@@ -83,6 +87,7 @@ export default async function EditProductPage({ params }: { params: Promise<Para
       data={data}
       brands={brands}
       categories={categories.map((c) => ({ id: c.id, name: c.name }))}
+      productTypes={productTypes.map((t) => ({ id: t.id, category_id: t.category_id, name: t.name }))}
       specDefs={specDefs}
       solutions={solutions}
       products={products}

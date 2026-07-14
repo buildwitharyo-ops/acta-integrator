@@ -58,6 +58,62 @@ export async function deleteCategory(id: string): Promise<ActionResult> {
   return { ok: true, id };
 }
 
+// ── Product Types (Category → Product Type → Spec Fields, admin only) ─────────────────────
+const productTypeSchema = z.object({
+  id: z.string().uuid().optional().nullable(),
+  category_id: z.string().uuid("Kategori wajib"),
+  name: z.string().trim().min(1, "Nama wajib diisi"),
+  sort_order: z.coerce.number().int().default(0),
+});
+
+export async function saveProductType(input: unknown): Promise<ActionResult> {
+  const { ctx, error } = await requireAdmin("admin");
+  if (!ctx) return { ok: false, error };
+  const parsed = productTypeSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Data tidak valid." };
+  const v = parsed.data;
+
+  const supabase = await createClient();
+  const slug = await uniqueSlug("product_types", slugify(v.name), { excludeId: v.id ?? undefined, categoryId: v.category_id });
+  const row = { category_id: v.category_id, name: v.name, slug, sort_order: v.sort_order };
+
+  if (v.id) {
+    // category_id immutable on update — a type moving categories would orphan its spec_definitions'
+    // conceptual grouping and any products already assigned it; create a new type instead.
+    const { error: upErr } = await supabase
+      .from("product_types")
+      .update({ name: row.name, slug: row.slug, sort_order: row.sort_order })
+      .eq("id", v.id)
+      .select("id")
+      .single();
+    if (upErr) return { ok: false, error: "Gagal menyimpan (nama sudah ada di kategori ini / akses ditolak?)." };
+    revalidateCatalog();
+    return { ok: true, id: v.id };
+  }
+  const { data, error: insErr } = await supabase.from("product_types").insert(row).select("id").single();
+  if (insErr || !data) return { ok: false, error: "Gagal membuat product type (nama sudah ada di kategori ini?)." };
+  revalidateCatalog();
+  return { ok: true, id: data.id };
+}
+
+export async function deleteProductType(id: string): Promise<ActionResult> {
+  const { ctx, error } = await requireAdmin("admin");
+  if (!ctx) return { ok: false, error };
+  const admin = createAdminClient();
+  const [{ count: prodCount }, { count: defCount }] = await Promise.all([
+    admin.from("products").select("id", { count: "exact", head: true }).eq("product_type_id", id),
+    admin.from("spec_definitions").select("id", { count: "exact", head: true }).eq("product_type_id", id),
+  ]);
+  if (prodCount && prodCount > 0) return { ok: false, error: `Tidak bisa dihapus: masih ada ${prodCount} produk dengan type ini.` };
+  if (defCount && defCount > 0) return { ok: false, error: `Tidak bisa dihapus: masih ada ${defCount} spec field di type ini.` };
+
+  const supabase = await createClient();
+  const { error: delErr } = await supabase.from("product_types").delete().eq("id", id);
+  if (delErr) return { ok: false, error: "Gagal menghapus product type." };
+  revalidateCatalog();
+  return { ok: true, id };
+}
+
 // ── Brands (admin manages fully here; dealer flag admin-gated by RLS) ─────────────────────
 const brandSchema = z.object({
   id: z.string().uuid().optional().nullable(),
@@ -115,7 +171,7 @@ const KEY_RE = /^[a-z][a-z0-9_]*$/;
 
 const specDefSchema = z.object({
   id: z.string().uuid().optional().nullable(),
-  category_id: z.string().uuid("Kategori wajib"),
+  product_type_id: z.string().uuid("Product type wajib"),
   key: z.string().trim().regex(KEY_RE, "Key harus snake_case (huruf kecil, angka, underscore)."),
   label: z.string().trim().min(1, "Label wajib"),
   spec_group: z.string().trim().min(1, "Spec group wajib"),
@@ -142,8 +198,10 @@ export async function saveSpecDef(input: unknown): Promise<ActionResult> {
   const supabase = await createClient();
   const admin = createAdminClient();
 
+  // key + product_type_id are immutable after create — deliberately NOT in this shared row so an
+  // update can never write them, regardless of what the caller passes (matches the DB reality:
+  // reassigning a def to a different type would silently corrupt the Category → Type grouping).
   const row = {
-    category_id: v.category_id,
     label: v.label,
     spec_group: v.spec_group,
     data_type: v.data_type,
@@ -156,14 +214,12 @@ export async function saveSpecDef(input: unknown): Promise<ActionResult> {
   };
 
   if (v.id) {
-    // key + category_id immutable; data_type immutable once values exist (08 §3.4).
-    const { data: existing } = await admin.from("spec_definitions").select("key, data_type, category_id").eq("id", v.id).maybeSingle();
+    const { data: existing } = await admin.from("spec_definitions").select("key, data_type, product_type_id").eq("id", v.id).maybeSingle();
     if (!existing) return { ok: false, error: "Definition tidak ditemukan." };
     if (existing.data_type !== v.data_type) {
       const { count } = await admin.from("product_spec_values").select("id", { count: "exact", head: true }).eq("spec_definition_id", v.id);
       if (count && count > 0) return { ok: false, error: "data_type tidak bisa diubah karena sudah ada nilai — archive lalu buat baru." };
     }
-    // Never write key/category_id on update (immutable).
     const { error: upErr } = await supabase.from("spec_definitions").update(row).eq("id", v.id).select("id").single();
     if (upErr) return { ok: false, error: "Gagal menyimpan definition (akses ditolak?)." };
     revalidateCatalog();
@@ -172,10 +228,10 @@ export async function saveSpecDef(input: unknown): Promise<ActionResult> {
 
   const { data, error: insErr } = await supabase
     .from("spec_definitions")
-    .insert({ ...row, key: v.key })
+    .insert({ ...row, key: v.key, product_type_id: v.product_type_id })
     .select("id")
     .single();
-  if (insErr || !data) return { ok: false, error: "Gagal membuat definition (key sudah dipakai di kategori ini?)." };
+  if (insErr || !data) return { ok: false, error: "Gagal membuat definition (key sudah dipakai di product type ini?)." };
   revalidateCatalog();
   return { ok: true, id: data.id };
 }
@@ -208,7 +264,8 @@ export async function reorderSpecDefs(ids: string[]): Promise<ActionResult> {
   const { ctx, error } = await requireAdmin("admin");
   if (!ctx) return { ok: false, error };
   const supabase = await createClient();
-  await Promise.all(ids.map((id, i) => supabase.from("spec_definitions").update({ sort_order: i }).eq("id", id)));
+  const results = await Promise.all(ids.map((id, i) => supabase.from("spec_definitions").update({ sort_order: i }).eq("id", id)));
+  if (results.some((r) => r.error)) return { ok: false, error: "Gagal mengurutkan sebagian definition — coba lagi." };
   revalidateCatalog();
   return { ok: true };
 }

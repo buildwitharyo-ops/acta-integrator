@@ -148,9 +148,20 @@ export function CatalogBrowser({
 
   const specFacets = useMemo<SpecFacet[]>(() => {
     if (!activeCategory) return [];
+    // A category can hold several product types, and spec_definitions are now scoped per TYPE
+    // (not per category) — two types may legitimately reuse the same filterable key with a
+    // different data_type. Dedup by key (first by sort_order wins) so the sidebar never renders
+    // two facets sharing one React key; matchesSpec() itself stays correct regardless, since it
+    // resolves each product's OWN data_type rather than this facet definition.
+    const seenKeys = new Set<string>();
     const defs = specDefs
       .filter((d) => d.category_slug === activeCategory && d.is_filterable && d.key)
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+      .filter((d) => {
+        if (seenKeys.has(d.key as string)) return false;
+        seenKeys.add(d.key as string);
+        return true;
+      });
     const out: SpecFacet[] = [];
     for (const d of defs) {
       const key = d.key as string;

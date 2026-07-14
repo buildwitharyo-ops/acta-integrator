@@ -888,6 +888,51 @@ export type Database = {
           },
         ]
       }
+      product_types: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_types_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_types_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "v_product_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           brand_id: string
@@ -898,6 +943,7 @@ export type Database = {
           internal_price: number | null
           is_featured: boolean
           name: string
+          product_type_id: string | null
           seo_description: string | null
           seo_title: string | null
           short_spec: string
@@ -917,6 +963,7 @@ export type Database = {
           internal_price?: number | null
           is_featured?: boolean
           name: string
+          product_type_id?: string | null
           seo_description?: string | null
           seo_title?: string | null
           short_spec: string
@@ -936,6 +983,7 @@ export type Database = {
           internal_price?: number | null
           is_featured?: boolean
           name?: string
+          product_type_id?: string | null
           seo_description?: string | null
           seo_title?: string | null
           short_spec?: string
@@ -973,6 +1021,20 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "v_product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_product_type_id_fkey"
+            columns: ["product_type_id"]
+            isOneToOne: false
+            referencedRelation: "product_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_product_type_id_fkey"
+            columns: ["product_type_id"]
+            isOneToOne: false
+            referencedRelation: "v_product_types"
             referencedColumns: ["id"]
           },
           {
@@ -1481,7 +1543,6 @@ export type Database = {
           better_direction:
             | Database["public"]["Enums"]["better_direction"]
             | null
-          category_id: string
           created_at: string
           data_type: Database["public"]["Enums"]["spec_data_type"]
           enum_options: string[] | null
@@ -1491,6 +1552,7 @@ export type Database = {
           is_filterable: boolean
           key: string
           label: string
+          product_type_id: string | null
           sort_order: number
           spec_group: string
           unit: string | null
@@ -1500,7 +1562,6 @@ export type Database = {
           better_direction?:
             | Database["public"]["Enums"]["better_direction"]
             | null
-          category_id: string
           created_at?: string
           data_type: Database["public"]["Enums"]["spec_data_type"]
           enum_options?: string[] | null
@@ -1510,6 +1571,7 @@ export type Database = {
           is_filterable?: boolean
           key: string
           label: string
+          product_type_id?: string | null
           sort_order?: number
           spec_group: string
           unit?: string | null
@@ -1519,7 +1581,6 @@ export type Database = {
           better_direction?:
             | Database["public"]["Enums"]["better_direction"]
             | null
-          category_id?: string
           created_at?: string
           data_type?: Database["public"]["Enums"]["spec_data_type"]
           enum_options?: string[] | null
@@ -1529,6 +1590,7 @@ export type Database = {
           is_filterable?: boolean
           key?: string
           label?: string
+          product_type_id?: string | null
           sort_order?: number
           spec_group?: string
           unit?: string | null
@@ -1536,17 +1598,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "spec_definitions_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "spec_definitions_product_type_id_fkey"
+            columns: ["product_type_id"]
             isOneToOne: false
-            referencedRelation: "product_categories"
+            referencedRelation: "product_types"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "spec_definitions_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "spec_definitions_product_type_id_fkey"
+            columns: ["product_type_id"]
             isOneToOne: false
-            referencedRelation: "v_product_categories"
+            referencedRelation: "v_product_types"
             referencedColumns: ["id"]
           },
         ]
@@ -2090,6 +2152,45 @@ export type Database = {
           },
         ]
       }
+      v_product_types: {
+        Row: {
+          category_id: string | null
+          id: string | null
+          name: string | null
+          slug: string | null
+          sort_order: number | null
+        }
+        Insert: {
+          category_id?: string | null
+          id?: string | null
+          name?: string | null
+          slug?: string | null
+          sort_order?: number | null
+        }
+        Update: {
+          category_id?: string | null
+          id?: string | null
+          name?: string | null
+          slug?: string | null
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_types_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_types_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "v_product_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v_products: {
         Row: {
           brand_id: string | null
@@ -2102,6 +2203,9 @@ export type Database = {
           id: string | null
           is_featured: boolean | null
           name: string | null
+          product_type_id: string | null
+          product_type_name: string | null
+          product_type_slug: string | null
           seo_description: string | null
           seo_title: string | null
           short_spec: string | null
@@ -2137,6 +2241,20 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "v_product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_product_type_id_fkey"
+            columns: ["product_type_id"]
+            isOneToOne: false
+            referencedRelation: "product_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_product_type_id_fkey"
+            columns: ["product_type_id"]
+            isOneToOne: false
+            referencedRelation: "v_product_types"
             referencedColumns: ["id"]
           },
         ]
@@ -2392,7 +2510,6 @@ export type Database = {
           better_direction:
             | Database["public"]["Enums"]["better_direction"]
             | null
-          category_id: string | null
           data_type: Database["public"]["Enums"]["spec_data_type"] | null
           enum_options: string[] | null
           id: string | null
@@ -2400,6 +2517,7 @@ export type Database = {
           is_filterable: boolean | null
           key: string | null
           label: string | null
+          product_type_id: string | null
           sort_order: number | null
           spec_group: string | null
           unit: string | null
@@ -2408,7 +2526,6 @@ export type Database = {
           better_direction?:
             | Database["public"]["Enums"]["better_direction"]
             | null
-          category_id?: string | null
           data_type?: Database["public"]["Enums"]["spec_data_type"] | null
           enum_options?: string[] | null
           id?: string | null
@@ -2416,6 +2533,7 @@ export type Database = {
           is_filterable?: boolean | null
           key?: string | null
           label?: string | null
+          product_type_id?: string | null
           sort_order?: number | null
           spec_group?: string | null
           unit?: string | null
@@ -2424,7 +2542,6 @@ export type Database = {
           better_direction?:
             | Database["public"]["Enums"]["better_direction"]
             | null
-          category_id?: string | null
           data_type?: Database["public"]["Enums"]["spec_data_type"] | null
           enum_options?: string[] | null
           id?: string | null
@@ -2432,23 +2549,24 @@ export type Database = {
           is_filterable?: boolean | null
           key?: string | null
           label?: string | null
+          product_type_id?: string | null
           sort_order?: number | null
           spec_group?: string | null
           unit?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "spec_definitions_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "spec_definitions_product_type_id_fkey"
+            columns: ["product_type_id"]
             isOneToOne: false
-            referencedRelation: "product_categories"
+            referencedRelation: "product_types"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "spec_definitions_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "spec_definitions_product_type_id_fkey"
+            columns: ["product_type_id"]
             isOneToOne: false
-            referencedRelation: "v_product_categories"
+            referencedRelation: "v_product_types"
             referencedColumns: ["id"]
           },
         ]

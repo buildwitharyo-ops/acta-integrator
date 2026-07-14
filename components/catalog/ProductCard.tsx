@@ -12,6 +12,8 @@ export type ProductCardData = {
   short_spec: string | null;
   category_slug?: string | null;
   category_name?: string | null;
+  product_type_slug?: string | null;
+  product_type_name?: string | null;
   created_at?: string | null;
   image?: { storage_path: string | null; external_url: string | null } | null;
 };
@@ -110,6 +112,8 @@ export function ProductCard({
                 brand_name: product.brand_name,
                 category_slug: product.category_slug ?? null,
                 category_name: product.category_name ?? null,
+                product_type_slug: product.product_type_slug ?? null,
+                product_type_name: product.product_type_name ?? null,
                 image: product.image ?? null,
               }}
             />

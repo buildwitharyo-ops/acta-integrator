@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 // Explicit public columns for draft reads off the base table — never internal_price.
 const PRODUCT_BASE_COLS =
-  "id,name,slug,brand_id,category_id,short_spec,description_md,suitable_for,spec_source_url,is_featured,seo_title,seo_description,created_at,updated_at";
+  "id,name,slug,brand_id,category_id,product_type_id,short_spec,description_md,suitable_for,spec_source_url,is_featured,seo_title,seo_description,created_at,updated_at";
 
 export const getProducts = unstable_cache(
   async () => {
@@ -179,7 +179,7 @@ export const getCatalogProducts = unstable_cache(
     const supabase = createPublicClient();
     const { data: products } = await supabase
       .from("v_products")
-      .select("id,name,slug,brand_name,brand_slug,category_slug,short_spec,is_featured,created_at")
+      .select("id,name,slug,brand_name,brand_slug,category_slug,product_type_slug,product_type_name,short_spec,is_featured,created_at")
       .order("created_at", { ascending: false });
     if (!products?.length) return [];
 
@@ -232,19 +232,28 @@ export const getCatalogProducts = unstable_cache(
 
 export type CatalogProduct = Awaited<ReturnType<typeof getCatalogProducts>>[number];
 
-// Spec definitions with resolved category_slug — drives dynamic per-category filters (06 §1.2) + compare rows.
+// Spec definitions with resolved product_type_slug (+ its parent category_slug) — drives dynamic
+// per-category filters (06 §1.2) + compare rows, now scoped per product TYPE not per category,
+// since types within a category have disjoint field sets ("Less is More").
 export const getSpecDefinitions = unstable_cache(
   async () => {
     const supabase = createPublicClient();
-    const [{ data: defs }, { data: cats }] = await Promise.all([
+    const [{ data: defs }, { data: types }, { data: cats }] = await Promise.all([
       supabase.from("v_spec_definitions").select("*").order("sort_order"),
+      supabase.from("v_product_types").select("id, category_id, slug, name"),
       supabase.from("v_product_categories").select("id, slug"),
     ]);
-    const catSlug = new Map((cats ?? []).map((c) => [c.id, c.slug]));
-    return (defs ?? []).map((d) => ({
-      ...d,
-      category_slug: d.category_id ? catSlug.get(d.category_id) ?? null : null,
-    }));
+    const catSlugById = new Map((cats ?? []).map((c) => [c.id, c.slug]));
+    const typeById = new Map((types ?? []).map((t) => [t.id, t]));
+    return (defs ?? []).map((d) => {
+      const type = d.product_type_id ? typeById.get(d.product_type_id) : null;
+      return {
+        ...d,
+        product_type_slug: type?.slug ?? null,
+        product_type_name: type?.name ?? null,
+        category_slug: type?.category_id ? catSlugById.get(type.category_id) ?? null : null,
+      };
+    });
   },
   ["spec-definitions"],
   { tags: ["products"] },
@@ -252,41 +261,42 @@ export const getSpecDefinitions = unstable_cache(
 
 export type SpecDefinition = Awaited<ReturnType<typeof getSpecDefinitions>>[number];
 
-// Compare dataset: requested products (by slug) with per-key spec values + comparable defs per category (06 §3).
+// Compare dataset: requested products (by slug) with per-key spec values + comparable defs per
+// product TYPE (06 §3) — grouped by type, not category, since types within a category no longer
+// share a field set ("Less is More"; see product_types migration 2026-07-14).
 export function getCompareData(slugs: string[]) {
   const key = [...slugs].sort().join(",");
   return unstable_cache(
     async () => {
       const supabase = createPublicClient();
       const { data: products } = await supabase.from("v_products").select("*").in("slug", slugs);
-      if (!products?.length) return { products: [], specDefsByCategory: {} as Record<string, SpecDefinition[]> };
+      if (!products?.length) return { products: [], specDefsByType: {} as Record<string, SpecDefinition[]> };
 
       const ids = products.map((p) => p.id).filter((id): id is string => Boolean(id));
-      const catSlugs = [...new Set(products.map((p) => p.category_slug).filter((s): s is string => Boolean(s)))];
+      const typeSlugs = [...new Set(products.map((p) => p.product_type_slug).filter((s): s is string => Boolean(s)))];
 
-      const [{ data: images }, { data: specVals }, { data: cats }] = await Promise.all([
+      const [{ data: images }, { data: specVals }, { data: types }] = await Promise.all([
         supabase
           .from("v_product_images")
           .select("product_id, sort_order, storage_path, external_url")
           .in("product_id", ids)
           .order("sort_order"),
         supabase.from("v_product_spec_values").select("*").in("product_id", ids),
-        supabase.from("v_product_categories").select("id, slug, name").in("slug", catSlugs),
+        supabase.from("v_product_types").select("id, slug, name").in("slug", typeSlugs),
       ]);
 
-      const catIds = (cats ?? []).map((c) => c.id).filter((id): id is string => Boolean(id));
-      const { data: defs } = catIds.length
-        ? await supabase.from("v_spec_definitions").select("*").in("category_id", catIds).order("sort_order")
+      const typeIds = (types ?? []).map((t) => t.id).filter((id): id is string => Boolean(id));
+      const { data: defs } = typeIds.length
+        ? await supabase.from("v_spec_definitions").select("*").in("product_type_id", typeIds).order("sort_order")
         : { data: [] };
 
-      const idToSlug = new Map((cats ?? []).map((c) => [c.id, c.slug]));
-      const nameBySlug = new Map((cats ?? []).map((c) => [c.slug, c.name]));
+      const idToSlug = new Map((types ?? []).map((t) => [t.id, t.slug]));
 
-      const specDefsByCategory: Record<string, SpecDefinition[]> = {};
+      const specDefsByType: Record<string, SpecDefinition[]> = {};
       for (const d of defs ?? []) {
-        const slug = d.category_id ? idToSlug.get(d.category_id) : null;
+        const slug = d.product_type_id ? idToSlug.get(d.product_type_id) : null;
         if (!slug) continue;
-        (specDefsByCategory[slug] ??= []).push({ ...d, category_slug: slug } as SpecDefinition);
+        (specDefsByType[slug] ??= []).push({ ...d, product_type_slug: slug } as SpecDefinition);
       }
 
       const firstImage = new Map<string, { storage_path: string | null; external_url: string | null }>();
@@ -310,12 +320,13 @@ export function getCompareData(slugs: string[]) {
         brand_name: p.brand_name,
         short_spec: p.short_spec,
         category_slug: p.category_slug,
-        category_name: p.category_slug ? nameBySlug.get(p.category_slug) ?? null : null,
+        product_type_slug: p.product_type_slug,
+        product_type_name: p.product_type_name,
         image: p.id ? firstImage.get(p.id) ?? null : null,
         specValues: (p.id ? specByProduct.get(p.id) : null) ?? ({} as Record<string, CatalogSpecValue>),
       }));
 
-      return { products: shaped, specDefsByCategory };
+      return { products: shaped, specDefsByType };
     },
     ["compare", key],
     { tags: ["products"] },
@@ -378,9 +389,12 @@ async function loadProductDetailDraft(slug: string) {
     .maybeSingle();
   if (!p) return null;
 
-  const [{ data: brand }, { data: cat }, { data: rawSpecs }, { data: rawImages }] = await Promise.all([
+  const [{ data: brand }, { data: cat }, { data: type }, { data: rawSpecs }, { data: rawImages }] = await Promise.all([
     admin.from("brands").select("name, slug").eq("id", p.brand_id).maybeSingle(),
     admin.from("product_categories").select("slug").eq("id", p.category_id).maybeSingle(),
+    p.product_type_id
+      ? admin.from("product_types").select("slug, name").eq("id", p.product_type_id).maybeSingle()
+      : Promise.resolve({ data: null }),
     admin
       .from("product_spec_values")
       .select("spec_definition_id, value_text, value_number, value_boolean, value_options")
@@ -451,6 +465,8 @@ async function loadProductDetailDraft(slug: string) {
     brand_name: brand?.name ?? null,
     brand_slug: brand?.slug ?? null,
     category_slug: cat?.slug ?? null,
+    product_type_slug: type?.slug ?? null,
+    product_type_name: type?.name ?? null,
     specs,
     images,
   };

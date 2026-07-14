@@ -18,7 +18,7 @@ export function CompareTray() {
   // On the compare page the URL drives the table; a second (context-driven) control would desync it.
   const onComparePage = pathname === "/products/compare";
   const canCompare = items.length >= 2;
-  const categoryLabel = items[0]?.category_name ?? items[0]?.category_slug ?? "";
+  const categoryLabel = items[0]?.product_type_name ?? items[0]?.product_type_slug ?? "";
 
   const goCompare = () => {
     const slugs = items.map((i) => i.slug).filter(Boolean);
