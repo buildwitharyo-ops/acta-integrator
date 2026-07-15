@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { CompareTable } from "@/components/catalog/CompareTable";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { getCompareData } from "@/lib/queries/products";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: "Bandingkan Produk | ACTA",
-  robots: { index: false, follow: false },
-};
+  path: "/products/compare",
+  noindex: true,
+});
 
 function Banner({ children }: { children: React.ReactNode }) {
   return (

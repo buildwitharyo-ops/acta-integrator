@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/shared/JsonLd";
 import { MarqueeStrip } from "@/components/shared/MarqueeStrip";
 import { Reveal } from "@/components/shared/Reveal";
 import { ArticlesPreview } from "@/components/sections/ArticlesPreview";
@@ -15,6 +16,7 @@ import { getCategoryPreviews } from "@/lib/queries/products";
 import { getPageSections } from "@/lib/queries/pages";
 import { getSiteSettings } from "@/lib/queries/settings";
 import { getSolutions } from "@/lib/queries/solutions";
+import { localBusinessNode, webSiteNode } from "@/lib/jsonld";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -38,6 +40,19 @@ export default async function Home() {
 
   return (
     <>
+      <JsonLd
+        data={[
+          webSiteNode(),
+          localBusinessNode({
+            email: settings?.email,
+            whatsapp: settings?.whatsapp_number,
+            instagram: settings?.instagram,
+            address: settings?.address,
+            city: settings?.city,
+          }),
+        ]}
+      />
+
       <Hero content={get<HeroContent>("hero")} image={null} />
 
       <MarqueeStrip logos={BRAND_LOGOS} heading={trust.label ?? "Technology We Work With"} />

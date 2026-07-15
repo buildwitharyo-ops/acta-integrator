@@ -35,13 +35,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const product = await getPublishedProductDetail(slug);
   if (!product) return {};
-  const firstImage = product.images?.[0];
-  const og = firstImage ? mediaUrl(firstImage) ?? undefined : undefined;
+  // OG image comes from ./opengraph-image.tsx (branded template + product photo) — no ogImage here.
   return buildMetadata({
     title: product.seo_title ?? `${product.name} — ${product.brand_name} | Katalog ACTA`,
     description: product.seo_description ?? product.short_spec ?? product.suitable_for ?? undefined,
     path: `/products/${slug}`,
-    ogImage: og,
   });
 }
 

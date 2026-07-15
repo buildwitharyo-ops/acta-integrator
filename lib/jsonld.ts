@@ -1,8 +1,6 @@
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+import { SITE_URL, absoluteUrl as abs } from "@/lib/site-url";
 
-export const ORG_ID = `${siteUrl}/#organization`;
-
-const abs = (path: string) => new URL(path, siteUrl).toString();
+export const ORG_ID = `${SITE_URL}/#organization`;
 
 function instagramUrl(handle: string) {
   if (/^https?:\/\//.test(handle)) return handle;
@@ -21,6 +19,60 @@ export function organizationNode(contact?: { email?: string | null; instagram?: 
     url: abs("/"),
     logo: { "@type": "ImageObject", url: abs("/brand/logo-acta-black.png") },
     ...(contact?.email ? { email: contact.email } : {}),
+    ...(sameAs ? { sameAs } : {}),
+  };
+}
+
+// WebSite (03 §8) — SearchAction points at the catalog's client-side search (?q=). Homepage only.
+export function webSiteNode() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    url: abs("/"),
+    name: "ACTA",
+    publisher: { "@id": ORG_ID },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: abs("/products?q={search_term_string}") },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+// LocalBusiness (03 §8) — homepage only; built strictly from real site_settings (honesty rule:
+// only emit fields that actually exist, no invented address/rating).
+export function localBusinessNode(info: {
+  email?: string | null;
+  whatsapp?: string | null;
+  instagram?: string | null;
+  address?: string | null;
+  city?: string | null;
+}) {
+  const sameAs = info.instagram ? [instagramUrl(info.instagram)] : undefined;
+  const hasAddress = Boolean(info.address || info.city);
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${SITE_URL}/#localbusiness`,
+    name: "PT ACTA Solusi Teknologi",
+    alternateName: "ACTA",
+    url: abs("/"),
+    image: abs("/brand/logo-acta-black.png"),
+    parentOrganization: { "@id": ORG_ID },
+    areaServed: "ID",
+    ...(info.email ? { email: info.email } : {}),
+    ...(info.whatsapp ? { telephone: info.whatsapp } : {}),
+    ...(hasAddress
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            ...(info.address ? { streetAddress: info.address } : {}),
+            ...(info.city ? { addressLocality: info.city } : {}),
+            addressCountry: "ID",
+          },
+        }
+      : {}),
     ...(sameAs ? { sameAs } : {}),
   };
 }

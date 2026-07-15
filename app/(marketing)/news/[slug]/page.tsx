@@ -20,14 +20,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const article = await getArticleBySlug("news", slug);
   if (!article) return {};
-  const og = article.cover_is_placeholder
-    ? undefined
-    : mediaUrl({ storage_path: article.cover_image_path, external_url: article.cover_image_url_ext }) ?? undefined;
+  // OG image comes from ./opengraph-image.tsx (branded template + cover) — no ogImage here.
   return buildMetadata({
     title: article.seo_title ?? `${article.title} | ACTA`,
     description: article.seo_description ?? article.excerpt ?? undefined,
     path: `/news/${slug}`,
-    ogImage: og,
   });
 }
 

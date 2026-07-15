@@ -5,10 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { LeadForm } from "@/components/shared/LeadForm";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
 import { trackEvent } from "@/lib/analytics";
+import { SITE_URL } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
 import { useCompare } from "./CompareProvider";
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
 
 export function ProductCtaPanel({
   productName,
@@ -24,7 +23,7 @@ export function ProductCtaPanel({
   const [open, setOpen] = useState(false);
   const { items } = useCompare();
   const trayOpen = items.length > 0;
-  const url = `${siteUrl}/products/${slug}`;
+  const url = `${SITE_URL}/products/${slug}`;
   const waMessage = `Halo ACTA, saya ingin minta penawaran untuk ${productName}${brandName ? ` (${brandName})` : ""}. Sumber: ${url}`;
   const microcopy = claim ?? "Tim engineering ACTA akan menghubungi Anda.";
 

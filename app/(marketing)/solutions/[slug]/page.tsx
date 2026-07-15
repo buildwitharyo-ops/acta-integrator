@@ -34,15 +34,11 @@ export async function generateMetadata({
   const solution = await getSolutionBySlug(slug);
   if (!solution) return {};
 
-  const ogImage = solution.hero_is_placeholder
-    ? undefined
-    : mediaUrl({ storage_path: solution.hero_image_path, external_url: solution.hero_image_url_ext }) ?? undefined;
-
+  // OG image comes from ./opengraph-image.tsx (branded template + hero) — no ogImage here.
   return buildMetadata({
     title: solution.seo_title ?? solution.name ?? undefined,
     description: solution.seo_description ?? solution.value_prop ?? undefined,
     path: `/solutions/${slug}`,
-    ogImage,
   });
 }
 
