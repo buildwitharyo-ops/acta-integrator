@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/shared/JsonLd";
 import { LeadForm } from "@/components/shared/LeadForm";
+import { WaLink } from "@/components/shared/WaLink";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
 import { contactPageNode } from "@/lib/jsonld";
 import { getPageSections } from "@/lib/queries/pages";
@@ -81,9 +82,9 @@ export default async function ContactPage({
 
             <div className="mt-6 px-1">
               <InfoRow label="WHATSAPP">
-                <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-accent-text">
+                <WaLink href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`} waContext="contact_info" target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-accent-text">
                   {formatWaDisplay(whatsapp)}
-                </a>
+                </WaLink>
               </InfoRow>
               <InfoRow label="EMAIL">
                 <a href={`mailto:${email}`} className="transition-colors hover:text-accent-text">

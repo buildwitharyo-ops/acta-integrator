@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { TrackedLink } from "@/components/shared/TrackedLink";
 import { motion, useReducedMotion } from "motion/react";
 import { useTheme } from "next-themes";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -184,15 +184,17 @@ export function ImpactSection() {
           </div>
         )}
 
-        <Link
+        <TrackedLink
           href="/contact"
+          ctaId="impact_contact"
+          location="home_impact"
           className="mt-6 flex items-center justify-center gap-2 rounded-pill bg-foreground px-6 py-4 text-center text-background transition-opacity hover:opacity-90"
         >
           <span className="body-sm font-medium">
             Punya ruang yang ingin diintegrasikan? Konsultasikan dengan tim ACTA.
           </span>
           <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} strokeWidth={2} className="shrink-0" />
-        </Link>
+        </TrackedLink>
       </div>
     </section>
   );

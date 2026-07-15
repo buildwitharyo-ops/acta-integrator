@@ -57,14 +57,20 @@ async function forward(lead: ForwardLead): Promise<ForwardResult> {
 
   if (created.error) {
     if (created.error.code !== "23505") return { ok: false, error: created.error.message };
-    const filters = [
-      phone ? `whatsapp.eq.${phone}` : null,
-      lead.email ? `email.eq.${lead.email}` : null,
-    ]
-      .filter(Boolean)
-      .join(",");
-    if (!filters) return { ok: false, error: "company dedup without match key" };
-    const existing = await os.from("companies").select("id").or(filters).limit(1).maybeSingle();
+    // 23505 = an existing company already holds this phone under the unique dedup index
+    // normalize_phone(coalesce(whatsapp,phone)). PostgREST can't filter that functional index, so we
+    // best-effort re-select on the raw phone in either column. LIMITATION: a company whose phone is
+    // stored non-normalized (e.g. "(021)…") won't match here — robustly recovering every collision
+    // needs an ACTA-OS RPC comparing normalize_phone() on both sides (a CRM-side change, 09 §10).
+    // Email is deliberately NOT a match key: it could attach this lead to an unrelated company that
+    // merely shares an address. Miss ⇒ forward fails but the lead stays durably saved locally.
+    if (!phone) return { ok: false, error: "company dedup 23505 without phone key" };
+    const existing = await os
+      .from("companies")
+      .select("id")
+      .or(`whatsapp.eq.${phone},phone.eq.${phone}`)
+      .limit(1)
+      .maybeSingle();
     companyId = (existing.data?.id as string | undefined) ?? null;
   } else {
     companyId = created.data.id as string;

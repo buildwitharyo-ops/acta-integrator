@@ -18,6 +18,7 @@ import { CornerTicks } from "@/components/shared/CornerTicks";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
 import { SignalMeter } from "@/components/shared/SignalMeter";
+import { trackEvent } from "@/lib/analytics";
 import { categoryIcon, solutionIcon } from "@/components/shared/section-icons";
 import { cn } from "@/lib/utils";
 
@@ -159,7 +160,11 @@ export function Navbar({
             </div>
           </div>
           <MegaFooter>
-            <Link href="/solutions" className="mono-label text-accent-text">
+            <Link
+              href="/solutions"
+              onClick={() => trackEvent("cta_click", { cta_id: "nav_lihat_solusi", location: "navbar_solutions_mega" })}
+              className="mono-label text-accent-text"
+            >
               Lihat semua solusi →
             </Link>
           </MegaFooter>
@@ -176,6 +181,7 @@ function SolutionRow({ solution, compact }: { solution: NavSolution; compact?: b
     <li>
       <Link
         href={`/solutions/${solution.slug}`}
+        onClick={() => trackEvent("cta_click", { cta_id: `solution_card_${solution.slug}`, location: "navbar_solutions_mega" })}
         className="group flex items-start gap-3 rounded-md p-2.5 transition-colors hover:bg-card"
       >
         <HugeiconsIcon
@@ -241,7 +247,7 @@ function ProductsMega({ categories }: { categories: NavCategory[] }) {
                     alt={current.name ? `Perangkat kategori ${current.name}` : "Perangkat AV"}
                     fill
                     sizes="560px"
-                    className="object-cover"
+                    className="object-contain p-5"
                   />
                 ) : null}
                 <CornerTicks />
@@ -253,10 +259,18 @@ function ProductsMega({ categories }: { categories: NavCategory[] }) {
         </div>
       </div>
       <MegaFooter>
-        <Link href="/products" className="mono-label text-accent-text">
+        <Link
+          href="/products"
+          onClick={() => trackEvent("cta_click", { cta_id: "nav_lihat_katalog", location: "navbar_products_mega" })}
+          className="mono-label text-accent-text"
+        >
           Lihat Katalog →
         </Link>
-        <Link href="/products/compare" className="mono-label text-muted-foreground transition-colors hover:text-foreground">
+        <Link
+          href="/products/compare"
+          onClick={() => trackEvent("cta_click", { cta_id: "nav_bandingkan_produk", location: "navbar_products_mega" })}
+          className="mono-label text-muted-foreground transition-colors hover:text-foreground"
+        >
           Bandingkan Produk
         </Link>
       </MegaFooter>

@@ -58,7 +58,7 @@ export function FeatureCarousel({
       onTouchCancel={() => setPaused(false)}
       className={cn("grid gap-5 lg:grid-cols-2 lg:items-stretch lg:gap-6", className)}
     >
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-2">
         {items.map((item, i) => {
           const on = i === active;
           return (
@@ -70,7 +70,7 @@ export function FeatureCarousel({
               onFocus={() => setActive(i)}
               onMouseEnter={() => setActive(i)}
               className={cn(
-                "group relative flex items-center overflow-hidden rounded-[14px] border px-4 py-3.5 text-left transition-colors lg:flex-1",
+                "group relative flex items-center overflow-hidden rounded-[14px] border px-4 py-3 text-left transition-colors lg:flex-1",
                 on ? "border-primary/45 bg-card" : "border-border hover:border-border hover:bg-card/60",
               )}
             >
@@ -119,16 +119,15 @@ export function FeatureCarousel({
             exit={reduce ? undefined : { opacity: 0 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
           >
-            <div className="relative aspect-[16/10]">
+            <div className="relative aspect-[16/9]">
               {current.image ? (
-                <Image src={current.image} alt={current.imageAlt} fill sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
+                <Image src={current.image} alt={current.imageAlt} fill sizes="(min-width: 1024px) 560px, 100vw" className="object-contain p-5" />
               ) : (
                 <div className="texture-grid absolute inset-0 opacity-40" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-card/70 to-transparent" />
               <CornerTicks />
             </div>
-            <div className="p-6">
+            <div className="p-5 pt-4">
               {current.meta ? <p className="mono-spec text-muted-foreground">{current.meta}</p> : null}
               <p className="heading-lg mt-1">{current.title}</p>
               <p className="body-md mt-2 max-w-[52ch] text-muted-foreground">{current.description}</p>

@@ -43,7 +43,7 @@ export async function generateMetadata({
 }
 
 type Section = { type: string | null; heading: string | null; body: string | null; items: unknown };
-type ListItem = { title?: string; body?: string; description?: string };
+type ListItem = { title?: string; body?: string; description?: string; image_url?: string };
 
 export default async function SolutionDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
@@ -79,8 +79,9 @@ export default async function SolutionDetailPage({ params }: { params: Promise<P
 
   // Narrative beats numbered only across the sections actually present.
   let beat = 0;
-  const painEyebrow = pain ? `${String(++beat).padStart(2, "0")} — TANTANGAN` : "";
-  const systemEyebrow = system || stages.length ? `${String(++beat).padStart(2, "0")} — SISTEM` : "";
+  const hasPain = !!pain && asList(pain.items).some((i) => Boolean(i.title));
+  const painEyebrow = hasPain ? `${String(++beat).padStart(2, "0")} — PROBLEM` : "";
+  const systemEyebrow = system || stages.length ? `${String(++beat).padStart(2, "0")} — SYSTEM` : "";
   const scopeEyebrow = scope ? `${String(++beat).padStart(2, "0")} — SCOPE OF WORK` : "";
 
   const heroHeadline = solution.hero_headline ?? solution.value_prop ?? name;
@@ -126,18 +127,18 @@ export default async function SolutionDetailPage({ params }: { params: Promise<P
         hasProducts={products.length > 0}
       />
 
-      {pain ? (
+      {hasPain ? (
         <PainPoints
           eyebrow={painEyebrow}
-          heading={pain.heading ?? "Tantangan yang kami selesaikan"}
-          items={asList(pain.items)}
+          heading={pain!.heading ?? "Problem that we solve"}
+          items={asList(pain!.items)}
         />
       ) : null}
 
       {system || stages.length ? (
         <SystemDesign
           eyebrow={systemEyebrow}
-          heading={system?.heading ?? "Sistem yang kami rancang"}
+          heading={system?.heading ?? "The system we design"}
           body={system?.body}
           stages={stages}
         />
@@ -156,7 +157,7 @@ export default async function SolutionDetailPage({ params }: { params: Promise<P
       <RelatedArticles articles={articles} />
 
       <SolutionCta
-        heading={cta?.heading ?? "Ceritakan kebutuhan Anda — kami bantu rancang sistemnya."}
+        heading={cta?.heading ?? "Tell us what you need — we'll design the system."}
         solutionName={name}
         solutionSlug={slug}
         waMessage={solution.wa_message}

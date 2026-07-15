@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { TrackedLink } from "@/components/shared/TrackedLink";
 import { ParticleNetwork } from "@/components/ui/particle-network";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
 import { Button } from "@/components/ui/button";
@@ -48,12 +48,16 @@ export function Hero({
             emphasis="orbit"
           />
           <Button asChild variant="glass" size="lg">
-            <Link href={content.cta_secondary?.href ?? "/solutions"}>
+            <TrackedLink
+              href={content.cta_secondary?.href ?? "/solutions"}
+              ctaId="hero_secondary"
+              location="home_hero"
+            >
               {(content.cta_secondary?.label ?? "Lihat Solutions").replace(
                 /\s*→\s*$/,
                 "",
               )}
-            </Link>
+            </TrackedLink>
           </Button>
         </div>
       </div>

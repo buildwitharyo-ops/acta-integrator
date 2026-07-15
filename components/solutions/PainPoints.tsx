@@ -1,9 +1,10 @@
-"use client";
+import { FocusRail, type FocusRailItem } from "@/components/ui/focus-rail";
 
-import { motion, useReducedMotion } from "motion/react";
-import { EASE } from "@/lib/motion";
+type PainPoint = { title?: string; body?: string; image_url?: string };
 
-type PainPoint = { title?: string; body?: string };
+// Dark showcase fallback so a pain point saved without an image never renders a broken <img>.
+const FALLBACK_IMG =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='400'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='1'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%23222528'/%3E%3Cstop%20offset='1'%20stop-color='%230b0c0e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='300'%20height='400'%20fill='url(%23g)'/%3E%3C/svg%3E";
 
 export function PainPoints({
   eyebrow,
@@ -14,39 +15,28 @@ export function PainPoints({
   heading: string;
   items: PainPoint[];
 }) {
-  const reduce = useReducedMotion();
   const points = items.filter((p) => p.title);
+  if (points.length === 0) return null;
+
+  const railItems: FocusRailItem[] = points.map((p, i) => {
+    const url = p.image_url?.trim();
+    return {
+      id: i,
+      title: p.title!,
+      description: p.body,
+      // Only trust an http(s) URL; anything else (blank or garbage) degrades to the gradient.
+      imageSrc: url && /^https?:\/\//i.test(url) ? url : FALLBACK_IMG,
+      meta: `PROBLEM ${String(i + 1).padStart(2, "0")}`,
+    };
+  });
 
   return (
-    <section className="container py-section">
-      <p className="mono-label text-accent-text">{eyebrow}</p>
-      <h2 className="display-lg mt-3 max-w-[24ch]">{heading}</h2>
-
-      <ol className="mt-10 max-w-4xl">
-        {points.map((p, i) => (
-          <li key={i} className="grid gap-4 border-t border-border py-7 first:border-t-0 first:pt-0 md:grid-cols-[6rem_1fr] md:gap-10">
-            <div className="flex items-start gap-3 md:flex-col md:gap-3">
-              <span className="font-mono text-3xl tabular-nums text-foreground/25 md:text-4xl">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <motion.span
-                aria-hidden
-                className="mt-3 block h-0.5 w-10 origin-left bg-primary md:mt-0"
-                initial={reduce ? false : { scaleX: 0 }}
-                whileInView={{ scaleX: 1 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
-              />
-            </div>
-            <div>
-              <h3 className="heading-lg">{p.title}</h3>
-              {p.body ? (
-                <p className="body-md mt-2 max-w-[62ch] text-muted-foreground">{p.body}</p>
-              ) : null}
-            </div>
-          </li>
-        ))}
-      </ol>
+    <section className="bg-neutral-950 text-white">
+      <div className="container pb-6 pt-16 md:pt-24">
+        <p className="mono-label text-[#E4A548]">{eyebrow}</p>
+        <h2 className="display-lg mt-3 max-w-[24ch] text-white">{heading}</h2>
+      </div>
+      <FocusRail items={railItems} ariaLabel={heading} className="pb-16" />
     </section>
   );
 }

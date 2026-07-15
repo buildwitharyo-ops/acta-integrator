@@ -128,6 +128,7 @@ export function ProductCard({
               size="sm"
               buttonVariant="secondary"
               trackContext="card"
+              quoteSlugs={product.slug ? [product.slug] : undefined}
               className="shrink-0"
             />
           ) : null}

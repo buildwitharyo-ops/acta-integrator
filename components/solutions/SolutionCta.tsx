@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { MeterDivider } from "@/components/shared/MeterDivider";
+import { TrackedLink } from "@/components/shared/TrackedLink";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
 
 export function SolutionCta({
@@ -32,12 +32,14 @@ export function SolutionCta({
               emphasis="orbit"
               size="lg"
             />
-            <Link
+            <TrackedLink
               href={`/contact?solution=${solutionSlug}`}
+              ctaId="solution_cta_form"
+              location={`solution_${solutionSlug}`}
               className="inline-flex h-[52px] items-center justify-center rounded-pill px-8 text-base font-medium text-background ring-1 ring-inset ring-background/30 transition-colors hover:bg-background/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background/60"
             >
               Kirim Kebutuhan via Form
-            </Link>
+            </TrackedLink>
           </div>
         </div>
       </div>

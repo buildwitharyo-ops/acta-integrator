@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { TrackedLink } from "@/components/shared/TrackedLink";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { MeterDivider } from "@/components/shared/MeterDivider";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
@@ -176,9 +176,14 @@ export function ArticleDetail({
                   <p className="mono-label text-accent-text">PRODUK TERKAIT</p>
                   <h2 className="display-md mt-2">Perangkat yang relevan</h2>
                 </div>
-                <Link href="/products" className="mono-label text-accent-text transition-colors hover:text-foreground">
+                <TrackedLink
+                  href="/products"
+                  ctaId="article_lihat_katalog"
+                  location="article_detail"
+                  className="mono-label text-accent-text transition-colors hover:text-foreground"
+                >
                   Lihat di Catalog →
-                </Link>
+                </TrackedLink>
               </div>
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {relatedProducts.map((p) => (

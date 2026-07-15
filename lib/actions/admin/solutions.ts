@@ -10,8 +10,18 @@ import type { Json } from "@/lib/supabase/types";
 
 export type SaveResult = { ok: true; id: string } | { ok: false; error: string };
 
+// Repeater rows whose title is blank are dropped rather than failing the whole save.
+function dropTitleless(v: unknown) {
+  if (!Array.isArray(v)) return v;
+  return v.filter((it) => it && typeof it === "object" && String((it as { title?: unknown }).title ?? "").trim() !== "");
+}
+
 const pillarSchema = z.object({ title: z.string().trim().min(1), description: z.string().trim().default("") });
-const painSchema = z.object({ title: z.string().trim().min(1), body: z.string().trim().default("") });
+const painSchema = z.object({
+  title: z.string().trim().min(1),
+  body: z.string().trim().default(""),
+  image_url: z.string().trim().default(""),
+});
 
 const solutionSchema = z.object({
   id: z.string().uuid().optional().nullable(),
@@ -28,8 +38,11 @@ const solutionSchema = z.object({
   sort_order: z.coerce.number().int().default(0),
   status: z.enum(["draft", "published"]),
   related_product_ids: z.array(z.string().uuid()).default([]),
-  pain_points: z.array(painSchema).default([]),
-  scope_pillars: z.array(pillarSchema).default([]),
+  pain_heading: z.string().trim().optional().default(""),
+  // Drop blank repeater rows (empty title) BEFORE validation so a stray empty row never fails the
+  // whole save — an item without a title is not a real point.
+  pain_points: z.preprocess(dropTitleless, z.array(painSchema).default([])),
+  scope_pillars: z.preprocess(dropTitleless, z.array(pillarSchema).default([])),
 });
 
 function revalidateSolution(slug: string, oldSlug?: string) {
@@ -102,7 +115,7 @@ export async function saveSolution(input: unknown): Promise<SaveResult> {
   await supabase.from("solution_sections").delete().eq("solution_id", solutionId).in("type", ["pain_points", "scope_pillar"]);
   const sections = [];
   if (v.pain_points.length) {
-    sections.push({ solution_id: solutionId, type: "pain_points" as const, heading: "Tantangan yang kami selesaikan", body: null, items: v.pain_points as unknown as Json, sort_order: 0 });
+    sections.push({ solution_id: solutionId, type: "pain_points" as const, heading: v.pain_heading || "Problem that we solve", body: null, items: v.pain_points as unknown as Json, sort_order: 0 });
   }
   if (v.scope_pillars.length) {
     sections.push({ solution_id: solutionId, type: "scope_pillar" as const, heading: "Scope of Work", body: null, items: v.scope_pillars as unknown as Json, sort_order: 2 });

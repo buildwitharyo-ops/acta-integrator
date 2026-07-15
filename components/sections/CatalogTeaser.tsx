@@ -31,19 +31,19 @@ export function CatalogTeaser({
     }));
 
   return (
-    <section className="container py-section">
+    <section className="container py-compact">
       <p className="mono-label text-accent-text">CATALOG</p>
-      <h2 className="display-lg mt-3 max-w-[20ch]">
+      <h2 className="display-lg mt-2.5 max-w-[20ch]">
         {content.headline ?? "Professional Gear, Curated by Need."}
       </h2>
 
-      <p className="body-lg mt-4 max-w-[62ch] text-muted-foreground">
+      <p className="body-md mt-3 max-w-[62ch] text-muted-foreground">
         {content.subheadline ??
           "Enam kategori perangkat yang kami desain, pasok, dan integrasikan. Harga mengikuti kebutuhan project — minta penawaran, tim kami respons cepat."}
       </p>
 
       {items.length > 0 ? (
-        <FeatureCarousel items={items} ctaLabel="Lihat kategori" className="mt-8" />
+        <FeatureCarousel items={items} ctaLabel="Lihat kategori" className="mt-6" />
       ) : null}
     </section>
   );

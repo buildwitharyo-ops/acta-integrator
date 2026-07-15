@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { TrackedLink } from "@/components/shared/TrackedLink";
 import { SignalMeter } from "@/components/shared/SignalMeter";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,9 @@ export function FinalCta({
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <WhatsAppCTA context="general" label="Konsultasi via WhatsApp" size="lg" emphasis="orbit" />
           <Button asChild variant="glass" size="lg">
-            <Link href="/contact">Kirim Kebutuhan</Link>
+            <TrackedLink href="/contact" ctaId="final_cta_kirim_kebutuhan" location="home_final_cta">
+              Kirim Kebutuhan
+            </TrackedLink>
           </Button>
         </div>
         <p className="mono-spec mx-auto mt-10 max-w-[64ch] text-muted-foreground">{contact}</p>

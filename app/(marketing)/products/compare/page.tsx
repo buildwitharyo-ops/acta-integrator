@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CompareTable } from "@/components/catalog/CompareTable";
+import { CompareViewTracker } from "@/components/catalog/CompareViewTracker";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { getCompareData } from "@/lib/queries/products";
 import { buildMetadata } from "@/lib/seo";
@@ -52,6 +53,12 @@ export default async function ComparePage({
 
   return (
     <section className="container py-section">
+      {/* Fire compare_view only when a real (single-category) comparison renders — never on the
+          cross-category split screen. Gating on singleCategory also means a cross→single "Bandingkan
+          grup ini" nav mounts this fresh, so that comparison is counted too. */}
+      {singleCategory ? (
+        <CompareViewTracker slugs={ordered.map((p) => p.slug).filter((s): s is string => Boolean(s))} />
+      ) : null}
       <p className="mono-label text-accent-text">BANDINGKAN</p>
       <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <h1 className="display-lg">Bandingkan Produk</h1>

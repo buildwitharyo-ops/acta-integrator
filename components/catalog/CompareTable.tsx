@@ -145,6 +145,7 @@ export function CompareTable({ products, specDefs }: { products: CompareProduct[
                       size="sm"
                       buttonVariant="secondary"
                       trackContext="compare"
+                      quoteSlugs={p.slug ? [p.slug] : undefined}
                       className="mt-2.5 w-full"
                     />
                   </th>
@@ -222,6 +223,7 @@ export function CompareTable({ products, specDefs }: { products: CompareProduct[
           label="Konsultasikan Pilihan"
           emphasis="orbit"
           trackContext="compare"
+          quoteSlugs={products.map((p) => p.slug).filter((s): s is string => Boolean(s))}
         />
       </div>
     </div>

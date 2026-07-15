@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LeadForm } from "@/components/shared/LeadForm";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
-import { trackEvent } from "@/lib/analytics";
 import { SITE_URL } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
 import { useCompare } from "./CompareProvider";
@@ -30,10 +29,7 @@ export function ProductCtaPanel({
   const formButton = (
     <button
       type="button"
-      onClick={() => {
-        setOpen(true);
-        trackEvent("cta_click", { context: "product_form", slug });
-      }}
+      onClick={() => setOpen(true)}
       className="inline-flex h-11 w-full items-center justify-center rounded-pill px-6 text-[0.95rem] font-medium text-foreground ring-1 ring-inset ring-border transition-colors hover:bg-card"
     >
       Kirim via Form
@@ -57,6 +53,7 @@ export function ProductCtaPanel({
               emphasis="orbit"
               size="lg"
               trackContext="detail"
+              quoteSlugs={[slug]}
               className="w-full [&>span]:w-full"
             />
             {formButton}
@@ -80,6 +77,7 @@ export function ProductCtaPanel({
               label="Minta Penawaran"
               size="default"
               trackContext="detail"
+              quoteSlugs={[slug]}
               className="w-full"
             />
           </div>

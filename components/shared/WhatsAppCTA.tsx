@@ -15,6 +15,9 @@ type WhatsAppCTAProps = {
   emphasis?: "default" | "orbit";
   buttonVariant?: "whatsapp" | "secondary" | "glass";
   trackContext?: string;
+  // When set, a "Minta Penawaran" WA CTA from product/compare also fires quote_request
+  // (10-TECH §9 event #3) with the product slug(s), in addition to whatsapp_click.
+  quoteSlugs?: string[];
   className?: string;
 };
 
@@ -34,11 +37,16 @@ export function WhatsAppCTA({
   emphasis = "default",
   buttonVariant = "whatsapp",
   trackContext,
+  quoteSlugs,
   className,
 }: WhatsAppCTAProps) {
   const href = buildWaLink({ context, name, items, message });
-  const track = () =>
+  const track = () => {
     trackEvent("whatsapp_click", { context: trackContext ?? context, item: name ?? items?.join(", ") ?? null });
+    if (quoteSlugs && quoteSlugs.length > 0) {
+      trackEvent("quote_request", { product_slug: quoteSlugs.join(",") });
+    }
+  };
 
   if (emphasis === "orbit") {
     return (

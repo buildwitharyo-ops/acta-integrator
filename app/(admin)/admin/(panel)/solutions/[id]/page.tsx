@@ -17,7 +17,7 @@ export default async function EditSolutionPage({ params }: { params: Promise<Par
 
   const [{ data: solution }, { data: sections }, { data: links }, media, products] = await Promise.all([
     sb.from("solutions").select("*").eq("id", id).maybeSingle(),
-    sb.from("solution_sections").select("type, items").eq("solution_id", id),
+    sb.from("solution_sections").select("type, heading, items").eq("solution_id", id),
     sb.from("product_solutions").select("product_id, sort_order").eq("solution_id", id).order("sort_order"),
     getMediaForPicker(),
     getProductOptions(),
@@ -43,7 +43,8 @@ export default async function EditSolutionPage({ params }: { params: Promise<Par
     sort_order: solution.sort_order ?? 0,
     status: (solution.status as "draft" | "published") ?? "draft",
     related_product_ids: (links ?? []).map((l) => l.product_id).filter((x): x is string => Boolean(x)),
-    pain_points: asItems(pain?.items).map((it) => ({ title: it.title ?? "", body: it.body ?? "" })),
+    pain_heading: pain?.heading ?? "",
+    pain_points: asItems(pain?.items).map((it) => ({ title: it.title ?? "", body: it.body ?? "", image_url: it.image_url ?? "" })),
     scope_pillars: asItems(scope?.items).map((it) => ({ title: it.title ?? "", description: it.description ?? "" })),
   };
 

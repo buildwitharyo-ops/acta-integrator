@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { TrackedLink } from "@/components/shared/TrackedLink";
 import { JsonLd } from "@/components/shared/JsonLd";
 import { MeterDivider } from "@/components/shared/MeterDivider";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
@@ -65,12 +65,14 @@ export default async function SolutionsHubPage() {
             </div>
             <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
               <WhatsAppCTA context="general" label="Konsultasi Gratis" emphasis="orbit" size="lg" />
-              <Link
+              <TrackedLink
                 href="/contact"
+                ctaId="solutions_hub_hubungi_tim"
+                location="solutions_hub_cta"
                 className="inline-flex h-[52px] items-center justify-center rounded-pill px-8 text-base font-medium text-background ring-1 ring-inset ring-background/30 transition-colors hover:bg-background/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-background/60"
               >
                 Hubungi Tim
-              </Link>
+              </TrackedLink>
             </div>
           </div>
         </div>

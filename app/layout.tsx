@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@/components/shared/Analytics";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { fontDisplay, fontMono, fontSans } from "@/lib/fonts";
 import { SITE_URL } from "@/lib/site-url";
@@ -31,6 +32,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

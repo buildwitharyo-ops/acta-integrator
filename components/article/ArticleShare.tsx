@@ -60,7 +60,7 @@ export function ArticleShare({ title }: { title: string }) {
         type="button"
         aria-label="Bagikan ke WhatsApp"
         onClick={() => {
-          trackEvent("cta_click", { context: "share_whatsapp" });
+          trackEvent("cta_click", { cta_id: "share_whatsapp", location: "article_detail" });
           open(`https://wa.me/?text=${enc(`${title} ${currentUrl()}`)}`);
         }}
         className={iconBtn}

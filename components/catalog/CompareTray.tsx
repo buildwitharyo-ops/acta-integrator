@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { trackEvent } from "@/lib/analytics";
 import { mediaUrl } from "@/lib/media";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -23,7 +22,8 @@ export function CompareTray() {
   const goCompare = () => {
     const slugs = items.map((i) => i.slug).filter(Boolean);
     if (slugs.length < 2) return;
-    trackEvent("compare_view", { slugs });
+    // compare_view fires on the compare page's own mount (CompareViewTracker) so direct links and
+    // back-nav are counted too — not here, which would double-count the click + the page open.
     router.push(`/products/compare?items=${slugs.join(",")}`);
   };
 

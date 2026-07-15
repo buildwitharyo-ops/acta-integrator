@@ -27,7 +27,8 @@ export type SolutionFormData = {
   sort_order: number;
   status: "draft" | "published";
   related_product_ids: string[];
-  pain_points: { title: string; body: string }[];
+  pain_heading: string;
+  pain_points: { title: string; body: string; image_url: string }[];
   scope_pillars: { title: string; description: string }[];
 };
 
@@ -165,14 +166,18 @@ export function SolutionForm({
         </Field>
       </AdminSection>
 
-      <AdminSection title="Tantangan (pain points)" description="Opsional. 3–4 poin dari sudut decision maker.">
+      <AdminSection title="Problem that we solve (pain points)" description="Opsional. 3–4 poin dari sudut decision maker. Judul sebaiknya English, deskripsi Indonesia.">
+        <Field label="Judul section" hint="Tampil sebagai heading section. Kosong = 'Problem that we solve'.">
+          <input className={inputCls} value={f.pain_heading} onChange={(e) => set("pain_heading", e.target.value)} placeholder="Problem that we solve" />
+        </Field>
         <Repeater
           items={f.pain_points}
           fields={[
-            { key: "title", label: "Judul pain point" },
-            { key: "body", label: "Penjelasan", textarea: true },
+            { key: "title", label: "Judul pain point (English)" },
+            { key: "body", label: "Penjelasan (Indonesia)", textarea: true },
+            { key: "image_url", label: "URL gambar (https://…) — tampil di carousel" },
           ]}
-          onChange={(items) => set("pain_points", items as { title: string; body: string }[])}
+          onChange={(items) => set("pain_points", items as { title: string; body: string; image_url: string }[])}
           addLabel="Tambah pain point"
         />
       </AdminSection>

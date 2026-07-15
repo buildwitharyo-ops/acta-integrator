@@ -92,7 +92,7 @@ export function CatalogBrowser({
       startTransition(() => {
         router.replace(qs ? `${basePath}?${qs}` : basePath, { scroll: false });
       });
-      if (filterEvent) trackEvent("catalog_filter", { category: next.category, brands: next.brands, solutions: next.solutions });
+      if (filterEvent) trackEvent("catalog_filter", { category: next.category, query: next.q, brands: next.brands, solutions: next.solutions });
     },
     [basePath, forcedCategory, router],
   );
@@ -109,7 +109,8 @@ export function CatalogBrowser({
       const current = stateRef.current;
       const trimmed = qInput.trim();
       const nextQ = trimmed.length >= 2 ? trimmed : "";
-      if (nextQ !== current.q) commit({ ...current, q: nextQ });
+      // Fire catalog_filter on a real search apply (not on clearing back to empty).
+      if (nextQ !== current.q) commit({ ...current, q: nextQ }, { filterEvent: nextQ.length > 0 });
     }, 300);
     return () => clearTimeout(handle);
   }, [qInput, commit]);

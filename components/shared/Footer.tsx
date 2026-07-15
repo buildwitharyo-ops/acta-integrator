@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SignalMeter } from "./SignalMeter";
 import { ActaLogo } from "./ActaLogo";
+import { WaLink } from "@/components/shared/WaLink";
 import { buildWaLink } from "@/lib/wa";
 
 type FooterSettings = {
@@ -77,9 +78,9 @@ export function Footer({
 
           <FooterColumn label="Kontak">
             <li>
-              <a href={waHref} target="_blank" rel="noopener noreferrer" className="mono-spec inline-block py-1 text-muted-foreground transition-colors hover:text-foreground">
+              <WaLink href={waHref} waContext="footer" target="_blank" rel="noopener noreferrer" className="mono-spec inline-block py-1 text-muted-foreground transition-colors hover:text-foreground">
                 {formatWa(settings?.whatsapp_number)}
-              </a>
+              </WaLink>
             </li>
             <li>
               <a href={`mailto:${settings?.email ?? "acta.arc@gmail.com"}`} className="mono-spec inline-block py-1 text-muted-foreground transition-colors hover:text-foreground">

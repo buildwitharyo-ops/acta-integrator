@@ -21,6 +21,7 @@ export default async function NewSolutionPage() {
     sort_order: 0,
     status: "draft",
     related_product_ids: [],
+    pain_heading: "",
     pain_points: [],
     scope_pillars: [],
   };

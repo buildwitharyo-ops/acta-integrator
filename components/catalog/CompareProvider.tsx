@@ -75,7 +75,7 @@ export function CompareProvider({ children }: { children: React.ReactNode }) {
         toast(`Maksimal ${COMPARE_MAX} produk per perbandingan`);
         return;
       }
-      trackEvent("compare_add", { slug: item.slug, category: item.category_slug, product_type: item.product_type_slug });
+      trackEvent("compare_add", { product_slug: item.slug, count: items.length + 1, category: item.category_slug, product_type: item.product_type_slug });
       setItems((prev) => (prev.some((p) => p.slug === item.slug) ? prev : [...prev, item]));
     },
     [items],
