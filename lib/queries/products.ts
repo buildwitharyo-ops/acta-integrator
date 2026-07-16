@@ -106,18 +106,23 @@ export const getProductCategories = unstable_cache(
   { tags: ["products"] },
 );
 
-// Each category with its product count + one representative image (featured first, else newest).
+// Each category with its product count + one representative image (featured first, else newest,
+// or an admin-picked override from the homepage Catalog Teaser section — 09 §4.2 `category_products`).
 // Drives the Products mega-menu hover preview and the homepage catalog carousel.
 export const getCategoryPreviews = unstable_cache(
   async () => {
     const supabase = createPublicClient();
-    const [{ data: cats }, { data: products }] = await Promise.all([
+    const [{ data: cats }, { data: products }, { data: teaserSection }] = await Promise.all([
       supabase.from("v_product_categories").select("id, name, slug, description").order("sort_order"),
       supabase
         .from("v_products")
         .select("id, category_slug, is_featured, created_at")
         .order("created_at", { ascending: false }),
+      // v_page_sections filters `is_enabled`, so a disabled Catalog Teaser section's overrides are
+      // treated as inactive too — consistent with "off" meaning its content isn't authoritative.
+      supabase.from("v_page_sections").select("content").eq("page_key", "home").eq("section_key", "catalog_teaser").maybeSingle(),
     ]);
+    const overrides = ((teaserSection?.content as { category_products?: Record<string, string> } | null)?.category_products) ?? {};
 
     const count = new Map<string, number>();
     for (const p of products ?? []) {
@@ -148,16 +153,27 @@ export const getCategoryPreviews = unstable_cache(
       if (img) catImage.set(p.category_slug, img);
     }
 
-    return (cats ?? []).map((c) => ({
-      slug: c.slug,
-      name: c.name,
-      description: c.description,
-      count: c.slug ? count.get(c.slug) ?? 0 : 0,
-      image: c.slug ? catImage.get(c.slug) ?? null : null,
-    }));
+    return (cats ?? []).map((c) => {
+      let image = c.slug ? catImage.get(c.slug) ?? null : null;
+      // Admin override: only honored if the picked product still exists, is published, and still
+      // belongs to THIS category — otherwise silently fall back to the automatic pick above.
+      const overrideId = c.slug ? overrides[c.slug] : undefined;
+      if (overrideId) {
+        const overrideProduct = (products ?? []).find((p) => p.id === overrideId && p.category_slug === c.slug);
+        const overrideImg = overrideProduct?.id ? firstImage.get(overrideProduct.id) : undefined;
+        if (overrideImg) image = overrideImg;
+      }
+      return {
+        slug: c.slug,
+        name: c.name,
+        description: c.description,
+        count: c.slug ? count.get(c.slug) ?? 0 : 0,
+        image,
+      };
+    });
   },
   ["category-previews"],
-  { tags: ["products"] },
+  { tags: ["products", "page:home"] },
 );
 
 export type CatalogSpecValue = {

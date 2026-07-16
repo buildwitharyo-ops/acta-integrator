@@ -19,6 +19,19 @@ export async function getProductOptions() {
     .map((p) => ({ id: p.id, label: p.name ?? "", sublabel: p.brand_name ?? "" }));
 }
 
+// Published products grouped by category_slug — feeds the homepage Catalog Teaser's per-category
+// product picker (only published products can be chosen, matching getProductOptions' convention).
+export async function getProductOptionsByCategory() {
+  const sb = createAdminClient();
+  const { data } = await sb.from("v_products").select("id, name, brand_name, category_slug").order("name");
+  const byCategory: Record<string, { id: string; label: string; sublabel: string }[]> = {};
+  for (const p of data ?? []) {
+    if (!p.id || !p.category_slug) continue;
+    (byCategory[p.category_slug] ??= []).push({ id: p.id, label: p.name ?? "", sublabel: p.brand_name ?? "" });
+  }
+  return byCategory;
+}
+
 export async function getSolutionOptions() {
   const sb = createAdminClient();
   const { data } = await sb.from("solutions").select("id, name, tier").order("tier").order("sort_order");

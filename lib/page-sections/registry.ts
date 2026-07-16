@@ -5,7 +5,7 @@ import { z } from "zod";
 // It is NOT a page builder: the set of pages + section keys is fixed here; admins can only
 // edit the fields of known sections. Media refs use the `_media_id` suffix convention (09 §4.2).
 
-export type FieldType = "text" | "textarea" | "media" | "link" | "linkLabel" | "repeater";
+export type FieldType = "text" | "textarea" | "media" | "link" | "linkLabel" | "repeater" | "categoryProducts";
 
 export type FieldDef = {
   key: string;
@@ -81,6 +81,12 @@ export const SECTION_FIELDS: Record<string, FieldDef[]> = {
     { key: "headline", label: "Headline", type: "text" },
     { key: "subheadline", label: "Subheadline", type: "textarea", rows: 2 },
     { key: "cta", label: "CTA", type: "link" },
+    {
+      key: "category_products",
+      label: "Produk per Kategori",
+      type: "categoryProducts",
+      hint: "Kosong = otomatis (produk unggulan, lalu produk terbaru di kategori itu). Pilih produk untuk mengunci foto yang tampil di carousel katalog homepage.",
+    },
   ],
   proof: [
     { key: "eyebrow", label: "Eyebrow", type: "text" },
@@ -209,6 +215,9 @@ function fieldSchema(f: FieldDef): z.ZodTypeAny {
       const arr = f.max ? z.array(item).max(f.max) : z.array(item);
       return arr.default([]);
     }
+    case "categoryProducts":
+      // { [category_slug]: product_id | "" } — "" (or a missing key) means "auto" (06 §1.2 fallback).
+      return z.record(z.string(), z.string()).default({});
   }
 }
 
@@ -233,6 +242,8 @@ export function hydrateContent(fields: FieldDef[], stored: Record<string, unknow
       out[f.key] = { label: String(o.label ?? "") };
     } else if (f.type === "media") {
       out[f.key] = typeof v === "string" && v ? v : null;
+    } else if (f.type === "categoryProducts") {
+      out[f.key] = v && typeof v === "object" && !Array.isArray(v) ? v : {};
     } else {
       out[f.key] = typeof v === "string" ? v : v == null ? "" : String(v);
     }

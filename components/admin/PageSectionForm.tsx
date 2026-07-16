@@ -9,6 +9,8 @@ import { savePageSection } from "@/lib/actions/admin/pages";
 import { emptyItem, type FieldDef, type PageSectionRef } from "@/lib/page-sections/registry";
 
 type Content = Record<string, unknown>;
+type CategoryOption = { slug: string; name: string };
+type ProductOption = { id: string; label: string; sublabel: string };
 
 function ScalarInput({ field, value, onChange, media }: { field: FieldDef; value: unknown; onChange: (v: unknown) => void; media: MediaItem[] }) {
   switch (field.type) {
@@ -92,9 +94,77 @@ function RepeaterField({ field, value, onChange, media }: { field: FieldDef; val
   );
 }
 
-function FieldRenderer({ field, value, onChange, media }: { field: FieldDef; value: unknown; onChange: (v: unknown) => void; media: MediaItem[] }) {
+function CategoryProductsField({
+  field,
+  value,
+  onChange,
+  categories,
+  productsByCategory,
+}: {
+  field: FieldDef;
+  value: Record<string, string>;
+  onChange: (v: Record<string, string>) => void;
+  categories: CategoryOption[];
+  productsByCategory: Record<string, ProductOption[]>;
+}) {
+  return (
+    <Field label={field.label} hint={field.hint}>
+      <div className="space-y-2">
+        {categories.map((c) => {
+          const opts = productsByCategory[c.slug] ?? [];
+          return (
+            <div key={c.slug} className="grid gap-1.5 sm:grid-cols-[10rem_1fr] sm:items-center">
+              <span className="text-sm font-medium">{c.name}</span>
+              <select
+                className={inputCls}
+                value={value[c.slug] ?? ""}
+                onChange={(e) => onChange({ ...value, [c.slug]: e.target.value })}
+              >
+                <option value="">— Otomatis (unggulan/terbaru) —</option>
+                {opts.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.label}
+                    {p.sublabel ? ` — ${p.sublabel}` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          );
+        })}
+        {categories.length === 0 ? <p className="text-sm text-muted-foreground">Belum ada kategori produk.</p> : null}
+      </div>
+    </Field>
+  );
+}
+
+function FieldRenderer({
+  field,
+  value,
+  onChange,
+  media,
+  categories,
+  productsByCategory,
+}: {
+  field: FieldDef;
+  value: unknown;
+  onChange: (v: unknown) => void;
+  media: MediaItem[];
+  categories: CategoryOption[];
+  productsByCategory: Record<string, ProductOption[]>;
+}) {
   if (field.type === "repeater") {
     return <RepeaterField field={field} value={Array.isArray(value) ? (value as Content[]) : []} onChange={onChange} media={media} />;
+  }
+  if (field.type === "categoryProducts") {
+    return (
+      <CategoryProductsField
+        field={field}
+        value={(value as Record<string, string>) ?? {}}
+        onChange={onChange}
+        categories={categories}
+        productsByCategory={productsByCategory}
+      />
+    );
   }
   return (
     <Field label={field.label} hint={field.hint}>
@@ -110,6 +180,8 @@ export function PageSectionForm({
   initialContent,
   initialEnabled,
   media,
+  categories = [],
+  productsByCategory = {},
   defaultOpen = false,
 }: {
   pageKey: string;
@@ -118,6 +190,8 @@ export function PageSectionForm({
   initialContent: Content;
   initialEnabled: boolean;
   media: MediaItem[];
+  categories?: CategoryOption[];
+  productsByCategory?: Record<string, ProductOption[]>;
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -148,7 +222,15 @@ export function PageSectionForm({
       {open ? (
         <div className="space-y-4 border-t border-border px-5 py-4">
           {fields.map((f) => (
-            <FieldRenderer key={f.key} field={f} value={content[f.key]} onChange={(v) => setContent((c) => ({ ...c, [f.key]: v }))} media={media} />
+            <FieldRenderer
+              key={f.key}
+              field={f}
+              value={content[f.key]}
+              onChange={(v) => setContent((c) => ({ ...c, [f.key]: v }))}
+              media={media}
+              categories={categories}
+              productsByCategory={productsByCategory}
+            />
           ))}
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="h-4 w-4 rounded border-border" />
