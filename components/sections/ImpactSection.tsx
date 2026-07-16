@@ -2,13 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { TrackedLink } from "@/components/shared/TrackedLink";
 import { motion, useReducedMotion } from "motion/react";
 import { useTheme } from "next-themes";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
-import { SparklesCore } from "@/components/ui/sparkles";
 import { cn } from "@/lib/utils";
+
+// @tsparticles is ~140KB parsed — a decorative below-the-fold divider effect doesn't justify
+// shipping that in the homepage's initial bundle (08 §8 bundle/LCP budget). Load it only on the
+// client, after hydration; ssr:false is safe since it's non-critical to content or paint.
+const SparklesCore = dynamic(() => import("@/components/ui/sparkles").then((m) => m.SparklesCore), {
+  ssr: false,
+});
 
 type ImpactCard = {
   metric: string;

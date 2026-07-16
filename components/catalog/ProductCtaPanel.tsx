@@ -1,12 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { LeadForm } from "@/components/shared/LeadForm";
 import { WhatsAppCTA } from "@/components/shared/WhatsAppCTA";
 import { SITE_URL } from "@/lib/site-url";
 import { cn } from "@/lib/utils";
 import { useCompare } from "./CompareProvider";
+
+// react-hook-form + zod (~27KB gzip) only matter once the quote dialog is actually opened — keep
+// them out of every product detail page's initial bundle (08 §8 JS budget).
+const LeadForm = dynamic(() => import("@/components/shared/LeadForm").then((m) => m.LeadForm), {
+  ssr: false,
+});
 
 export function ProductCtaPanel({
   productName,

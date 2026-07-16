@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
+import createBundleAnalyzer from "@next/bundle-analyzer";
 import { IMAGE_REMOTE_HOSTS } from "./lib/image-hosts";
+
+const withBundleAnalyzer = createBundleAnalyzer({ enabled: process.env.ANALYZE === "true" });
 
 // Legacy SEO slugs → new solution routes (03 §5.2/5.3). permanent: true → 308 (≈301).
 const legacyRedirects = [
@@ -23,4 +26,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
