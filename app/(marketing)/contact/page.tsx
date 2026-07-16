@@ -43,7 +43,7 @@ export default async function ContactPage({
   const email = settings?.email ?? "acta.arc@gmail.com";
   const whatsapp = settings?.whatsapp_number || "6281563905555";
   const instagram = settings?.instagram ?? "@acta.integrator";
-  const location = [settings?.address, settings?.city].filter(Boolean).join(", ") || "Tangerang, Indonesia";
+  const location = [settings?.address, settings?.city].filter(Boolean).join(", ") || "Jakarta, Indonesia";
 
   return (
     <>

@@ -22,7 +22,7 @@ export function FinalCta({
   const contact = [
     settings?.email ?? "acta.arc@gmail.com",
     formatWaDisplay(settings?.whatsapp_number),
-    settings?.city ?? "Tangerang, Indonesia",
+    settings?.city ?? "Jakarta, Indonesia",
     settings?.instagram ?? "@acta.integrator",
   ].join(" · ");
 

@@ -56,7 +56,7 @@ export function Footer({
                 "Integrator sistem audio visual komersial untuk ruang rapat, auditorium, hall, dan gedung komersial di Jakarta & Tangerang."}
             </p>
             <p className="mono-spec mt-4 text-muted-foreground">
-              PT ACTA SOLUSI TEKNOLOGI — {(settings?.city ?? "Tangerang, Indonesia").toUpperCase()}
+              PT ACTA SOLUSI TEKNOLOGI — {(settings?.city ?? "Jakarta, Indonesia").toUpperCase()}
             </p>
           </div>
 
@@ -93,7 +93,7 @@ export function Footer({
               </a>
             </li>
             <li className="mono-spec pt-1 text-muted-foreground/70">
-              {settings?.city ?? "Tangerang, Indonesia"}
+              {settings?.city ?? "Jakarta, Indonesia"}
             </li>
           </FooterColumn>
         </div>
