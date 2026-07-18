@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/admin/auth";
 import { findMediaUsage } from "@/lib/admin/media-usage";
 import { slugify } from "@/lib/admin/slug";
-import { allowedHostsHint, isAllowedImageHost } from "@/lib/image-hosts";
+import { allowedHostsHint, isAllowedImageHostAsync } from "@/lib/image-hosts";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -70,8 +70,11 @@ export async function registerExternalMedia(input: unknown): Promise<MediaResult
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Data tidak valid." };
   const v = parsed.data;
 
-  if (!isAllowedImageHost(v.external_url)) {
-    return { ok: false, error: `Domain belum diizinkan. Tambahkan ke next.config remotePatterns dulu. Diizinkan: ${allowedHostsHint()}` };
+  if (!(await isAllowedImageHostAsync(v.external_url))) {
+    return {
+      ok: false,
+      error: `Domain belum diizinkan. Tambahkan lewat "Import Katalog" (admin) atau next.config remotePatterns. Diizinkan: ${allowedHostsHint()}, + host yang ditambahkan admin.`,
+    };
   }
 
   // Verify the URL actually resolves to an image (01-PRD §7.5): HTTP 200 + content-type image/*.
@@ -148,5 +151,46 @@ export async function deleteMedia(id: string): Promise<MediaResult> {
   if (row?.kind === "upload" && row.storage_path) {
     await admin.storage.from("media").remove([row.storage_path]);
   }
+  return { ok: true };
+}
+
+// Fase 4 (PRD §7.7/§10 item 5) — admin-managed additions to lib/image-hosts.ts's hardcoded list,
+// checked by isAllowedImageHostAsync() above. Admin-only (same bucket as categories/spec
+// templates: infra config, not day-to-day content).
+export async function getAllowedImageHosts() {
+  const admin = createAdminClient();
+  const { data } = await admin.from("allowed_image_hosts").select("id, hostname, notes, created_at").order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+const hostSchema = z.object({
+  hostname: z
+    .string()
+    .trim()
+    .min(3)
+    .regex(/^(\*\*?\.)?[a-z0-9-]+(\.[a-z0-9-]+)+$/i, "Format host tidak valid (contoh: cdn.merek.com atau *.merek.com)"),
+  notes: z.string().trim().optional().nullable(),
+});
+
+export async function addAllowedImageHost(input: unknown): Promise<MediaResult> {
+  const { ctx, error } = await requireAdmin("admin");
+  if (!ctx) return { ok: false, error };
+  const parsed = hostSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Data tidak valid." };
+
+  const supabase = await createClient();
+  const { error: insErr } = await supabase
+    .from("allowed_image_hosts")
+    .insert({ hostname: parsed.data.hostname.toLowerCase(), notes: parsed.data.notes || null, created_by: ctx.userId });
+  if (insErr) return { ok: false, error: "Gagal menambah host (mungkin sudah ada?)." };
+  return { ok: true };
+}
+
+export async function removeAllowedImageHost(id: string): Promise<MediaResult> {
+  const { ctx, error } = await requireAdmin("admin");
+  if (!ctx) return { ok: false, error };
+  const supabase = await createClient();
+  const { error: delErr } = await supabase.from("allowed_image_hosts").delete().eq("id", id);
+  if (delErr) return { ok: false, error: "Gagal menghapus host." };
   return { ok: true };
 }

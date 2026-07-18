@@ -58,6 +58,7 @@ export function ProductForm({
   solutions,
   products,
   media,
+  onSaved,
 }: {
   data: ProductFormData;
   brands: { id: string; name: string }[];
@@ -67,6 +68,10 @@ export function ProductForm({
   solutions: PickerOption[];
   products: PickerOption[];
   media: MediaItem[];
+  // Optional — called after a successful save, in addition to the default toast/redirect
+  // behavior below. Used by the catalog-import Review Queue to link the saved product back to
+  // its product_research_drafts row (PRD §5.4) without duplicating saveProduct()'s guardrail.
+  onSaved?: (result: { id: string; status: "draft" | "published" }) => void;
 }) {
   const router = useRouter();
   const [f, setF] = useState(data);
@@ -131,10 +136,15 @@ export function ProductForm({
     setSaving(false);
     if (res.ok) {
       toast.success(status === "published" ? "Produk dipublish." : "Produk disimpan.");
-      if (!f.id) router.replace(`/admin/products/${res.id}`);
-      else router.refresh();
       set("id", res.id);
       set("status", status);
+      if (onSaved) {
+        onSaved({ id: res.id, status });
+      } else if (!f.id) {
+        router.replace(`/admin/products/${res.id}`);
+      } else {
+        router.refresh();
+      }
     } else {
       toast.error(res.error);
     }

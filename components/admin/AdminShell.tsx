@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Boxes,
+  FileSpreadsheet,
   FileText,
   Images,
   Inbox,
@@ -32,6 +33,7 @@ const NAV: NavItem[] = [
   { label: "Pages", href: "/admin/pages", icon: LayoutTemplate },
   { label: "Solutions", href: "/admin/solutions", icon: Boxes },
   { label: "Products", href: "/admin/products", icon: Package },
+  { label: "Import Katalog", href: "/admin/catalog-import", icon: FileSpreadsheet },
   { label: "Categories & Specs", href: "/admin/categories", icon: SlidersHorizontal },
   { label: "Articles", href: "/admin/articles", icon: Newspaper },
   { label: "Media", href: "/admin/media", icon: Images },

@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       admin_users: {
@@ -43,6 +68,159 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      ai_job_events: {
+        Row: {
+          created_at: string
+          id: string
+          job_id: string
+          message: string | null
+          payload: Json | null
+          step: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          job_id: string
+          message?: string | null
+          payload?: Json | null
+          step: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          job_id?: string
+          message?: string | null
+          payload?: Json | null
+          step?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_job_events_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "ai_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_jobs: {
+        Row: {
+          attempt: number
+          created_at: string
+          created_by: string | null
+          error: string | null
+          external_run_id: string | null
+          finished_at: string | null
+          id: string
+          import_item_id: string | null
+          input: Json
+          max_attempts: number
+          output: Json | null
+          product_id: string | null
+          provider: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["ai_job_status"]
+          type: Database["public"]["Enums"]["ai_job_type"]
+        }
+        Insert: {
+          attempt?: number
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          external_run_id?: string | null
+          finished_at?: string | null
+          id?: string
+          import_item_id?: string | null
+          input?: Json
+          max_attempts?: number
+          output?: Json | null
+          product_id?: string | null
+          provider?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["ai_job_status"]
+          type: Database["public"]["Enums"]["ai_job_type"]
+        }
+        Update: {
+          attempt?: number
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          external_run_id?: string | null
+          finished_at?: string | null
+          id?: string
+          import_item_id?: string | null
+          input?: Json
+          max_attempts?: number
+          output?: Json | null
+          product_id?: string | null
+          provider?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["ai_job_status"]
+          type?: Database["public"]["Enums"]["ai_job_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_jobs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "ai_jobs_import_item_id_fkey"
+            columns: ["import_item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_import_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_jobs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_jobs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      allowed_image_hosts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          hostname: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          hostname: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          hostname?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allowed_image_hosts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       article_categories: {
         Row: {
@@ -457,6 +635,159 @@ export type Database = {
           },
         ]
       }
+      catalog_import_items: {
+        Row: {
+          brand_raw: string
+          category_guess: string | null
+          created_at: string
+          dedupe_status: Database["public"]["Enums"]["import_item_dedupe_status"]
+          id: string
+          import_id: string
+          matched_product_id: string | null
+          model_raw: string
+          price_internal: number | null
+          raw_data: Json
+          row_index: number
+          status: Database["public"]["Enums"]["import_item_status"]
+          updated_at: string
+        }
+        Insert: {
+          brand_raw: string
+          category_guess?: string | null
+          created_at?: string
+          dedupe_status?: Database["public"]["Enums"]["import_item_dedupe_status"]
+          id?: string
+          import_id: string
+          matched_product_id?: string | null
+          model_raw: string
+          price_internal?: number | null
+          raw_data: Json
+          row_index: number
+          status?: Database["public"]["Enums"]["import_item_status"]
+          updated_at?: string
+        }
+        Update: {
+          brand_raw?: string
+          category_guess?: string | null
+          created_at?: string
+          dedupe_status?: Database["public"]["Enums"]["import_item_dedupe_status"]
+          id?: string
+          import_id?: string
+          matched_product_id?: string | null
+          model_raw?: string
+          price_internal?: number | null
+          raw_data?: Json
+          row_index?: number
+          status?: Database["public"]["Enums"]["import_item_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_import_items_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_imports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalog_import_items_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "v_import_progress"
+            referencedColumns: ["import_id"]
+          },
+          {
+            foreignKeyName: "catalog_import_items_matched_product_id_fkey"
+            columns: ["matched_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catalog_import_items_matched_product_id_fkey"
+            columns: ["matched_product_id"]
+            isOneToOne: false
+            referencedRelation: "v_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      catalog_imports: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          row_count: number
+          source_filename: string
+          status: Database["public"]["Enums"]["catalog_import_status"]
+          storage_path: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          row_count?: number
+          source_filename: string
+          status?: Database["public"]["Enums"]["catalog_import_status"]
+          storage_path: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          row_count?: number
+          source_filename?: string
+          status?: Database["public"]["Enums"]["catalog_import_status"]
+          storage_path?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_imports_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      catalog_pipeline_settings: {
+        Row: {
+          auto_publish_min_confidence: Database["public"]["Enums"]["draft_confidence"]
+          auto_publish_require_recommendation: boolean
+          id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          auto_publish_min_confidence?: Database["public"]["Enums"]["draft_confidence"]
+          auto_publish_require_recommendation?: boolean
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          auto_publish_min_confidence?: Database["public"]["Enums"]["draft_confidence"]
+          auto_publish_require_recommendation?: boolean
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_pipeline_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       lead_throttle: {
         Row: {
           count: number
@@ -732,6 +1063,141 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_products"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_research_drafts: {
+        Row: {
+          category_id: string | null
+          committed_product_id: string | null
+          confidence: Database["public"]["Enums"]["draft_confidence"]
+          confidence_notes: string | null
+          created_at: string
+          description_md: string | null
+          id: string
+          import_item_id: string
+          name: string
+          name_correction: string | null
+          new_product_type_name: string | null
+          product_type_id: string | null
+          proposed_images: Json
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          short_spec: string | null
+          skip_reason: string | null
+          spec_source_url: string | null
+          specs: Json
+          status_recommendation: Database["public"]["Enums"]["draft_status_recommendation"]
+          suitable_for: string | null
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          committed_product_id?: string | null
+          confidence: Database["public"]["Enums"]["draft_confidence"]
+          confidence_notes?: string | null
+          created_at?: string
+          description_md?: string | null
+          id?: string
+          import_item_id: string
+          name: string
+          name_correction?: string | null
+          new_product_type_name?: string | null
+          product_type_id?: string | null
+          proposed_images?: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          short_spec?: string | null
+          skip_reason?: string | null
+          spec_source_url?: string | null
+          specs?: Json
+          status_recommendation: Database["public"]["Enums"]["draft_status_recommendation"]
+          suitable_for?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          committed_product_id?: string | null
+          confidence?: Database["public"]["Enums"]["draft_confidence"]
+          confidence_notes?: string | null
+          created_at?: string
+          description_md?: string | null
+          id?: string
+          import_item_id?: string
+          name?: string
+          name_correction?: string | null
+          new_product_type_name?: string | null
+          product_type_id?: string | null
+          proposed_images?: Json
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          short_spec?: string | null
+          skip_reason?: string | null
+          spec_source_url?: string | null
+          specs?: Json
+          status_recommendation?: Database["public"]["Enums"]["draft_status_recommendation"]
+          suitable_for?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_research_drafts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_research_drafts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "v_product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_research_drafts_committed_product_id_fkey"
+            columns: ["committed_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_research_drafts_committed_product_id_fkey"
+            columns: ["committed_product_id"]
+            isOneToOne: false
+            referencedRelation: "v_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_research_drafts_import_item_id_fkey"
+            columns: ["import_item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_import_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_research_drafts_product_type_id_fkey"
+            columns: ["product_type_id"]
+            isOneToOne: false
+            referencedRelation: "product_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_research_drafts_product_type_id_fkey"
+            columns: ["product_type_id"]
+            isOneToOne: false
+            referencedRelation: "v_product_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_research_drafts_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1929,6 +2395,21 @@ export type Database = {
           },
         ]
       }
+      v_import_progress: {
+        Row: {
+          approved_count: number | null
+          failed_count: number | null
+          import_id: string | null
+          pending_count: number | null
+          queued_count: number | null
+          ready_for_review_count: number | null
+          rejected_count: number | null
+          researching_count: number | null
+          seeded_count: number | null
+          total_items: number | null
+        }
+        Relationships: []
+      }
       v_media: {
         Row: {
           alt: string | null
@@ -2588,11 +3069,42 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      update_proposed_image: {
+        Args: { p_draft_id: string; p_index: number; p_patch: Json }
+        Returns: undefined
+      }
     }
     Enums: {
       admin_role: "admin" | "editor"
+      ai_job_status:
+        | "queued"
+        | "claimed"
+        | "running"
+        | "succeeded"
+        | "failed"
+        | "partial"
+        | "cancelled"
+      ai_job_type: "research_item" | "process_image" | "commit_product"
       article_type: "news" | "learn"
       better_direction: "higher" | "lower"
+      catalog_import_status: "parsing" | "staged" | "failed"
+      draft_confidence: "tinggi" | "sedang" | "rendah"
+      draft_status_recommendation: "publish" | "draft" | "skip"
+      import_item_dedupe_status:
+        | "new"
+        | "dup_in_sheet"
+        | "dup_in_db"
+        | "skip_manual"
+      import_item_status:
+        | "pending"
+        | "queued"
+        | "researching"
+        | "researched"
+        | "ready_for_review"
+        | "approved"
+        | "rejected"
+        | "seeded"
+        | "failed"
       lead_form_type: "quote_form" | "contact_form"
       learn_level: "dasar" | "menengah"
       media_kind: "upload" | "external"
@@ -2729,11 +3241,44 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       admin_role: ["admin", "editor"],
+      ai_job_status: [
+        "queued",
+        "claimed",
+        "running",
+        "succeeded",
+        "failed",
+        "partial",
+        "cancelled",
+      ],
+      ai_job_type: ["research_item", "process_image", "commit_product"],
       article_type: ["news", "learn"],
       better_direction: ["higher", "lower"],
+      catalog_import_status: ["parsing", "staged", "failed"],
+      draft_confidence: ["tinggi", "sedang", "rendah"],
+      draft_status_recommendation: ["publish", "draft", "skip"],
+      import_item_dedupe_status: [
+        "new",
+        "dup_in_sheet",
+        "dup_in_db",
+        "skip_manual",
+      ],
+      import_item_status: [
+        "pending",
+        "queued",
+        "researching",
+        "researched",
+        "ready_for_review",
+        "approved",
+        "rejected",
+        "seeded",
+        "failed",
+      ],
       lead_form_type: ["quote_form", "contact_form"],
       learn_level: ["dasar", "menengah"],
       media_kind: ["upload", "external"],
