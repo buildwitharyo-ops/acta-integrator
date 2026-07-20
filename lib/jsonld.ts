@@ -23,7 +23,10 @@ export function organizationNode(contact?: { email?: string | null; instagram?: 
   };
 }
 
-// WebSite (03 §8) — SearchAction points at the catalog's client-side search (?q=). Homepage only.
+// WebSite (03 §8) — homepage only.
+// No `potentialAction`/SearchAction: it pointed at /products?q=, but the catalog page reads no
+// searchParams, so the declared endpoint performs no search. Google also retired the sitelinks
+// searchbox rich result, so the markup earned nothing. Re-add only alongside a real search route.
 export function webSiteNode() {
   return {
     "@context": "https://schema.org",
@@ -32,11 +35,6 @@ export function webSiteNode() {
     url: abs("/"),
     name: "ACTA",
     publisher: { "@id": ORG_ID },
-    potentialAction: {
-      "@type": "SearchAction",
-      target: { "@type": "EntryPoint", urlTemplate: abs("/products?q={search_term_string}") },
-      "query-input": "required name=search_term_string",
-    },
   };
 }
 

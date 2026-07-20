@@ -1,25 +1,31 @@
 import "server-only";
 
-// Mechanical HTTP call to remove.bg (PRD §4.4/§8 — CTO-selected provider), not a reasoning task.
-// Sole file that knows remove.bg's request/response contract, mirroring the lib/acta-os.ts /
+// Mechanical HTTP call to a self-hosted rembg instance (Oracle Cloud Ampere A1, behind Caddy
+// basic auth + TLS on the same domain n8n uses). Swapped from remove.bg after live-testing showed
+// remove.bg's real free tier is watermarked/preview-resolution only — unusable for catalog images,
+// and real credits are paid. Sole file that knows this contract, mirroring the lib/acta-os.ts /
 // lib/ai/providers/anthropic.ts "one adapter, locked contract" pattern.
-const REMOVE_BG_ENDPOINT = "https://api.remove.bg/v1.0/removebg";
 
 export async function removeBackground(buffer: Buffer, filename = "image.jpg"): Promise<Buffer> {
-  const apiKey = process.env.REMOVE_BG_API_KEY;
-  if (!apiKey) throw new Error("REMOVE_BG_API_KEY belum diset — tambahkan di .env.local sebelum menjalankan image pipeline.");
+  const baseUrl = process.env.BG_REMOVAL_URL;
+  if (!baseUrl) throw new Error("BG_REMOVAL_URL belum diset — tambahkan di .env.local sebelum menjalankan image pipeline.");
+  const user = process.env.BG_REMOVAL_USER;
+  const password = process.env.BG_REMOVAL_PASSWORD;
 
   const form = new FormData();
   // Buffer's ArrayBufferLike generic doesn't structurally match BlobPart's ArrayBuffer in this
   // TS lib version (same @types/node-vs-lib mismatch as parser.ts's exceljs cast) — harmless.
-  form.append("image_file", new Blob([buffer as unknown as ArrayBuffer]), filename);
-  form.append("size", "auto");
-  form.append("format", "png");
-  form.append("type", "product"); // remove.bg's product-photography-optimized mode — fits AV gear shots
+  form.append("file", new Blob([buffer as unknown as ArrayBuffer]), filename);
 
-  const res = await fetch(REMOVE_BG_ENDPOINT, {
+  const url = new URL("/api/remove", baseUrl);
+  url.searchParams.set("model", "isnet-general-use"); // cleaner edges for product photography than default u2net
+
+  const headers: Record<string, string> = {};
+  if (user && password) headers.Authorization = `Basic ${Buffer.from(`${user}:${password}`).toString("base64")}`;
+
+  const res = await fetch(url, {
     method: "POST",
-    headers: { "X-Api-Key": apiKey },
+    headers,
     body: form,
     signal: AbortSignal.timeout(60_000),
   });
@@ -27,13 +33,12 @@ export async function removeBackground(buffer: Buffer, filename = "image.jpg"): 
   if (!res.ok) {
     let detail = `HTTP ${res.status}`;
     try {
-      const body = (await res.json()) as { errors?: { title?: string; detail?: string }[] };
-      const first = body.errors?.[0];
-      if (first?.title) detail = first.detail ? `${first.title} — ${first.detail}` : first.title;
+      const body = await res.text();
+      if (body) detail = body.slice(0, 300);
     } catch {
-      // response body wasn't JSON — keep the plain HTTP status
+      // response body unreadable — keep the plain HTTP status
     }
-    throw new Error(`remove.bg gagal: ${detail}`);
+    throw new Error(`rembg self-hosted gagal: ${detail}`);
   }
 
   return Buffer.from(await res.arrayBuffer());

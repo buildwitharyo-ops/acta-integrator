@@ -27,7 +27,7 @@ async function patchImage(sb: ReturnType<typeof createAdminClient>, draftId: str
 
 export const processImageTask = task({
   id: "process-image",
-  queue: { concurrencyLimit: 3 }, // remove.bg has its own rate limit — stay conservative
+  queue: { concurrencyLimit: 3 }, // CPU-bound inference on the Oracle instance (shared with n8n) — stay conservative
   retry: { maxAttempts: 2, factor: 2, minTimeoutInMs: 2000, maxTimeoutInMs: 20_000, randomize: true },
 
   run: async (payload: Payload, { ctx }) => {
@@ -49,7 +49,7 @@ export const processImageTask = task({
     await logEvent(sb, jobId, "downloading", url);
     const { buffer } = await downloadImage(url);
 
-    await logEvent(sb, jobId, "removing_background", "Memanggil remove.bg.");
+    await logEvent(sb, jobId, "removing_background", "Memanggil rembg self-hosted.");
     const cutout = await removeBackground(buffer);
 
     await logEvent(sb, jobId, "finalizing", "Trim/resize/webp.");
