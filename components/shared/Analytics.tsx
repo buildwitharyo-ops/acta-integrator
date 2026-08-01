@@ -1,8 +1,10 @@
 import Script from "next/script";
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 
-// GA4 + LinkedIn Insight Tag (10-TECH §9). Both load via next/script afterInteractive and render
-// ONLY when their NEXT_PUBLIC id is present — so dev/preview (empty env) ships zero analytics and
-// keeps DebugView clean. Ids are public measurement/partner ids by design (never secrets).
+// GA4 + LinkedIn Insight Tag + Vercel Web Analytics (10-TECH §9). GA4 & LinkedIn load via next/script
+// afterInteractive and render ONLY when their NEXT_PUBLIC id is present — so dev/preview (empty env)
+// ships zero analytics and keeps DebugView clean. Ids are public measurement/partner ids by design
+// (never secrets). Vercel Analytics is always included.
 export function Analytics() {
   const gaId = process.env.NEXT_PUBLIC_GA4_ID;
   const liId = process.env.NEXT_PUBLIC_LINKEDIN_PARTNER_ID;
@@ -50,6 +52,7 @@ s.parentNode.insertBefore(b,s);})(window.lintrk);`}
           </noscript>
         </>
       ) : null}
+      <VercelAnalytics />
     </>
   );
 }
