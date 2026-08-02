@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@/components/shared/Analytics";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { fontDisplay, fontMono, fontSans } from "@/lib/fonts";
@@ -33,6 +34,7 @@ export default function RootLayout({
           {children}
         </ThemeProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
