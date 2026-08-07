@@ -8,6 +8,16 @@ export const dynamic = "force-dynamic";
 // due 'scheduled' article (scheduled_at <= now) to 'published' and revalidates (08 §3.5). Because the
 // run is daily, a scheduled article goes live at the next daily run at/after its scheduled_at, not at
 // the exact minute. Protected by CRON_SECRET (Vercel Cron sends it as `Authorization: Bearer <secret>`).
+//
+// PRACTICAL CONSEQUENCE, stated so nobody debugs it twice: the single run is at 07:00 WIB, so anything
+// scheduled later in the day does not publish until the following morning — up to ~22 hours late. That
+// makes "schedule for Monday 09:00" unusable in practice; publish manually from the admin instead
+// (the server action fires the same revalidateTag fan-out, so it is not a lesser path).
+//
+// Raising this to `*/15 * * * *` in vercel.json fixes it, but sub-daily crons require Vercel Pro. The
+// stronger reason to move to Pro is unrelated to cron: Hobby's terms prohibit commercial use. Change
+// the schedule at the same time as that upgrade, not before — a sub-daily cron on Hobby risks the
+// deployment being rejected.
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret) return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 500 });

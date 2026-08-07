@@ -96,11 +96,25 @@ export const getMenuFeaturedProduct = unstable_cache(
   { tags: ["products", "settings"] },
 );
 
+// Only categories that actually hold published products. An empty category is a thin,
+// indexable, product-less page — a soft 404 that costs crawl budget — and it shows up in
+// the nav and the sitemap as a promise the page cannot keep.
+//
+// Filtering here rather than deleting the row is what lets a category be withdrawn without
+// a schema change: `products.category_id` is `on delete restrict` and `product_categories`
+// has no status column, so unpublishing the last product is the only lever there is. It is
+// self-maintaining in both directions — publish a product into an empty category and the
+// category returns on its own. This is what removes `control-system`
+// (supabase/archive-control-system.sql).
 export const getProductCategories = unstable_cache(
   async () => {
     const supabase = createPublicClient();
-    const { data } = await supabase.from("v_product_categories").select("*").order("sort_order");
-    return data ?? [];
+    const [{ data: categories }, { data: products }] = await Promise.all([
+      supabase.from("v_product_categories").select("*").order("sort_order"),
+      supabase.from("v_products").select("category_id"),
+    ]);
+    const populated = new Set((products ?? []).map((p) => p.category_id));
+    return (categories ?? []).filter((c) => populated.has(c.id));
   },
   ["product-categories"],
   { tags: ["products"] },
@@ -153,7 +167,12 @@ export const getCategoryPreviews = unstable_cache(
       if (img) catImage.set(p.category_slug, img);
     }
 
-    return (cats ?? []).map((c) => {
+    // Same empty-category rule as getProductCategories, applied independently because this
+    // query builds its counts from `category_slug`. Without it a withdrawn category still
+    // renders as a zero-count tile in the mega-menu and the homepage carousel.
+    const populated = (cats ?? []).filter((c) => c.slug && (count.get(c.slug) ?? 0) > 0);
+
+    return populated.map((c) => {
       let image = c.slug ? catImage.get(c.slug) ?? null : null;
       // Admin override: only honored if the picked product still exists, is published, and still
       // belongs to THIS category — otherwise silently fall back to the automatic pick above.

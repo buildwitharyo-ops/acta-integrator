@@ -4,6 +4,8 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/admin/auth";
 import { slugify, uniqueSlug } from "@/lib/admin/slug";
+import { isReservedLearnSlug } from "@/lib/learn/reserved-slugs";
+import { listPathSlugsForLesson } from "@/lib/queries/learn/paths";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
@@ -29,6 +31,23 @@ const articleSchema = z.object({
   scheduled_at: z.string().trim().optional().nullable(),
   related_product_ids: z.array(z.string().uuid()).max(4).default([]),
   related_solution_ids: z.array(z.string().uuid()).default([]),
+}).superRefine((v, ctx) => {
+  // Lessons live flat at /learn/{slug}, so they share a namespace with every
+  // /learn/* sub-route: a lesson slugged 'alat' shadows the whole calculator
+  // segment and 404s in a way nobody can diagnose (02 §7.1 · §9.3 rule 1).
+  // Mirrors the DB CHECK articles_learn_slug_not_reserved_ck — both layers are
+  // required, and RESERVED_LEARN_SLUGS must stay in step with
+  // public.learn_slug_is_reserved(). Checked on the BASE slug, before
+  // uniqueSlug() can disguise 'alat' as the perfectly legal 'alat-2'.
+  if (v.type !== "learn") return;
+  const candidate = slugify(v.slug || v.title);
+  if (isReservedLearnSlug(candidate)) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["slug"],
+      message: `Slug '${candidate}' dipesan untuk struktur URL.`,
+    });
+  }
 });
 
 function isDocLike(x: unknown): x is { type: "doc"; content?: unknown[] } {
@@ -44,11 +63,23 @@ function countWords(node: unknown): number {
   return c;
 }
 
-function revalidateArticle(type: string, slug: string, oldSlug?: string) {
+function revalidateArticle(type: string, slug: string, oldSlug?: string, pathSlugs: readonly string[] = []) {
   revalidateTag(type); // 'news' | 'learn'
   revalidateTag(`${type}:${slug}`);
   if (oldSlug && oldSlug !== slug) revalidateTag(`${type}:${oldSlug}`);
   revalidateTag("page:home"); // mixed feed on homepage
+  // §7.4: every JALUR the lesson belongs to. v_learn_path_lessons joins
+  // published-on-both-sides, so publishing, unpublishing, renaming or deleting a
+  // lesson changes the syllabus rendered at /learn/jalur/{slug} even though no
+  // learn_paths row was touched — nothing else fires that tag, and there is no
+  // time-based revalidation anywhere in this codebase to cover for it.
+  for (const pathSlug of pathSlugs) revalidateTag(`jalur:${pathSlug}`);
+}
+
+// Path membership is only meaningful for lessons; news articles never join one.
+async function learnPathSlugs(type: string, articleId: string | null): Promise<string[]> {
+  if (type !== "learn" || !articleId) return [];
+  return listPathSlugsForLesson(articleId);
 }
 
 export async function saveArticle(input: unknown): Promise<SaveResult> {
@@ -150,7 +181,7 @@ export async function saveArticle(input: unknown): Promise<SaveResult> {
     await admin.from("redirects").insert({ source_path: `/${effectiveType}/${oldSlug}`, destination_path: `/${effectiveType}/${slug}` });
   }
 
-  revalidateArticle(effectiveType, slug, oldSlug);
+  revalidateArticle(effectiveType, slug, oldSlug, await learnPathSlugs(effectiveType, articleId));
   return { ok: true, id: articleId };
 }
 
@@ -173,7 +204,9 @@ export async function setArticleStatus(id: string, status: "draft" | "published"
 
   const { data, error: upErr } = await supabase.from("articles").update(patch).eq("id", id).select("slug").single();
   if (upErr || !data) return { ok: false, error: "Gagal mengubah status." };
-  revalidateArticle(existing.type, data.slug);
+  // Publish/unpublish is exactly the mutation that adds or removes a step from
+  // every path listing this lesson, so the jalur fan-out matters most here.
+  revalidateArticle(existing.type, data.slug, undefined, await learnPathSlugs(existing.type, id));
   return { ok: true, id };
 }
 
@@ -182,11 +215,15 @@ export async function deleteArticle(id: string): Promise<SaveResult> {
   if (!ctx) return { ok: false, error };
   const admin = createAdminClient();
   const { data: existing } = await admin.from("articles").select("type").eq("id", id).maybeSingle();
+  // Read membership BEFORE the delete: learn_path_lessons cascades on
+  // articles(id), so afterwards there is nothing left to tell us which paths
+  // just lost a step.
+  const pathSlugs = existing ? await learnPathSlugs(existing.type, id) : [];
 
   const supabase = await createClient();
   const { data: deleted, error: delErr } = await supabase.from("articles").delete().eq("id", id).select("id");
   if (delErr) return { ok: false, error: "Gagal menghapus artikel." };
   if (!deleted || deleted.length === 0) return { ok: false, error: "Tidak bisa menghapus (hanya draft, atau butuh admin)." };
-  if (existing) revalidateArticle(existing.type, "");
+  if (existing) revalidateArticle(existing.type, "", undefined, pathSlugs);
   return { ok: true, id };
 }

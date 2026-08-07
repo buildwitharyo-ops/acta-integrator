@@ -25,5 +25,17 @@ export default defineConfig({
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    // The no-JS project (03 §12.6). Server-rendered completeness is the PRIMARY
+    // implementation of /learn, not a fallback — a calculator must produce a real
+    // answer through a native GET form with zero JavaScript, and a lesson must
+    // render in full. Running these with `javaScriptEnabled: false` is the only
+    // way that claim stays true as the section grows.
+    {
+      name: "no-js",
+      testMatch: /learn-no-js\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], javaScriptEnabled: false },
+    },
+  ],
 });

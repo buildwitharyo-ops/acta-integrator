@@ -36,9 +36,12 @@ type NavCategory = {
   image: string | null;
 };
 
+// `/news` deliberately does NOT appear here (04 §17.2). It lives in the footer.
+// News is time-sensitive and ages out; Learn is evergreen and is the section the
+// SEO and lead strategy is built on. Giving both equal billing in the primary nav
+// splits attention between the surface that compounds and the one that decays.
 const LINKS = [
   { label: "Learn", href: "/learn" },
-  { label: "News", href: "/news" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];

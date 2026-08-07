@@ -1,0 +1,30 @@
+name: CI
+
+# One workflow, one job, one command. `npm run verify` is the same gate the
+# developer runs locally (typecheck → lint → test → build), so CI can never
+# disagree with a clean local checkout about whether main is green.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run verify
+        env:
+          # The build prerenders pages that read Supabase. These are the public,
+          # anon-key-scoped reads the browser makes anyway — never the service role.
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
