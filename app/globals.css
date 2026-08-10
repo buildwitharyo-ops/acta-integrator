@@ -223,3 +223,25 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Print: unfold every <details> so a printed calculator page is complete.
+   The /learn tool pages collapse their reference tables, FAQ, standards list and
+   show-the-math panel by default (the page is a calculator first, a document
+   second) — but a printout has no affordance to open them, so it must not lose
+   them.
+
+   Collapsed content is hidden by the UA, not by a rule we can override on the
+   children; the only styleable handle is ::details-content, supported in current
+   Chrome/Edge/Safari and Firefox. Where it is not supported the reader can still
+   open a section by hand before printing — <details> toggles natively, with no
+   JavaScript, which is exactly why the folds are <details> and not a component. */
+@media print {
+  details > summary {
+    list-style: none;
+  }
+  details::details-content {
+    content-visibility: visible !important;
+    block-size: auto !important;
+    overflow: visible !important;
+  }
+}

@@ -105,7 +105,7 @@ export function RoomSection({ answer, id, className }: RoomSectionProps) {
     {
       p: C.diagram.rows.eyeHeight,
       v: metres(input.eyeHeightM),
-      c: C.fields.eyeHeight.hint,
+      c: C.diagram.notes.eyeHeight,
     },
     {
       p: C.diagram.rows.closestViewer,

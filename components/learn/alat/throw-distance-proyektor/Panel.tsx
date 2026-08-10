@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ChoiceCards } from "@/components/learn/alat/_shared/ChoiceCards";
 import { NumberField } from "@/components/learn/alat/_shared/NumberField";
 import { SelectField } from "@/components/learn/alat/_shared/SelectField";
 import { fmtFixed, fmtInt } from "@/lib/learn/format";
@@ -104,95 +105,102 @@ export function Panel({ initial, path = TOOL_PATH, className }: ThrowPanelProps)
       : values.throwRatio * screen.widthM;
 
   return (
-    <div className={cn("space-y-5", className)}>
-      <SelectField
-        name={PARAM.mode}
-        label={FIELDS.mode.label}
-        hint={FIELDS.mode.hint}
-        options={FIELDS.mode.options}
-        value={values.mode}
+    <div className={cn("space-y-6", className)}>
+      {/* Light first. It is the single biggest lever on the answer, it is the one
+          thing the reader knows without a datasheet, and as cards the three levels
+          teach the trade-off instead of hiding it inside a closed dropdown. */}
+      <ChoiceCards
+        name={PARAM.ambient}
+        label={FIELDS.ambient.label}
+        options={FIELDS.ambient.cards}
+        value={values.ambient}
         onValueChange={(value) => {
-          update({ mode: toMode(value, values.mode) });
+          update({ ambient: toAmbient(value, values.ambient) });
         }}
       />
 
-      <NumberField
-        name={PARAM.throwRatio}
-        label={FIELDS.throwRatio.label}
-        unit={FIELDS.throwRatio.unit}
-        hint={FIELDS.throwRatio.hint}
-        min={LIMITS.throwRatio.min}
-        max={LIMITS.throwRatio.max}
-        value={values.throwRatio}
-        onValueChange={(value) => {
-          if (value !== null) update({ throwRatio: value });
-        }}
-      />
-
-      {values.mode === "lebar" ? (
-        <>
-          <NumberField
-            name={PARAM.throwDistance}
-            label={FIELDS.throwDistance.label}
-            unit={FIELDS.throwDistance.unit}
-            hint={FIELDS.throwDistance.hint}
-            min={LIMITS.throwDistanceM.min}
-            max={LIMITS.throwDistanceM.max}
-            value={values.throwDistanceM}
+      <fieldset className="min-w-0 border-0 p-0">
+        <legend className="body-sm font-medium text-foreground">
+          {FIELDS.opticsLabel}
+        </legend>
+        <div className="mt-2.5 space-y-3">
+          <SelectField
+            name={PARAM.mode}
+            label={FIELDS.mode.label}
+            options={FIELDS.mode.options}
+            value={values.mode}
             onValueChange={(value) => {
-              if (value !== null) update({ throwDistanceM: value });
+              update({ mode: toMode(value, values.mode) });
             }}
           />
-          {/* Continuity: switching back to "jarak" keeps the width just solved. */}
-          <input
-            type="hidden"
-            name={PARAM.screenWidth}
-            value={canonical(screen.widthM)}
-          />
-        </>
-      ) : (
-        <>
-          <NumberField
-            name={PARAM.screenWidth}
-            label={FIELDS.screenWidth.label}
-            unit={FIELDS.screenWidth.unit}
-            hint={FIELDS.screenWidth.hint}
-            min={LIMITS.screenWidthM.min}
-            max={LIMITS.screenWidthM.max}
-            value={values.screenWidthM}
-            onValueChange={(value) => {
-              if (value !== null) update({ screenWidthM: value });
-            }}
-          />
-          {/* Continuity: switching to "lebar" keeps the distance just solved. */}
-          <input
-            type="hidden"
-            name={PARAM.throwDistance}
-            value={canonical(solvedDistance)}
-          />
-        </>
-      )}
 
-      <SelectField
-        name={PARAM.aspect}
-        label={FIELDS.aspect.label}
-        hint={FIELDS.aspect.hint}
-        options={FIELDS.aspect.options}
-        value={values.aspect}
-        onValueChange={(value) => {
-          update({ aspect: toAspect(value, values.aspect) });
-        }}
-      />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <NumberField
+              name={PARAM.throwRatio}
+              label={FIELDS.throwRatio.label}
+              unit={FIELDS.throwRatio.unit}
+              min={LIMITS.throwRatio.min}
+              max={LIMITS.throwRatio.max}
+              value={values.throwRatio}
+              onValueChange={(value) => {
+                if (value !== null) update({ throwRatio: value });
+              }}
+            />
 
-      <p className="caption text-muted-foreground">
-        <span className="font-mono tabular-nums">
-          {FIELDS.derived({
-            width: fmtFixed(screen.widthM, 2),
-            height: fmtFixed(screen.heightM, 2),
-            diagonalInch: fmtInt(screen.diagonalInch),
-          })}
-        </span>
-      </p>
+            {values.mode === "lebar" ? (
+              <>
+                <NumberField
+                  name={PARAM.throwDistance}
+                  label={FIELDS.throwDistance.label}
+                  unit={FIELDS.throwDistance.unit}
+                  min={LIMITS.throwDistanceM.min}
+                  max={LIMITS.throwDistanceM.max}
+                  value={values.throwDistanceM}
+                  onValueChange={(value) => {
+                    if (value !== null) update({ throwDistanceM: value });
+                  }}
+                />
+                {/* Continuity: switching back to "jarak" keeps the width just solved. */}
+                <input
+                  type="hidden"
+                  name={PARAM.screenWidth}
+                  value={canonical(screen.widthM)}
+                />
+              </>
+            ) : (
+              <>
+                <NumberField
+                  name={PARAM.screenWidth}
+                  label={FIELDS.screenWidth.label}
+                  unit={FIELDS.screenWidth.unit}
+                  min={LIMITS.screenWidthM.min}
+                  max={LIMITS.screenWidthM.max}
+                  value={values.screenWidthM}
+                  onValueChange={(value) => {
+                    if (value !== null) update({ screenWidthM: value });
+                  }}
+                />
+                {/* Continuity: switching to "lebar" keeps the distance just solved. */}
+                <input
+                  type="hidden"
+                  name={PARAM.throwDistance}
+                  value={canonical(solvedDistance)}
+                />
+              </>
+            )}
+          </div>
+
+          <p className="caption text-muted-foreground">
+            <span className="font-mono tabular-nums">
+              {FIELDS.derived({
+                width: fmtFixed(screen.widthM, 2),
+                height: fmtFixed(screen.heightM, 2),
+                diagonalInch: fmtInt(screen.diagonalInch),
+              })}
+            </span>
+          </p>
+        </div>
+      </fieldset>
 
       <NumberField
         name={PARAM.lumens}
@@ -207,29 +215,45 @@ export function Panel({ initial, path = TOOL_PATH, className }: ThrowPanelProps)
         }}
       />
 
-      <NumberField
-        name={PARAM.gain}
-        label={FIELDS.gain.label}
-        unit={FIELDS.gain.unit}
-        hint={FIELDS.gain.hint}
-        min={LIMITS.gain.min}
-        max={LIMITS.gain.max}
-        value={values.gain}
-        onValueChange={(value) => {
-          if (value !== null) update({ gain: value });
-        }}
-      />
+      <details className="group rounded-md border border-border">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 px-3 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+          <svg
+            aria-hidden
+            viewBox="0 0 10 10"
+            className="h-2.5 w-2.5 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-90"
+          >
+            <path d="M2 1 L7 5 L2 9" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
+          <span className="body-sm font-medium text-foreground">
+            {FIELDS.advancedSummary}
+          </span>
+        </summary>
+        <div className="space-y-5 border-t border-border px-3 py-4">
+          <SelectField
+            name={PARAM.aspect}
+            label={FIELDS.aspect.label}
+            hint={FIELDS.aspect.hint}
+            options={FIELDS.aspect.options}
+            value={values.aspect}
+            onValueChange={(value) => {
+              update({ aspect: toAspect(value, values.aspect) });
+            }}
+          />
 
-      <SelectField
-        name={PARAM.ambient}
-        label={FIELDS.ambient.label}
-        hint={FIELDS.ambient.hint}
-        options={FIELDS.ambient.options}
-        value={values.ambient}
-        onValueChange={(value) => {
-          update({ ambient: toAmbient(value, values.ambient) });
-        }}
-      />
+          <NumberField
+            name={PARAM.gain}
+            label={FIELDS.gain.label}
+            unit={FIELDS.gain.unit}
+            hint={FIELDS.gain.hint}
+            min={LIMITS.gain.min}
+            max={LIMITS.gain.max}
+            value={values.gain}
+            onValueChange={(value) => {
+              if (value !== null) update({ gain: value });
+            }}
+          />
+        </div>
+      </details>
 
       {dirty ? (
         <p

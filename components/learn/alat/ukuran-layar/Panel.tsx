@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState } from "react";
+import { ChoiceCards } from "@/components/learn/alat/_shared/ChoiceCards";
 import { NumberField } from "@/components/learn/alat/_shared/NumberField";
+import { QuickPicks } from "@/components/learn/alat/_shared/QuickPicks";
 import { SelectField } from "@/components/learn/alat/_shared/SelectField";
 import { fmt } from "@/lib/learn/format";
 import { cn } from "@/lib/utils";
 import {
   ASPECT_IDS,
+  COMMERCIAL_PANEL_SIZES_IN,
   computeScreenSize,
   type AspectId,
   type ElementHeightPercent,
@@ -31,6 +34,17 @@ const ASPECT_OPTIONS = ASPECT_IDS.map((id) => ({
   label: C.aspectLabels[id],
 }));
 
+/** The depths Indonesian rooms actually come in — one tap instead of typing. */
+const DISTANCE_PICKS = [4, 5, 6, 8, 10, 12].map((m) => ({
+  value: String(m),
+  label: `${m} m`,
+}));
+
+const PANEL_PICKS = COMMERCIAL_PANEL_SIZES_IN.map((size) => ({
+  value: String(size),
+  label: `${size}"`,
+}));
+
 function sameInput(a: ScreenSizeInput, b: ScreenSizeInput): boolean {
   return (
     a.solveFor === b.solveFor &&
@@ -47,12 +61,18 @@ function sameInput(a: ScreenSizeInput, b: ScreenSizeInput): boolean {
   );
 }
 
+const ZONE_PREVIEW_TONE = {
+  nyaman: "text-status-text",
+  terbaca: "text-accent-text",
+  jauh: "text-destructive",
+} as const;
+
 /**
  * Inputs only (03-UI §12.1). The server owns the authoritative result, the math
  * panel and the diagram; this component owns the fields, the shareable URL, and a
  * debounced live summary so an edit answers instantly without an RSC round trip.
  *
- * Three properties are load-bearing:
+ * Four properties are load-bearing:
  *
  *  - **It is server-rendered.** Next renders client components on the server, so
  *    every field, its value and the segmented control are in the initial HTML.
@@ -63,7 +83,12 @@ function sameInput(a: ScreenSizeInput, b: ScreenSizeInput): boolean {
  *    link in the address bar is always the room currently on screen.
  *  - **Uncontrolled fields.** The DOM owns the text; React mirrors it. Typing is
  *    never fought, and the value that gets submitted natively is the one the user
- *    can see.
+ *    can see. The two numeric fields are the exception — the quick-pick chips have
+ *    to be able to move them, so they are controlled.
+ *  - **Four questions, not twelve.** Everything that is not distance, content,
+ *    panel or ceiling now lives behind `Setelan lanjutan`. The fields did not go
+ *    away and the params did not change; they simply stopped being the first
+ *    thing a facility manager has to read.
  */
 export function Panel({ initial, basePath = TOOL_PATH, className }: PanelProps) {
   const [input, setInput] = useState<ScreenSizeInput>(initial);
@@ -92,80 +117,76 @@ export function Panel({ initial, basePath = TOOL_PATH, className }: PanelProps) 
   const isAdm = input.model === "adm";
 
   return (
-    <div className={cn("space-y-5", className)}>
+    <div className={cn("space-y-6", className)}>
       <SegmentedRadio
         name={PARAM_KEYS.solveFor}
         label={C.fields.solve.label}
-        hint={C.fields.solve.hint}
         options={C.fields.solve.options}
         defaultValue={initial.solveFor}
         onValueChange={(value) => patch({ solveFor: value as SolveFor })}
       />
 
-      <SelectField
-        name={PARAM_KEYS.model}
-        label={C.fields.model.label}
-        options={C.fields.model.options}
-        defaultValue={initial.model}
-        hint={C.fields.model.hint}
-        onValueChange={(value) => patch({ model: value as ViewingModel })}
-      />
+      {/* Chips FIRST, then the field they drive — see QuickPicks: on the no-JS
+          path a chip click sends the param twice and the codec keeps the first. */}
+      <div className="space-y-2">
+        <QuickPicks
+          name={PARAM_KEYS.farthestViewerM}
+          label={C.fields.farthestViewer.label}
+          meta={`${PARAM_RANGES.farthestViewerM.min}–${PARAM_RANGES.farthestViewerM.max} m`}
+          picks={DISTANCE_PICKS}
+          active={String(input.farthestViewerM)}
+          onPick={(value) => patch({ farthestViewerM: Number(value) })}
+        />
+        <NumberField
+          name={PARAM_KEYS.farthestViewerM}
+          label={C.fields.farthestViewer.label}
+          labelHidden
+          value={input.farthestViewerM}
+          decimals={1}
+          min={PARAM_RANGES.farthestViewerM.min}
+          max={PARAM_RANGES.farthestViewerM.max}
+          unit={C.fields.farthestViewer.unit}
+          hint={C.fields.farthestViewer.hint}
+          onValueChange={(value) =>
+            value !== null ? patch({ farthestViewerM: value }) : undefined
+          }
+        />
+      </div>
 
-      <NumberField
-        name={PARAM_KEYS.farthestViewerM}
-        label={C.fields.farthestViewer.label}
-        defaultValue={initial.farthestViewerM}
-        decimals={1}
-        min={PARAM_RANGES.farthestViewerM.min}
-        max={PARAM_RANGES.farthestViewerM.max}
-        unit={C.fields.farthestViewer.unit}
-        hint={C.fields.farthestViewer.hint}
-        onValueChange={(value) =>
-          value !== null ? patch({ farthestViewerM: value }) : undefined
-        }
-      />
-
-      <NumberField
-        name={PARAM_KEYS.plannedDiagonalIn}
-        label={C.fields.plannedDiagonal.label}
-        defaultValue={initial.plannedDiagonalIn}
-        decimals={0}
-        min={PARAM_RANGES.plannedDiagonalIn.min}
-        max={PARAM_RANGES.plannedDiagonalIn.max}
-        unit={C.fields.plannedDiagonal.unit}
-        hint={C.fields.plannedDiagonal.hint}
-        onValueChange={(value) =>
-          value !== null ? patch({ plannedDiagonalIn: value }) : undefined
-        }
-      />
-
-      <SelectField
+      <ChoiceCards
         name={PARAM_KEYS.elementHeightPercent}
-        label={C.fields.elementHeight.label}
-        options={C.fields.elementHeight.options}
-        defaultValue={String(initial.elementHeightPercent)}
-        hint={isAdm ? C.fields.elementHeight.hintInactive : C.fields.elementHeight.hint}
+        label={C.fields.contentClass.label}
+        options={C.fields.contentClass.options}
+        value={String(input.elementHeightPercent)}
+        {...(isAdm ? { hint: C.fields.contentClass.hintInactive } : {})}
         onValueChange={(value) =>
-          patch({
-            elementHeightPercent: Number(value) as ElementHeightPercent,
-          })
+          patch({ elementHeightPercent: Number(value) as ElementHeightPercent })
         }
       />
 
-      <SelectField
-        name={PARAM_KEYS.verticalResolution}
-        label={C.fields.verticalResolution.label}
-        options={C.fields.verticalResolution.options}
-        defaultValue={String(initial.verticalResolution)}
-        hint={
-          isAdm
-            ? C.fields.verticalResolution.hint
-            : C.fields.verticalResolution.hintInactive
-        }
-        onValueChange={(value) =>
-          patch({ verticalResolution: Number(value) as VerticalResolution })
-        }
-      />
+      <div className="space-y-2">
+        <QuickPicks
+          name={PARAM_KEYS.plannedDiagonalIn}
+          label={C.fields.plannedDiagonal.label}
+          meta={`${PARAM_RANGES.plannedDiagonalIn.min}–${PARAM_RANGES.plannedDiagonalIn.max} inci`}
+          picks={PANEL_PICKS}
+          active={String(input.plannedDiagonalIn)}
+          onPick={(value) => patch({ plannedDiagonalIn: Number(value) })}
+        />
+        <NumberField
+          name={PARAM_KEYS.plannedDiagonalIn}
+          label={C.fields.plannedDiagonal.label}
+          labelHidden
+          value={input.plannedDiagonalIn}
+          decimals={0}
+          min={PARAM_RANGES.plannedDiagonalIn.min}
+          max={PARAM_RANGES.plannedDiagonalIn.max}
+          unit={C.fields.plannedDiagonal.unit}
+          onValueChange={(value) =>
+            value !== null ? patch({ plannedDiagonalIn: value }) : undefined
+          }
+        />
+      </div>
 
       <NumberField
         name={PARAM_KEYS.ceilingHeightM}
@@ -198,11 +219,34 @@ export function Panel({ initial, basePath = TOOL_PATH, className }: PanelProps) 
 
         <div className="space-y-5 border-t border-border px-3 py-4">
           <SelectField
+            name={PARAM_KEYS.model}
+            label={C.fields.model.label}
+            options={C.fields.model.options}
+            defaultValue={initial.model}
+            hint={C.fields.model.hint}
+            onValueChange={(value) => patch({ model: value as ViewingModel })}
+          />
+
+          <SelectField
+            name={PARAM_KEYS.verticalResolution}
+            label={C.fields.verticalResolution.label}
+            options={C.fields.verticalResolution.options}
+            defaultValue={String(initial.verticalResolution)}
+            hint={
+              isAdm
+                ? C.fields.verticalResolution.hint
+                : C.fields.verticalResolution.hintInactive
+            }
+            onValueChange={(value) =>
+              patch({ verticalResolution: Number(value) as VerticalResolution })
+            }
+          />
+
+          <SelectField
             name={PARAM_KEYS.displayAspect}
             label={C.fields.displayAspect.label}
             options={ASPECT_OPTIONS}
             defaultValue={initial.displayAspect}
-            hint={C.fields.displayAspect.hint}
             onValueChange={(value) => patch({ displayAspect: value as AspectId })}
           />
 
@@ -240,7 +284,6 @@ export function Panel({ initial, basePath = TOOL_PATH, className }: PanelProps) 
             min={PARAM_RANGES.eyeHeightM.min}
             max={PARAM_RANGES.eyeHeightM.max}
             unit={C.fields.eyeHeight.unit}
-            hint={C.fields.eyeHeight.hint}
             onValueChange={(value) =>
               value !== null ? patch({ eyeHeightM: value }) : undefined
             }
@@ -263,9 +306,7 @@ export function Panel({ initial, basePath = TOOL_PATH, className }: PanelProps) 
               {C.panel.liveTitle}
             </p>
             {preview.status === "refused" ? (
-              <p className="body-sm mt-3 text-foreground">
-                {C.panel.liveRefused}
-              </p>
+              <p className="body-sm mt-3 text-foreground">{C.panel.liveRefused}</p>
             ) : (
               <>
                 <p className="mt-3 flex flex-wrap items-baseline gap-x-2 font-mono text-2xl leading-none tabular-nums text-foreground">
@@ -274,17 +315,19 @@ export function Panel({ initial, basePath = TOOL_PATH, className }: PanelProps) 
                     {preview.headline.unit}
                   </span>
                 </p>
-                <p className="body-sm mt-2 text-muted-foreground">
-                  {preview.headline.verdict}
+                <p
+                  className={cn(
+                    "body-sm mt-2",
+                    ZONE_PREVIEW_TONE[preview.comfort.zone],
+                  )}
+                >
+                  {`${C.zones[preview.comfort.zone].short} — ${fmt(preview.comfort.ratio)}× tinggi gambar`}
                 </p>
                 <p className="caption mt-3 text-muted-foreground">
-                  {preview.input.solveFor === "jarak"
-                    ? `${C.panel.liveRequired}: ${fmt(preview.required.diagonalIn)}"`
-                    : `${C.panel.liveMaxDistance}: ${fmt(preview.distance.plannedMaxDistanceM)} m`}
+                  {C.panel.liveHint}
                 </p>
               </>
             )}
-            <p className="caption mt-3 text-muted-foreground">{C.panel.liveHint}</p>
           </>
         ) : null}
       </div>

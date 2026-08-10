@@ -41,7 +41,12 @@ export async function uploadMedia(formData: FormData): Promise<{ ok: true; count
     const hash = crypto.randomUUID().slice(0, 8);
     const path = `uploads/${base}-${hash}.${ext}`;
 
-    const { error: upErr } = await admin.storage.from("media").upload(path, file, { contentType: file.type, upsert: false });
+    // cacheControl 1 tahun: the path is content-addressed (`-${hash}`) so an object is never
+    // rewritten — and Supabase otherwise serves `cache-control: no-cache`, which defeats both its
+    // own CDN and any downstream image cache.
+    const { error: upErr } = await admin.storage
+      .from("media")
+      .upload(path, file, { contentType: file.type, upsert: false, cacheControl: "31536000" });
     if (upErr) { errors.push(`${file.name}: gagal upload`); continue; }
 
     const { error: insErr } = await supabase.from("media").insert({ kind: "upload", storage_path: path, is_placeholder: false, created_by: ctx.userId });

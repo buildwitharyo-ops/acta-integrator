@@ -156,92 +156,70 @@ describe("models", () => {
 
 /* ────────────────────── golden values, mode "ukuran" ──────────────────────── */
 
-describe("golden — Indonesian defaults (BDM, %EH 2, 7,0 m, 65\", plafon 2,8 m)", () => {
+describe("golden — Indonesian defaults (BDM, %EH 3, 7,0 m, 65\", plafon 2,8 m)", () => {
   const result = answer();
 
-  it("requires a 1,75 m image and a 141 inch display", () => {
-    expect(result.required.imageHeightM).toBeCloseTo(1.75, 9);
-    expect(result.required.diagonalM).toBeCloseTo(3.569526, 6);
-    expect(result.required.diagonalIn).toBeCloseTo(140.5325, 4);
-    expect(result.required.diagonalCm).toBeCloseTo(356.95, 2);
-    expect(result.headline.value).toBe("141");
+  it("needs a 1,17 m image (93,7\") for comfort and 0,875 m (70,3\") at the limit", () => {
+    expect(result.required.imageHeightM).toBeCloseTo(7 / 6, 9);
+    expect(result.required.diagonalM).toBeCloseTo(2.379684, 6);
+    expect(result.required.diagonalIn).toBeCloseTo(93.6883, 4);
+    // The tolerance line is exactly the comfort line ÷ 4/3, in every unit.
+    expect(result.minimum.imageHeightM).toBeCloseTo(0.875, 9);
+    expect(result.minimum.diagonalIn).toBeCloseTo(70.26625, 4);
+    expect(result.required.diagonalIn / result.minimum.diagonalIn).toBeCloseTo(4 / 3, 9);
+  });
+
+  it("headlines a panel a distributor sells, not the raw geometric diagonal", () => {
+    // The old build answered "141 inci · di luar panel komersial · pakai proyektor"
+    // for this exact room, because %EH 2 (4H, analytical) was the default and the
+    // pass/fail gate sat on the comfort line. Both were wrong for a slide room.
+    expect(result.headline.value).toBe("98");
     expect(result.headline.unit).toBe("inci");
+    expect(result.headline.tone).toBe("good");
+    expect(result.headline.verdict).toBe('Minimal 75" bila anggaran terbatas');
   });
 
-  it("finds no commercial panel large enough and hands off to the projector tool", () => {
-    expect(result.recommended).toBeNull();
-    expect(codes(result)).toContain("di-luar-panel");
-    expect(result.handoff).not.toBeNull();
-    expect(result.handoff?.href).toBe(
-      "/learn/alat/throw-distance-proyektor?w=3.11",
-    );
-    expect(result.headline.tone).toBe("bad");
+  it("recommends 98\" for comfort and 75\" as the floor, and stays off the projector", () => {
+    expect(result.recommended?.diagonalIn).toBe(98);
+    expect(result.recommended?.maxDistanceM).toBeCloseTo(7.32215, 5);
+    expect(result.recommendedMinimum?.diagonalIn).toBe(75);
+    expect(result.recommendedMinimum?.toleratedDistanceM).toBeCloseTo(7.471584, 5);
+    expect(codes(result)).not.toContain("di-luar-panel");
+    expect(result.handoff).toBeNull();
   });
 
-  it("reports the planned 65 inch panel as good to 3,24 m", () => {
-    expect(result.planned.maxDistanceM).toBeCloseTo(3.237685, 6);
+  it("still reports the planned 65 inch panel as too small — 6,48 m against 7,0 m", () => {
+    expect(result.planned.maxDistanceM).toBeCloseTo(4.856528, 6);
+    expect(result.planned.toleratedDistanceM).toBeCloseTo(6.475370, 6);
+    expect(result.planned.zone).toBe("jauh");
     expect(result.shortfall).toBe(true);
     expect(codes(result)).toContain("panel-kurang");
   });
 
   it("generates the money sentence rather than hard-coding it", () => {
     expect(result.moneySentence).toBe(
-      'Layar 65" yang Anda rencanakan hanya layak sampai jarak 3,24 m. ' +
-        "Kursi terjauh Anda 7,0 m. " +
-        'Anda butuh 141" — di luar ukuran panel komersial. ' +
-        "Gunakan proyektor atau videowall LED.",
+      'Panel 65" masih terbaca sampai 6,48 m, sedangkan kursi terjauh Anda 7,0 m. ' +
+        'Naikkan ke 75".',
     );
   });
 
-  it("raises the ceiling finding with the spec's verbatim sentence", () => {
-    expect(result.mounting.requiredCeilingM).toBeCloseTo(2.95, 9);
-    expect(result.mounting.ceilingFits).toBe(false);
-    const ceiling = result.findings.find((f) => f.code === "plafon");
-    expect(ceiling?.severity).toBe("critical");
-    expect(ceiling?.detail).toContain(
-      "Plafon 2,8 m tidak cukup untuk layar ini. Ini kendala arsitektur, bukan kendala AV.",
-    );
+  it("clears the ceiling under 2,8 m, because 98\" is 1,22 m tall", () => {
+    expect(result.mounting.requiredCeilingM).toBeCloseTo(2.420358, 5);
+    expect(result.mounting.ceilingFits).toBe(true);
+    expect(codes(result)).not.toContain("plafon");
   });
 
   it("derives the closest-viewer guideline as 1,5 × image height", () => {
-    expect(result.distance.closestViewerGuidelineM).toBeCloseTo(2.625, 9);
+    expect(result.distance.closestViewerGuidelineM).toBeCloseTo(1.830537, 6);
     expect(result.distance.closestViewerIsAuto).toBe(true);
-    expect(result.distance.closestViewerM).toBeCloseTo(2.625, 9);
+    expect(result.distance.closestViewerM).toBeCloseTo(1.830537, 6);
     expect(codes(result)).not.toContain("penonton-terdekat");
   });
 
   it("computes mounting geometry from the 1,2 m bottom-of-image rule", () => {
     expect(result.mounting.imageBottomM).toBe(1.2);
-    expect(result.mounting.imageTopM).toBeCloseTo(2.95, 9);
-    expect(result.mounting.verticalAngleTopDeg).toBeCloseTo(14.42, 2);
-  });
-});
-
-describe("golden — the spec's own example (BDM, %EH 3, 7,0 m, 65\")", () => {
-  const result = answer({ elementHeightPercent: 3 });
-
-  it("needs 93,7 inches and rounds up to a real 98 inch panel", () => {
-    expect(result.required.imageHeightM).toBeCloseTo(7 / 6, 9);
-    expect(result.required.diagonalIn).toBeCloseTo(93.6883, 4);
-    expect(result.recommended?.diagonalIn).toBe(98);
-    expect(result.recommended?.maxDistanceM).toBeCloseTo(7.32215, 5);
-  });
-
-  it("rejects 86 inches, which only reaches 6,43 m", () => {
-    const eightySix = result.ladder.find((panel) => panel.diagonalIn === 86);
-    expect(eightySix?.maxDistanceM).toBeCloseTo(6.42556, 5);
-    expect(eightySix?.reachesFarthestViewer).toBe(false);
-  });
-
-  it("produces the money sentence in the spec's exact shape", () => {
-    // 03-UI §12.2 prints "4,3 m" for the 65" leg; that figure does not reproduce
-    // from any DISCAS model (%EH 2 → 3,24 m, %EH 3 → 4,86 m) and is illustrative
-    // prose. The sentence is generated from the arithmetic, never transcribed.
-    expect(result.moneySentence).toBe(
-      'Layar 65" yang Anda rencanakan hanya layak sampai jarak 4,86 m. ' +
-        "Kursi terjauh Anda 7,0 m. " +
-        'Anda butuh 98" — atau proyektor.',
-    );
+    expect(result.mounting.imageTopM).toBeCloseTo(2.420358, 5);
+    expect(result.mounting.verticalAngleTopDeg).toBeCloseTo(10.29, 1);
   });
 
   it("flags 98 inch availability in Indonesia without inventing lead times", () => {
@@ -251,12 +229,92 @@ describe("golden — the spec's own example (BDM, %EH 3, 7,0 m, 65\")", () => {
       /\d+\s*(minggu|hari|bulan)/,
     );
   });
+});
 
-  it("fits under a 2,8 m ceiling, unlike the %EH 2 case", () => {
-    expect(result.mounting.requiredCeilingM).toBeCloseTo(2.42036, 5);
-    expect(result.mounting.ceilingFits).toBe(true);
-    expect(codes(result)).not.toContain("plafon");
-    expect(result.headline.tone).toBe("good");
+describe("golden — the analytical override (BDM, %EH 2, 7,0 m, 65\")", () => {
+  // What the DEFAULT used to be. It is still reachable, and still says what it
+  // said — it is simply no longer applied to rooms that only show slides.
+  const result = answer({ elementHeightPercent: 2 });
+
+  it("requires a 1,75 m image and a 141 inch display", () => {
+    expect(result.required.imageHeightM).toBeCloseTo(1.75, 9);
+    expect(result.required.diagonalIn).toBeCloseTo(140.5325, 4);
+    expect(result.required.diagonalCm).toBeCloseTo(356.95, 2);
+  });
+
+  it("needs 105,4\" even at the tolerance line, so 110\" is the floor", () => {
+    expect(result.minimum.diagonalIn).toBeCloseTo(105.3994, 4);
+    expect(result.recommended).toBeNull();
+    expect(result.recommendedMinimum?.diagonalIn).toBe(110);
+  });
+
+  it("raises the ceiling finding with the spec's verbatim sentence", () => {
+    expect(result.mounting.ceilingFits).toBe(false);
+    const ceiling = result.findings.find((f) => f.code === "plafon");
+    expect(ceiling?.severity).toBe("critical");
+    expect(ceiling?.detail).toContain(
+      "Plafon 2,8 m tidak cukup untuk layar ini. Ini kendala arsitektur, bukan kendala AV.",
+    );
+  });
+});
+
+/* ─────────────────────────── the tolerance band ───────────────────────────── */
+
+describe("comfort zones — the field tolerance", () => {
+  it("puts a 98\" panel at 8 m in the middle band, not in failure", () => {
+    // The case that motivated the band: an IFP 98" really is readable from 8 m,
+    // and the old build called it a shortfall because 6H lands at 7,32 m.
+    const result = answer({ plannedDiagonalIn: 98, farthestViewerM: 8 });
+    expect(result.planned.maxDistanceM).toBeCloseTo(7.32215, 5);
+    expect(result.planned.toleratedDistanceM).toBeCloseTo(9.762867, 5);
+    expect(result.planned.zone).toBe("terbaca");
+    expect(result.planned.heightMultiple).toBeCloseTo(6.5555, 3);
+    expect(result.shortfall).toBe(false);
+    expect(codes(result)).toContain("panel-batas");
+    expect(codes(result)).not.toContain("panel-kurang");
+    expect(result.comfort.zone).toBe("terbaca");
+    expect(result.comfort.comfortableRatio).toBeCloseTo(6, 9);
+    expect(result.comfort.toleratedRatio).toBeCloseTo(8, 9);
+  });
+
+  it("names the band in the money sentence instead of calling it a failure", () => {
+    const result = answer({ plannedDiagonalIn: 98, farthestViewerM: 8 });
+    expect(result.moneySentence).toContain("masih di dalam toleransi");
+    expect(result.moneySentence).not.toContain("Naikkan");
+  });
+
+  it("keeps the three bands ordered and contiguous for every %EH", () => {
+    for (const percent of [1, 2, 3, 4] as const) {
+      const result = answer({ elementHeightPercent: percent, plannedDiagonalIn: 86 });
+      expect(result.planned.toleratedDistanceM).toBeGreaterThan(
+        result.planned.maxDistanceM,
+      );
+      expect(result.planned.toleratedDistanceM / result.planned.maxDistanceM)
+        .toBeCloseTo(4 / 3, 9);
+      expect(result.comfort.comfortableRatio).toBeCloseTo(2 * percent, 9);
+    }
+  });
+
+  it("reports nyaman / terbaca / jauh at the three sides of the same panel", () => {
+    const at = (farthestViewerM: number) =>
+      answer({ plannedDiagonalIn: 98, farthestViewerM }).planned.zone;
+    expect(at(7)).toBe("nyaman"); // inside 7,32 m
+    expect(at(8)).toBe("terbaca"); // between 7,32 m and 9,76 m
+    expect(at(11)).toBe("jauh"); // past 9,76 m
+  });
+
+  it("applies the same tolerance to ADM, so the two models cannot disagree", () => {
+    const result = answer({ model: "adm", plannedDiagonalIn: 98, farthestViewerM: 4.5 });
+    expect(result.planned.maxDistanceM).toBeCloseTo(3.884807, 5);
+    expect(result.planned.toleratedDistanceM).toBeCloseTo(5.179743, 5);
+    expect(result.planned.zone).toBe("terbaca");
+  });
+
+  it("only sends a room to the projector when no panel works even at the limit", () => {
+    const tiny = answer({ farthestViewerM: 12, elementHeightPercent: 2 });
+    expect(tiny.recommendedMinimum).toBeNull();
+    expect(codes(tiny)).toContain("di-luar-panel");
+    expect(tiny.handoff).not.toBeNull();
   });
 });
 
@@ -274,15 +332,18 @@ describe("golden — ADM analytical room (1080p, 3,0 m)", () => {
     expect(result.recommended?.diagonalIn).toBe(86);
   });
 
-  it("shows that a 75 inch panel misses by 3 cm of image height", () => {
+  it("misses comfort by 3 cm of image height, which is a caveat and not a failure", () => {
+    // 75" is comfortable to 2,97 m against a 3,0 m back row. Under the old binary
+    // test that 3 cm forced an upsell to 86"; it now reports as the middle band.
     const seventyFive = result.ladder.find((panel) => panel.diagonalIn === 75);
     expect(seventyFive?.maxDistanceM).toBeCloseTo(2.97307, 5);
-    expect(result.shortfall).toBe(true);
-    expect(result.moneySentence).toBe(
-      'Layar 75" yang Anda rencanakan hanya layak sampai jarak 2,97 m. ' +
-        "Kursi terjauh Anda 3,0 m. " +
-        'Anda butuh 86" — atau proyektor.',
-    );
+    expect(seventyFive?.reachesFarthestViewer).toBe(false);
+    expect(seventyFive?.coversFarthestViewer).toBe(true);
+    expect(result.planned.zone).toBe("terbaca");
+    expect(result.shortfall).toBe(false);
+    expect(codes(result)).toContain("panel-batas");
+    expect(result.moneySentence).toContain('Panel 75" terbaca dari 3,0 m');
+    expect(result.moneySentence).toContain('Untuk nyaman penuh, 86".');
   });
 
   it("states which model it used and why", () => {
@@ -305,13 +366,17 @@ describe("golden — solving for distance instead of size", () => {
     });
     expect(result.planned.maxDistanceM).toBeCloseTo(7.32215, 5);
     expect(result.headline.label).toBe("JARAK PENONTON TERJAUH");
-    expect(result.headline.value).toBe("7,32");
+    // The headline is the honest answer to "how far does it reach" — the
+    // tolerance line. The comfortable 7,32 m is carried in the caption.
+    expect(result.headline.value).toBe("9,76");
     expect(result.headline.unit).toBe("m");
+    expect(result.headline.caption).toContain("Nyaman sampai 7,32 m");
+    expect(result.headline.verdict).toBe("Nyaman dibaca — 5,7× tinggi gambar");
     expect(result.shortfall).toBe(false);
     expect(codes(result)).toContain("panel-cukup");
     expect(result.moneySentence).toBe(
-      'Layar 98" yang Anda rencanakan terbaca sampai jarak 7,32 m. ' +
-        "Kursi terjauh Anda 7,0 m — masih di dalam batas.",
+      'Panel 98" nyaman dibaca sampai 7,32 m, sedangkan kursi terjauh Anda 7,0 m. ' +
+        "Ukuran ini sudah pas.",
     );
   });
 
@@ -463,7 +528,7 @@ describe("refusals", () => {
   it("clears the ceiling finding once the room is tall enough", () => {
     const result = answer({ ceilingHeightM: 3.6 });
     expect(result.mounting.ceilingFits).toBe(true);
-    expect(result.mounting.headroomM).toBeCloseTo(0.65, 9);
+    expect(result.mounting.headroomM).toBeCloseTo(1.179642, 5);
     expect(codes(result)).not.toContain("plafon");
   });
 });
@@ -504,7 +569,7 @@ describe("steps", () => {
     expect(diagonal?.result).toBe("2,38 m");
 
     const choice = steps.find((step) => step.label === "Panel komersial terdekat");
-    expect(choice?.result).toBe('98"');
+    expect(choice?.result).toBe('75" · nyaman 98"');
   });
 
   it("caps every printed value at three significant figures", () => {
@@ -544,7 +609,7 @@ describe("params — every param clamps to its default", () => {
       model: "bdm",
       farthestViewerM: 7,
       plannedDiagonalIn: 65,
-      elementHeightPercent: 2,
+      elementHeightPercent: 3,
       verticalResolution: 1080,
       displayAspect: "16x9",
       contentAspect: "16x9",
@@ -572,7 +637,7 @@ describe("params — every param clamps to its default", () => {
     expect(parsed.plannedDiagonalIn).toBe(65);
     expect(parsed.ceilingHeightM).toBe(2.8);
     expect(parsed.eyeHeightM).toBe(PARAM_RANGES.eyeHeightM.min);
-    expect(parsed.elementHeightPercent).toBe(2);
+    expect(parsed.elementHeightPercent).toBe(3);
     expect(parsed.verticalResolution).toBe(1080);
     expect(parsed.displayAspect).toBe("16x9");
     expect(parsed.contentAspect).toBe("16x9");

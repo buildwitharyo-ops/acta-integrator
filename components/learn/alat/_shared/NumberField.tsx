@@ -25,6 +25,13 @@ export type NumberFieldProps = {
   hint?: string;
   /** Fixed decimals when printing a numeric value, e.g. 1 → "7,0". */
   decimals?: number;
+  /**
+   * Keep the label for assistive tech but hide it visually. Used when a
+   * `QuickPicks` row directly above already carries the same visible label —
+   * the chips have to precede the field in the DOM, so the field cannot own the
+   * heading without stranding the chips above an unlabelled row.
+   */
+  labelHidden?: boolean;
   id?: string;
   required?: boolean;
   disabled?: boolean;
@@ -66,6 +73,7 @@ export function NumberField({
   unit,
   hint,
   decimals,
+  labelHidden,
   id,
   required,
   disabled,
@@ -126,7 +134,12 @@ export function NumberField({
 
   return (
     <div className={cn("min-w-0", className)}>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <div
+        className={cn(
+          "flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1",
+          labelHidden && "sr-only",
+        )}
+      >
         <label
           htmlFor={fieldId}
           className="body-sm font-medium text-foreground"
@@ -143,7 +156,7 @@ export function NumberField({
         ) : null}
       </div>
 
-      <div className="relative mt-2">
+      <div className={cn("relative", !labelHidden && "mt-2")}>
         <input
           id={fieldId}
           name={name}

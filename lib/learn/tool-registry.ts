@@ -2,6 +2,7 @@ import { createElement, type ComponentType, type ReactNode } from "react";
 import type { ReferenceColumn, ReferenceRow } from "@/components/learn/alat/_shared/ReferenceTable";
 import type { ResultTone } from "@/components/learn/alat/_shared/ResultReadout";
 import type { MathStep } from "@/components/learn/alat/_shared/ShowTheMath";
+import type { GaugeZone } from "@/components/learn/alat/_shared/ZoneGauge";
 import { CalcHandoffCta } from "@/components/learn/cta/CalcHandoffCta";
 import { StipaCta } from "@/components/learn/cta/StipaCta";
 import { buildProjectorHandoff } from "@/lib/learn/cta";
@@ -10,6 +11,7 @@ import { fmt, fmtFixed, fmtInt } from "@/lib/learn/format";
 /* ── ukuran-layar ────────────────────────────────────────────────────────── */
 import {
   COMMERCIAL_PANEL_SIZES_IN,
+  FIELD_TOLERANCE,
   computeScreenSize,
   heightFromDiagonalIn,
   maxDistanceFromImageHeight,
@@ -65,6 +67,7 @@ import { Rt60Panel } from "@/components/learn/alat/rt60-sabine/Panel";
 /* ── throw-distance-proyektor ────────────────────────────────────────────── */
 import {
   DEFAULT_INPUT as THROW_DEFAULTS,
+  MARGINAL_RATIO,
   compute as computeThrow,
   requiredLumensForWidth,
   type ThrowInput,
@@ -244,12 +247,34 @@ export type ToolDiagram =
       screenWidthM: number;
     };
 
+/**
+ * The verdict band under the headline. Every one of these calculators answers a
+ * question whose real answer is a range, and each already knew it internally —
+ * DISCAS has a comfort distance and a tolerance, ISO 3382-1 publishes an RT60
+ * range around each target, and the projector engine grades brightness
+ * aman/marginal/kurang. This is where that range finally reaches the reader,
+ * instead of being flattened into a single pass/fail line.
+ */
+export type ToolGauge = {
+  label: string;
+  value: number;
+  valueLabel: string;
+  zones: readonly GaugeZone[];
+  max: number;
+  ticks?: readonly { at: number; label: string }[];
+  caption?: string;
+  /** The gauge's text twin (§12.7). Required — a band with no sentence is a picture. */
+  description: string;
+};
+
 export type ToolResultView = {
   /** Set when the engine refused to compute. A refused room prints no numbers. */
   refusal: { title: string; detail: string } | null;
   /** The money sentence — one line that turns a number into a decision. */
   lede: string | null;
   headline: ToolReadout | null;
+  /** Rendered between the headline and the readouts. */
+  gauge: ToolGauge | null;
   readouts: readonly ToolReadout[];
   findings: readonly ToolFinding[];
   /** Result-dependent tables (octave bands, the panel-size ladder, geometry). */
@@ -411,6 +436,7 @@ const UKURAN_LADDER_COLUMNS: readonly ReferenceColumn[] = [
   { key: "height", label: UKURAN_COPY.results.ladderColumns.height, align: "right", mono: true },
   { key: "width", label: UKURAN_COPY.results.ladderColumns.width, align: "right", mono: true },
   { key: "distance", label: UKURAN_COPY.results.ladderColumns.distance, align: "right", mono: true },
+  { key: "tolerated", label: UKURAN_COPY.results.ladderColumns.tolerated, align: "right", mono: true },
   { key: "ceiling", label: UKURAN_COPY.results.ladderColumns.ceiling, align: "right", mono: true },
   { key: "availability", label: UKURAN_COPY.results.ladderColumns.availability },
 ];
@@ -424,7 +450,7 @@ const UKURAN_LADDER_COLUMNS: readonly ReferenceColumn[] = [
 function ukuranReferenceTables(): readonly ToolTable[] {
   const rows: ReferenceRow[] = COMMERCIAL_PANEL_SIZES_IN.map((size) => {
     const imageHeight = heightFromDiagonalIn(size, "16x9");
-    const bdm = (percent: 1 | 2 | 3) =>
+    const bdm = (percent: 1 | 2 | 3 | 4) =>
       maxDistanceFromImageHeight(imageHeight, {
         model: "bdm",
         elementHeightPercent: percent,
@@ -439,7 +465,10 @@ function ukuranReferenceTables(): readonly ToolTable[] {
     return {
       size: `${fmtInt(size)}"`,
       height: fmt(imageHeight),
+      bdm4: fmt(bdm(4)),
       bdm3: fmt(bdm(3)),
+      // The pair the whole rewrite turns on: comfortable at 6H, still legible at 8H.
+      bdm3max: fmt(bdm(3) * FIELD_TOLERANCE),
       bdm2: fmt(bdm(2)),
       bdm1: fmt(bdm(1)),
       adm1080: fmt(adm(1080)),
@@ -453,13 +482,15 @@ function ukuranReferenceTables(): readonly ToolTable[] {
     {
       id: "ukuran-jangkauan",
       caption: "Jarak penonton terjauh per ukuran panel komersial (16:9)",
-      minWidth: "56rem",
+      minWidth: "62rem",
       columns: [
         { key: "size", label: "Panel", mono: true, width: "5.5rem" },
         { key: "height", label: "Tinggi gambar (m)", align: "right", mono: true },
-        { key: "bdm3", label: "BDM %EH 3 (m)", align: "right", mono: true },
-        { key: "bdm2", label: "BDM %EH 2 (m)", align: "right", mono: true },
-        { key: "bdm1", label: "BDM %EH 1 (m)", align: "right", mono: true },
+        { key: "bdm3", label: "Presentasi 6H (m)", align: "right", mono: true },
+        { key: "bdm3max", label: "…batas 8H (m)", align: "right", mono: true },
+        { key: "bdm2", label: "Detail 4H (m)", align: "right", mono: true },
+        { key: "bdm4", label: "Pasif 8H (m)", align: "right", mono: true },
+        { key: "bdm1", label: "Teks padat 2H (m)", align: "right", mono: true },
         { key: "adm1080", label: "ADM 1080p (m)", align: "right", mono: true },
         { key: "adm2160", label: "ADM 2160p (m)", align: "right", mono: true },
         { key: "ceiling", label: "Plafon min. (m)", align: "right", mono: true },
@@ -468,45 +499,67 @@ function ukuranReferenceTables(): readonly ToolTable[] {
       rows,
       note:
         "Jarak dihitung ke MATA penonton di kursi terakhir. Kolom BDM memakai FV = 2 × %EH × tinggi gambar; " +
-        "kolom ADM memakai FV = tinggi gambar × 3438 / resolusi vertikal. Plafon minimum = 1,2 m ke bawah " +
-        "gambar + tinggi gambar. Kolom ketersediaan adalah penilaian pasar ACTA per " +
+        "kolom ADM memakai FV = tinggi gambar × 3438 / resolusi vertikal. Kolom “batas 8H” adalah kolom " +
+        "presentasi dikali toleransi lapangan 4/3 — penilaian ACTA, bukan bagian dari DISCAS, dan hanya " +
+        "dicetak untuk band presentasi karena itu band yang paling sering dipakai. Plafon minimum = 1,2 m " +
+        "ke bawah gambar + tinggi gambar. Kolom ketersediaan adalah penilaian pasar ACTA per " +
         UKURAN_COPY.verifiedAt +
         ", bukan bagian dari standar AVIXA.",
     },
     {
       id: "ukuran-model",
-      caption: "Memilih model penglihatan menurut konten yang ditayangkan",
-      minWidth: "40rem",
+      caption: "Memilih band menurut konten yang ditayangkan",
+      minWidth: "46rem",
       columns: [
-        { key: "konten", label: "Konten di layar", width: "18rem" },
-        { key: "model", label: "Model", mono: true, width: "6rem" },
+        { key: "konten", label: "Konten di layar", width: "17rem" },
+        { key: "pilihan", label: "Pilihan di kalkulator", width: "11rem" },
+        { key: "nyaman", label: "Nyaman", mono: true, width: "5rem" },
+        { key: "batas", label: "Batas", mono: true, width: "5rem" },
         { key: "parameter", label: "Yang menentukan ukuran" },
       ],
       rows: [
         {
-          konten: "Slide dengan judul besar, satu gagasan per halaman",
-          model: "BDM %EH 3",
-          parameter: "Tinggi elemen terkecil. Pada %EH 3 persamaannya menjadi aturan 6H.",
+          konten: "Slide, video call, papan tulis digital",
+          pilihan: "Rapat & presentasi",
+          nyaman: "6H",
+          batas: "8H",
+          parameter: "Tinggi elemen terkecil (%EH 3). Ini kondisi mayoritas ruang rapat Indonesia.",
         },
         {
-          konten: "Slide bullet, dashboard ringkas, video rapat",
-          model: "BDM %EH 2",
-          parameter: "Tinggi elemen terkecil. Ini kondisi ~80% ruang rapat Indonesia.",
+          konten: "Spreadsheet, dashboard, denah, tabel harga",
+          pilihan: "Angka & detail",
+          nyaman: "4H",
+          batas: "5,3H",
+          parameter: "Tinggi elemen terkecil (%EH 2). Menuntut layar 1,5× lebih tinggi dari band presentasi.",
         },
         {
-          konten: "Teks padat, tabel harga, notulen yang dibaca bersama",
-          model: "BDM %EH 1",
-          parameter: "Tinggi elemen terkecil. Menuntut layar dua kali lebih tinggi dari %EH 2.",
+          konten: "Signage, hiburan, konten yang ditonton saja",
+          pilihan: "Tayangan & video",
+          nyaman: "8H",
+          batas: "10,7H",
+          parameter: "Tinggi elemen terkecil (%EH 4). Tidak ada yang perlu dibaca kata per kata.",
         },
         {
-          konten: "Gambar kerja CAD, GIS, skema single line, citra medis",
-          model: "ADM",
+          konten: "Notulen dan dokumen yang dibaca bersama",
+          pilihan: "Teks sangat padat",
+          nyaman: "2H",
+          batas: "2,7H",
+          parameter: "Tinggi elemen terkecil (%EH 1). Menuntut layar dua kali lebih tinggi dari band detail.",
+        },
+        {
+          konten: "Gambar kerja CAD, GIS, single line, citra medis",
+          pilihan: "Model ADM (lanjutan)",
+          nyaman: "—",
+          batas: "—",
           parameter: "Resolusi vertikal: setiap piksel harus menyudut 1 arcmenit di kursi terjauh.",
         },
       ],
       note:
-        "Salah memilih model mengubah ukuran layar satu sampai dua tingkat penuh. Kalau ragu, pilih konten " +
-        "terpadat yang benar-benar akan ditayangkan — bukan konten yang dipakai saat demo.",
+        "Kolom “nyaman” adalah AVIXA DISCAS: FV = 2 × %EH × tinggi gambar. Kolom “batas” adalah kolom nyaman " +
+        "dikali toleransi lapangan 4/3 — penilaian ACTA, bukan bagian dari standar. Di antara keduanya konten " +
+        "masih terbaca tetapi baris belakang harus lebih berusaha. Salah memilih band mengubah ukuran layar " +
+        "satu sampai dua tingkat penuh; kalau ragu, pilih konten terpadat yang benar-benar akan ditayangkan — " +
+        "bukan konten yang dipakai saat demo.",
     },
   ];
 }
@@ -524,17 +577,26 @@ function ukuranExamples(): readonly ToolExample[] {
         href: screenSizeHref(preset.input, UKURAN_PATH),
       };
     }
-    const panel = result.recommended;
+    const comfortable = result.recommended;
+    const floor = result.recommendedMinimum;
     return {
       id: preset.id,
       title: preset.label,
-      context: `${result.model.label}. Kursi terjauh ${fmtFixed(preset.input.farthestViewerM, 1)} m, plafon ${fmtFixed(preset.input.ceilingHeightM, 1)} m, rencana panel ${fmtInt(preset.input.plannedDiagonalIn)}".`,
+      context: `${result.model.short}. Kursi terjauh ${fmtFixed(preset.input.farthestViewerM, 1)} m, plafon ${fmtFixed(preset.input.ceilingHeightM, 1)} m, rencana panel ${fmtInt(preset.input.plannedDiagonalIn)}".`,
       facts: [
-        { label: "Ukuran minimum", value: `${fmt(result.required.diagonalIn)}"` },
-        { label: "Tinggi gambar", value: `${fmt(result.required.imageHeightM)} m` },
         {
-          label: "Panel komersial",
-          value: panel ? `${fmtInt(panel.diagonalIn)}"` : UKURAN_COPY.results.verdictNoPanel,
+          label: "Minimal",
+          value: floor ? `${fmtInt(floor.diagonalIn)}"` : UKURAN_COPY.results.verdictNoPanel,
+        },
+        {
+          label: "Nyaman",
+          value: comfortable
+            ? `${fmtInt(comfortable.diagonalIn)}"`
+            : UKURAN_COPY.results.verdictNoPanel,
+        },
+        {
+          label: "Rencana Anda",
+          value: `${fmtFixed(result.comfort.ratio, 1)}H — ${UKURAN_COPY.zones[result.comfort.zone].short}`,
         },
         {
           label: "Plafon minimum",
@@ -553,6 +615,7 @@ function ukuranView(input: ScreenSizeInput, result: ReturnType<typeof computeScr
       refusal: { title: result.refusal.title, detail: result.refusal.detail },
       lede: null,
       headline: null,
+      gauge: null,
       readouts: [],
       findings: [],
       tables: [],
@@ -569,25 +632,36 @@ function ukuranView(input: ScreenSizeInput, result: ReturnType<typeof computeScr
     };
   }
 
-  const { required, recommended, subject, mounting, distance, model } = result;
+  const {
+    comfort,
+    recommended,
+    recommendedMinimum,
+    planned,
+    subject,
+    mounting,
+    distance,
+    model,
+  } = result;
 
   const readouts: ToolReadout[] = [
     {
-      id: "panel",
-      label: UKURAN_COPY.results.recommendedPanel,
-      value: recommended ? `${fmtInt(recommended.diagonalIn)}"` : "—",
-      caption: recommended
-        ? `${UKURAN_COPY.availability[recommended.availability].label}. Menjangkau ${fmt(recommended.maxDistanceM)} m. ${UKURAN_COPY.availability[recommended.availability].note}`
+      id: "minimal",
+      label: UKURAN_COPY.results.minimumPanel,
+      value: recommendedMinimum ? `${fmtInt(recommendedMinimum.diagonalIn)}"` : "—",
+      caption: recommendedMinimum
+        ? `Terbaca sampai ${fmt(recommendedMinimum.toleratedDistanceM)} m. ${UKURAN_COPY.availability[recommendedMinimum.availability].label}.`
         : UKURAN_COPY.availability["tidak-ada"].note,
-      tone: recommended ? "good" : "bad",
+      tone: recommendedMinimum ? "warning" : "bad",
       size: "md",
     },
+    // The comfortable panel is already the headline, so this slot carries the
+    // number that actually drives every other one instead of repeating it.
     {
       id: "tinggi-gambar",
       label: UKURAN_COPY.results.imageHeight,
-      value: fmt(required.imageHeightM),
+      value: fmt(subject.imageHeightM),
       unit: "m",
-      caption: `Lebar gambar ${fmt(required.imageWidthM)} m. Tinggi gambar inilah yang menentukan keterbacaan, bukan diagonal.`,
+      caption: `Lebar gambar ${fmt(subject.imageWidthM)} m. Tinggi gambar inilah yang menentukan keterbacaan, bukan diagonal.`,
       tone: "neutral",
       size: "md",
     },
@@ -614,11 +688,50 @@ function ukuranView(input: ScreenSizeInput, result: ReturnType<typeof computeScr
     },
   ];
 
+  /**
+   * The band, drawn in metres against the PLANNED panel — "is the screen I am
+   * already holding good enough?", which is the question people arrive with.
+   * The scale runs a little past the tolerance so the third zone is visible
+   * even when the room sits comfortably inside the first.
+   */
+  const gaugeMax = Math.max(
+    planned.toleratedDistanceM * 1.25,
+    distance.farthestViewerM * 1.1,
+  );
+  const gauge: ToolGauge = {
+    label: UKURAN_COPY.results.gaugeLabel,
+    value: distance.farthestViewerM,
+    valueLabel: `${fmtFixed(distance.farthestViewerM, 1)} m · ${fmtFixed(comfort.ratio, 1)}H`,
+    max: gaugeMax,
+    zones: [
+      { label: UKURAN_COPY.zones.nyaman.label, upTo: planned.maxDistanceM, tone: "good" },
+      {
+        label: UKURAN_COPY.zones.terbaca.label,
+        upTo: planned.toleratedDistanceM,
+        tone: "warning",
+      },
+      { label: UKURAN_COPY.zones.jauh.label, upTo: null, tone: "bad" },
+    ],
+    ticks: [
+      { at: planned.maxDistanceM, label: `${fmt(planned.maxDistanceM)} m` },
+      { at: planned.toleratedDistanceM, label: `${fmt(planned.toleratedDistanceM)} m` },
+    ],
+    caption: `Panel ${fmt(planned.diagonalIn)}". ${UKURAN_COPY.toleranceNote}`,
+    description: UKURAN_COPY.results.gaugeDescription(
+      fmtFixed(distance.farthestViewerM, 1),
+      fmtFixed(comfort.ratio, 1),
+      UKURAN_COPY.zones[comfort.zone].short,
+      fmt(planned.maxDistanceM),
+      fmt(planned.toleratedDistanceM),
+    ),
+  };
+
   const ladderRows: ReferenceRow[] = result.ladder.map((panel) => ({
     size: `${fmtInt(panel.diagonalIn)}"`,
     height: fmt(panel.imageHeightM),
     width: fmt(panel.imageWidthM),
     distance: fmt(panel.maxDistanceM),
+    tolerated: fmt(panel.toleratedDistanceM),
     ceiling: fmt(panel.requiredCeilingM),
     availability: UKURAN_COPY.availability[panel.availability].label,
   }));
@@ -636,6 +749,7 @@ function ukuranView(input: ScreenSizeInput, result: ReturnType<typeof computeScr
       tone: result.headline.tone,
       size: "lg",
     },
+    gauge,
     readouts,
     findings: result.findings.map((finding) => ({
       id: finding.code,
@@ -669,9 +783,11 @@ function ukuranView(input: ScreenSizeInput, result: ReturnType<typeof computeScr
       toolName: UKURAN_COPY.shortName,
       headline: `${result.headline.value} ${result.headline.unit}`,
       specs: [
-        `Kursi terjauh ${fmtFixed(distance.farthestViewerM, 1)} m`,
-        `${model.short} · %EH ${fmtInt(input.elementHeightPercent)}`,
-        recommended ? `Panel ${fmtInt(recommended.diagonalIn)}"` : UKURAN_COPY.results.verdictNoPanel,
+        `Kursi terjauh ${fmtFixed(distance.farthestViewerM, 1)} m · ${fmtFixed(comfort.ratio, 1)}H`,
+        `${model.short} · %EH ${fmtInt(input.elementHeightPercent)} · ${UKURAN_COPY.zones[comfort.zone].short}`,
+        recommendedMinimum
+          ? `Minimal ${fmtInt(recommendedMinimum.diagonalIn)}" · nyaman ${recommended ? `${fmtInt(recommended.diagonalIn)}"` : "—"}`
+          : UKURAN_COPY.results.verdictNoPanel,
         `Plafon ${fmtFixed(mounting.ceilingHeightM, 1)} m`,
       ],
       verdict: result.headline.verdict,
@@ -704,9 +820,9 @@ const UKURAN_ENTRY: ToolEntry = {
     result: UKURAN_COPY.resultLabel,
     math: UKURAN_COPY.mathSummary,
   },
-  examplesTitle: "Tiga ruangan Indonesia, dihitung penuh",
+  examplesTitle: "Empat ruangan Indonesia, dihitung penuh",
   examplesIntro:
-    "Tiga konfigurasi yang paling sering kami temui. Semuanya dihitung oleh mesin yang sama seperti kalkulator di atas — bukan angka yang ditulis tangan — dan setiap judul membuka kembali ruangan itu di kalkulator.",
+    "Dihitung oleh mesin yang sama seperti kalkulator di atas. Klik judulnya untuk membuka ruangan itu.",
   examples: ukuranExamples,
   reference: ukuranReferenceTables,
   refusals: [
@@ -772,8 +888,9 @@ const UKURAN_ENTRY: ToolEntry = {
     const detailLines =
       result.status === "ok"
         ? [
-            `Kursi terjauh ${fmtFixed(input.farthestViewerM, 1)} m, plafon ${fmtFixed(input.ceilingHeightM, 1)} m, konten ${result.model.short}.`,
-            `Hitungan ACTA: butuh ${fmt(result.required.diagonalIn)}" (tinggi gambar ${fmt(result.required.imageHeightM)} m).`,
+            `Kursi terjauh ${fmtFixed(input.farthestViewerM, 1)} m, plafon ${fmtFixed(input.ceilingHeightM, 1)} m, konten ${result.model.short} %EH ${fmtInt(input.elementHeightPercent)}.`,
+            `Hitungan ACTA: minimal ${result.recommendedMinimum ? `${fmtInt(result.recommendedMinimum.diagonalIn)}"` : `${fmt(result.minimum.diagonalIn)}" (di luar panel)`}, nyaman ${result.recommended ? `${fmtInt(result.recommended.diagonalIn)}"` : `${fmt(result.required.diagonalIn)}" (di luar panel)`}.`,
+            `Rencana ${fmtInt(input.plannedDiagonalIn)}" pada ${fmtFixed(result.comfort.ratio, 1)}× tinggi gambar — ${UKURAN_COPY.zones[result.comfort.zone].short}.`,
           ]
         : [`Input kalkulator ukuran layar saling bertentangan: ${result.refusal.detail}`];
 
@@ -907,6 +1024,36 @@ function rt60View(result: Rt60Result): ToolResultView {
     },
   ];
 
+  // ISO 3382-1 / DIN 18041 targets were always a RANGE in the engine
+  // (`ROOM_TARGETS[].range`); the readout only ever printed the midpoint. The
+  // band is two-sided here, unlike the display tool: a room can be too dead.
+  const [rangeLow, rangeHigh] = treatment.targetRange;
+  const rt60Gauge: ToolGauge = {
+    label: RT60_COPY.result.gaugeLabel,
+    value: result.tMid,
+    valueLabel: `${fmt(result.tMid)} detik`,
+    max: Math.max(rangeHigh * 2.4, result.tMid * 1.15),
+    zones: [
+      { label: RT60_COPY.result.gaugeZones.mati, upTo: rangeLow, tone: "warning" },
+      { label: RT60_COPY.result.gaugeZones.target, upTo: rangeHigh, tone: "good" },
+      { label: RT60_COPY.result.gaugeZones.agak, upTo: rangeHigh * 1.5, tone: "warning" },
+      { label: RT60_COPY.result.gaugeZones.gema, upTo: null, tone: "bad" },
+    ],
+    ticks: [
+      { at: rangeLow, label: fmtFixed(rangeLow, 1) },
+      { at: rangeHigh, label: fmtFixed(rangeHigh, 1) },
+    ],
+    caption: RT60_COPY.result.gaugeCaption({
+      room: treatment.roomLabel,
+      range: targetRange,
+    }),
+    description: RT60_COPY.result.gaugeDescription({
+      tMid: fmt(result.tMid),
+      room: treatment.roomLabel,
+      range: targetRange,
+    }),
+  };
+
   return {
     refusal: null,
     lede: null,
@@ -924,6 +1071,7 @@ function rt60View(result: Rt60Result): ToolResultView {
       tone: result.verdict.tone,
       size: "lg",
     },
+    gauge: rt60Gauge,
     readouts,
     findings: result.findings.map((finding) => ({
       id: finding.id,
@@ -1203,6 +1351,36 @@ function throwView(result: ThrowResult): ToolResultView {
           size: "md",
         };
 
+  // aman / marginal / kurang already existed in the engine (`classifyBrightness`,
+  // MARGINAL_RATIO 0,8) — it just arrived as a chip. Drawn as a band, "18 fL
+  // against a 16 fL target" stops reading as a bare number and starts reading as
+  // headroom, which is the actual decision.
+  const marginalFL = target.fL * MARGINAL_RATIO;
+  const throwGauge: ToolGauge = {
+    label: THROW_RESULT.gaugeLabel,
+    value: brightness.flEffective,
+    valueLabel: `${fmt(brightness.flEffective)} fL`,
+    max: Math.max(target.fL * 2, brightness.flEffective * 1.15),
+    zones: [
+      { label: THROW_RESULT.gaugeZones.kurang, upTo: marginalFL, tone: "bad" },
+      { label: THROW_RESULT.gaugeZones.marginal, upTo: target.fL, tone: "warning" },
+      { label: THROW_RESULT.gaugeZones.aman, upTo: null, tone: "good" },
+    ],
+    ticks: [
+      { at: marginalFL, label: fmt(marginalFL) },
+      { at: target.fL, label: `${fmtInt(target.fL)} fL` },
+    ],
+    caption: THROW_RESULT.gaugeCaption({
+      target: fmtInt(target.fL),
+      ambient: ambientLabel,
+    }),
+    description: THROW_RESULT.gaugeDescription({
+      fl: fmt(brightness.flEffective),
+      target: fmtInt(target.fL),
+      ambient: ambientLabel,
+    }),
+  };
+
   return {
     refusal: null,
     lede: result.summary,
@@ -1220,6 +1398,7 @@ function throwView(result: ThrowResult): ToolResultView {
       tone,
       size: "lg",
     },
+    gauge: throwGauge,
     readouts: [
       geometryReadout,
       {

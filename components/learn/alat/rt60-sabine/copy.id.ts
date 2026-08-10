@@ -424,30 +424,27 @@ export const RT60_COPY = {
   mathSummary: "Tampilkan perhitungan",
 
   field: {
-    length: {
-      label: "Panjang ruangan",
-      unit: "m",
-      hint: "Sisi terpanjang, dari permukaan dinding ke permukaan dinding.",
-    },
-    width: {
-      label: "Lebar ruangan",
-      unit: "m",
-      hint: "Sisi terpendek pada denah.",
-    },
+    /** The three dimensions share one legend and one hint instead of three each. */
+    dimensionsLabel: "Ukuran ruangan",
+    dimensionsHint:
+      "Permukaan ke permukaan. Tinggi diukur ke plafon yang terlihat, bukan ke pelat beton.",
+    materialsLabel: "Material permukaan",
+    length: { label: "Panjang", unit: "m", hint: "Sisi terpanjang, permukaan ke permukaan." },
+    width: { label: "Lebar", unit: "m", hint: "Sisi terpendek pada denah." },
     height: {
-      label: "Tinggi plafon",
+      label: "Tinggi",
       unit: "m",
-      hint: "Dari lantai ke permukaan plafon yang terlihat, bukan ke pelat beton di atasnya.",
+      hint: "Ke permukaan plafon yang terlihat, bukan ke pelat beton di atasnya.",
     },
     windowArea: {
-      label: "Luas kaca / jendela",
+      label: "Luas kaca",
       unit: "m²",
       hint: "Total bidang kaca pada dinding. Isi 0 kalau tidak ada.",
     },
     people: {
       label: "Jumlah orang",
       unit: "orang",
-      hint: "Kondisi saat ruangan dipakai. Isi 0 untuk kondisi kosong — itu kondisi terburuk.",
+      hint: "Saat ruangan dipakai. Isi 0 untuk kondisi kosong — itu kondisi terburuk.",
     },
     floor: { label: "Lantai" },
     wall: { label: "Dinding" },
@@ -463,6 +460,25 @@ export const RT60_COPY = {
     headlineUnit: "detik",
     headlineCaption: (a: { target: string; room: string; range: string }) =>
       `Rata-rata RT60 pada 500 Hz dan 1 kHz. Target ${a.target} detik untuk ${a.room} (rentang wajar ${a.range} detik).`,
+
+    /**
+     * The band. `ROOM_TARGETS[].range` has always been in the engine — it just
+     * never reached the screen, so a 0,62 detik room read as "meleset dari 0,6"
+     * instead of "di dalam rentang". Two-sided on purpose: over-damped rooms are
+     * a real and expensive failure, not merely "better than target".
+     */
+    gaugeLabel: "POSISI RUANGAN ANDA",
+    gaugeZones: {
+      mati: "Terlalu mati",
+      target: "Rentang target",
+      agak: "Agak bergema",
+      gema: "Bergema",
+    },
+    gaugeCaption: (a: { room: string; range: string }) =>
+      `Rentang wajar untuk ${a.room}: ${a.range} detik. Rentang, bukan satu angka — ` +
+      `ISO 3382-1 dan DIN 18041 memang menetapkannya begitu.`,
+    gaugeDescription: (a: { tMid: string; room: string; range: string }) =>
+      `Waktu dengung ruangan ${a.tMid} detik, terhadap rentang target ${a.range} detik untuk ${a.room}.`,
     verdict: {
       good: (a: { range: string }) => `Di dalam rentang target ${a.range} detik`,
       warning: (a: { factor: string; target: string }) =>

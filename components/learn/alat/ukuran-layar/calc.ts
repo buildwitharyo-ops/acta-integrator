@@ -46,6 +46,72 @@ export const ARCMINUTES_PER_RADIAN = 3438;
  */
 export const BDM_ACUITY_FACTOR = 200;
 
+/**
+ * Field tolerance — the one number in this file that is ACTA's judgement rather
+ * than AVIXA's, and the reason the tool stopped lying.
+ *
+ * DISCAS publishes a single distance and every calculator built on it (including
+ * this one, until now) printed that distance as a pass/fail gate. The field
+ * contradicts the gate: a 98" panel is plainly readable from 8 m in an Indonesian
+ * meeting room even though the 6H line falls at 7,32 m. The standard is not wrong
+ * — it states the distance at which the content is COMFORTABLE, not the distance
+ * at which it becomes unreadable, and collapsing those two claims into one
+ * threshold is what produced advice nobody believed.
+ *
+ * So the standard's distance is kept exactly where the standard puts it, and a
+ * second line is drawn one third further out. Beyond the first line the content
+ * is still legible but the room is working for it; beyond the second, the back
+ * row genuinely cannot follow.
+ *
+ * 4/3 is not tuned to a dataset — it is the smallest honest step, and it lands
+ * the presentation band (6H) exactly on 8H, the passive-viewing distance the
+ * industry already uses. Applied identically to ADM and BDM so the two models
+ * cannot disagree about what "tolerable" means.
+ */
+export const FIELD_TOLERANCE = 4 / 3;
+
+/**
+ * How far past the comfortable distance a room sits.
+ *
+ *  - `nyaman`  — at or inside the standard's distance
+ *  - `terbaca` — past it, inside the tolerance. Readable; not restful.
+ *  - `jauh`    — past the tolerance. The back row stops following.
+ */
+export type ComfortZone = "nyaman" | "terbaca" | "jauh";
+
+export const COMFORT_ZONES = ["nyaman", "terbaca", "jauh"] as const;
+
+/**
+ * Plain-language content classes, which is all the reader should ever have to
+ * pick. Each one is nothing but a `%EH` in Bahasa: the engine still runs DISCAS,
+ * the UI just stops asking people what an "element height percentage" is.
+ */
+export const CONTENT_CLASSES = ["padat", "detail", "presentasi", "pasif"] as const;
+export type ContentClass = (typeof CONTENT_CLASSES)[number];
+
+const CONTENT_CLASS_EH: Record<ContentClass, ElementHeightPercent> = {
+  padat: 1,
+  detail: 2,
+  presentasi: 3,
+  pasif: 4,
+};
+
+const EH_CONTENT_CLASS: Record<ElementHeightPercent, ContentClass> = {
+  1: "padat",
+  2: "detail",
+  3: "presentasi",
+  4: "pasif",
+};
+
+export function contentClassToEh(id: ContentClass): ElementHeightPercent {
+  return CONTENT_CLASS_EH[id];
+}
+
+/** `%EH` is the source of truth; the class is only its label. */
+export function ehToContentClass(percent: ElementHeightPercent): ContentClass {
+  return EH_CONTENT_CLASS[percent];
+}
+
 /** Exact by definition (international inch). */
 export const METRES_PER_INCH = 0.0254;
 
@@ -69,7 +135,9 @@ export const COMMERCIAL_PANEL_SIZES_IN = [55, 65, 75, 86, 98, 110] as const;
 export const LARGEST_PANEL_IN: number = Math.max(...COMMERCIAL_PANEL_SIZES_IN);
 
 export const VERTICAL_RESOLUTIONS = [720, 1080, 1440, 2160] as const;
-export const ELEMENT_HEIGHT_PERCENTS = [1, 2, 3] as const;
+/** 4 extends the spec's 1–3 with the passive-viewing rung (8H). Additive: every
+ *  link ever shared carries 1, 2 or 3 and still parses to the same %EH. */
+export const ELEMENT_HEIGHT_PERCENTS = [1, 2, 3, 4] as const;
 export const ASPECT_IDS = ["16x9", "16x10", "4x3"] as const;
 
 /** Float guard. Every comparison of two computed lengths goes through it. */
@@ -131,15 +199,23 @@ export type PanelFit = {
   imageWidthM: number;
   /** Diagonal of the ACTIVE image — smaller than the panel when pillarboxed. */
   effectiveDiagonalIn: number;
-  /** Farthest viewer this panel serves under the chosen model, metres. */
+  /** Farthest COMFORTABLE viewer under the chosen model, metres. The standard's number. */
   maxDistanceM: number;
+  /** Farthest still-LEGIBLE viewer, metres: maxDistanceM × 4/3. ACTA's judgement. */
+  toleratedDistanceM: number;
   /** 1,2 m + panel height. */
   requiredCeilingM: number;
   availability: PanelAvailability;
   /** True when the diagonal is one of the commercial rungs. */
   onLadder: boolean;
-  /** maxDistanceM ≥ the input's farthest viewer. */
+  /** maxDistanceM ≥ the input's farthest viewer — i.e. comfortable, not merely legible. */
   reachesFarthestViewer: boolean;
+  /** toleratedDistanceM ≥ the input's farthest viewer — legible at worst. */
+  coversFarthestViewer: boolean;
+  /** Which band the input's farthest viewer lands in for THIS panel. */
+  zone: ComfortZone;
+  /** Farthest viewer ÷ this panel's image height, e.g. 6,55 for "6,6H". */
+  heightMultiple: number;
 };
 
 export type Finding = {
@@ -147,6 +223,7 @@ export type Finding = {
     | "plafon"
     | "di-luar-panel"
     | "panel-kurang"
+    | "panel-batas"
     | "panel-cukup"
     | "penonton-terdekat"
     | "rasio-konten"
@@ -176,7 +253,7 @@ export type ScreenSizeAnswer = {
   /** Which model was used and WHY — the competence signal (03-UI §12.5). */
   model: { id: ViewingModel; label: string; short: string; reason: string };
   fit: { mode: FitMode; ratio: number; note: string };
-  /** The size the room demands, before it is rounded up to a real product. */
+  /** The size the room demands for COMFORT, before rounding up to a real product. */
   required: {
     imageHeightM: number;
     imageWidthM: number;
@@ -185,8 +262,30 @@ export type ScreenSizeAnswer = {
     diagonalIn: number;
     diagonalCm: number;
   };
-  /** Smallest commercial rung that reaches the farthest viewer, or null. */
+  /** The smallest size that is merely LEGIBLE at the farthest seat. */
+  minimum: {
+    imageHeightM: number;
+    displayHeightM: number;
+    diagonalIn: number;
+  };
+  /** Where the planned panel sits between the two lines — what the gauge draws. */
+  comfort: {
+    contentClass: ContentClass;
+    zone: ComfortZone;
+    /** Farthest viewer ÷ planned image height. */
+    ratio: number;
+    /** Distance ÷ image height at the comfortable line, e.g. 6 for "6H". */
+    comfortableRatio: number;
+    /** Same at the tolerance line, e.g. 8 for "8H". */
+    toleratedRatio: number;
+    /** The planned panel's own two distances, metres. */
+    comfortableM: number;
+    toleratedM: number;
+  };
+  /** Smallest commercial rung that is COMFORTABLE at the farthest viewer, or null. */
   recommended: PanelFit | null;
+  /** Smallest commercial rung that is at least LEGIBLE there, or null. */
+  recommendedMinimum: PanelFit | null;
   /** The exact required size as a (usually non-commercial) panel. */
   requiredPanel: PanelFit;
   /** The panel the user said they are planning. */
@@ -310,6 +409,37 @@ export function maxDistanceFromImageHeight(
   );
 }
 
+/**
+ * Farthest viewer at which the image is still LEGIBLE, metres — the comfortable
+ * distance stretched by the field tolerance. Same helper for both models, so ADM
+ * and BDM can never disagree about the size of the tolerance.
+ */
+export function toleratedDistanceFromImageHeight(
+  imageHeightM: number,
+  input: Pick<
+    ScreenSizeInput,
+    "model" | "verticalResolution" | "elementHeightPercent"
+  >,
+): number {
+  return maxDistanceFromImageHeight(imageHeightM, input) * FIELD_TOLERANCE;
+}
+
+/** Which band a viewing distance falls in, given a panel's two distances. */
+export function comfortZoneAt(
+  distanceM: number,
+  comfortableM: number,
+  toleratedM: number,
+): ComfortZone {
+  if (distanceM <= comfortableM + EPS) return "nyaman";
+  if (distanceM <= toleratedM + EPS) return "terbaca";
+  return "jauh";
+}
+
+/** Distance ÷ image height — the "6,6H" the gauge prints. */
+export function heightMultiple(distanceM: number, imageHeightM: number): number {
+  return imageHeightM > EPS ? distanceM / imageHeightM : Number.POSITIVE_INFINITY;
+}
+
 /** ACTIVE IMAGE height required to serve a viewer at `farthestViewerM`, metres. */
 export function imageHeightFromDistance(
   farthestViewerM: number,
@@ -363,6 +493,7 @@ export function evaluatePanel(
     input.contentAspect,
   );
   const maxDistanceM = maxDistanceFromImageHeight(imageHeightM, input);
+  const toleratedDistanceM = maxDistanceM * FIELD_TOLERANCE;
 
   return {
     diagonalIn,
@@ -373,10 +504,14 @@ export function evaluatePanel(
     imageWidthM,
     effectiveDiagonalIn,
     maxDistanceM,
+    toleratedDistanceM,
     requiredCeilingM: IMAGE_BOTTOM_MIN_M + displayHeightM,
     availability: panelAvailability(diagonalIn),
     onLadder: isLadderSize(diagonalIn),
     reachesFarthestViewer: maxDistanceM >= input.farthestViewerM - EPS,
+    coversFarthestViewer: toleratedDistanceM >= input.farthestViewerM - EPS,
+    zone: comfortZoneAt(input.farthestViewerM, maxDistanceM, toleratedDistanceM),
+    heightMultiple: heightMultiple(input.farthestViewerM, imageHeightM),
   };
 }
 
@@ -430,15 +565,41 @@ export function computeScreenSize(input: ScreenSizeInput): ScreenSizeResult {
     requiredDisplayHeightM * diagonalFactor(input.displayAspect);
   const requiredDiagonalIn = requiredDiagonalM / METRES_PER_INCH;
 
-  // 2. Round up to something a distributor actually sells.
+  // 1b. The same geometry at the tolerance line — the smallest size that is
+  // merely legible from the last seat, which is the number an integrator quotes
+  // when the budget will not stretch to the comfortable one.
+  const minimumImageHeightM = requiredImageHeightM / FIELD_TOLERANCE;
+  const minimumDisplayHeightM = minimumImageHeightM / ratio;
+  const minimumDiagonalIn =
+    (minimumDisplayHeightM * diagonalFactor(input.displayAspect)) / METRES_PER_INCH;
+
+  // 2. Round up to something a distributor actually sells. Two rungs matter: the
+  // smallest that is comfortable, and the smallest that is legible at all.
   const ladder = COMMERCIAL_PANEL_SIZES_IN.map((size) =>
     evaluatePanel(size, input),
   );
   const recommended = ladder.find((panel) => panel.reachesFarthestViewer) ?? null;
+  const recommendedMinimum =
+    ladder.find((panel) => panel.coversFarthestViewer) ?? null;
   const requiredPanel = evaluatePanel(requiredDiagonalIn, input);
   const planned = evaluatePanel(input.plannedDiagonalIn, input);
   const subject =
     input.solveFor === "jarak" ? planned : (recommended ?? requiredPanel);
+
+  // The gauge always describes the panel the reader said they are planning —
+  // "is the screen I already have good enough?" is the question people arrive with.
+  const comfortableRatio = planned.imageHeightM > EPS
+    ? planned.maxDistanceM / planned.imageHeightM
+    : 0;
+  const comfort = {
+    contentClass: ehToContentClass(input.elementHeightPercent),
+    zone: planned.zone,
+    ratio: planned.heightMultiple,
+    comfortableRatio,
+    toleratedRatio: comfortableRatio * FIELD_TOLERANCE,
+    comfortableM: planned.maxDistanceM,
+    toleratedM: planned.toleratedDistanceM,
+  };
 
   // 3. Distances.
   const closestViewerGuidelineM =
@@ -460,7 +621,9 @@ export function computeScreenSize(input: ScreenSizeInput): ScreenSizeResult {
 
   // 5. Findings, money sentence, handoff.
   const findings: Finding[] = [];
-  const shortfall = !planned.reachesFarthestViewer;
+  // "Shortfall" now means past the TOLERANCE, not past the standard's line. A
+  // panel in the middle band is reported, but it is not reported as a failure.
+  const shortfall = !planned.coversFarthestViewer;
 
   if (!ceilingFits) {
     findings.push({
@@ -479,31 +642,46 @@ export function computeScreenSize(input: ScreenSizeInput): ScreenSizeResult {
   // `ladder` is built from COMMERCIAL_PANEL_SIZES_IN, which is a non-empty tuple,
   // so this is always defined — but noUncheckedIndexedAccess cannot prove it and
   // an assertion here would be a lie if the ladder ever became filterable.
+  // Only a room that no panel can serve EVEN AT THE TOLERANCE gets sent to a
+  // projector. Under the old binary test this fired for ordinary meeting rooms.
   const largest = ladder.at(-1);
-  if (recommended === null && largest) {
+  if (recommendedMinimum === null && largest) {
     findings.push({
       code: "di-luar-panel",
       severity: "critical",
       title: C.findings.diLuarPanel.title,
       detail: C.findings.diLuarPanel.detail(
-        fmt(requiredDiagonalIn),
+        fmt(minimumDiagonalIn),
         fmtInt(largest.diagonalIn),
-        fmt(largest.maxDistanceM),
+        fmt(largest.toleratedDistanceM),
       ),
       href: C.findings.diLuarPanel.href,
       hrefLabel: C.findings.diLuarPanel.hrefLabel,
     });
   }
 
-  if (shortfall) {
+  if (planned.zone === "jauh") {
     findings.push({
       code: "panel-kurang",
       severity: "warning",
       title: C.findings.panelKurang.title,
       detail: C.findings.panelKurang.detail(
         fmt(planned.diagonalIn),
-        fmt(planned.maxDistanceM),
+        fmt(planned.toleratedDistanceM),
         fmtFixed(input.farthestViewerM, 1),
+        recommendedMinimum ? fmtInt(recommendedMinimum.diagonalIn) : null,
+      ),
+    });
+  } else if (planned.zone === "terbaca") {
+    findings.push({
+      code: "panel-batas",
+      severity: "info",
+      title: C.findings.panelBatas.title,
+      detail: C.findings.panelBatas.detail(
+        fmt(planned.diagonalIn),
+        fmtFixed(planned.heightMultiple, 1),
+        fmt(planned.maxDistanceM),
+        recommended ? fmtInt(recommended.diagonalIn) : null,
       ),
     });
   } else {
@@ -568,30 +746,44 @@ export function computeScreenSize(input: ScreenSizeInput): ScreenSizeResult {
     });
   }
 
-  const moneySentence = shortfall
-    ? recommended
-      ? C.money.shortfallWithPanel(
+  // One sentence, three shapes — one per band. The middle one is the whole point
+  // of this rewrite: it reports the truth ("readable, not restful") instead of
+  // rounding a workable room down to a failure.
+  const moneySentence =
+    planned.zone === "nyaman"
+      ? C.money.within(
           fmt(planned.diagonalIn),
           fmt(planned.maxDistanceM),
           fmtFixed(input.farthestViewerM, 1),
-          fmtInt(recommended.diagonalIn),
         )
-      : C.money.shortfallNoPanel(
-          fmt(planned.diagonalIn),
-          fmt(planned.maxDistanceM),
-          fmtFixed(input.farthestViewerM, 1),
-          fmt(requiredDiagonalIn),
-        )
-    : C.money.within(
-        fmt(planned.diagonalIn),
-        fmt(planned.maxDistanceM),
-        fmtFixed(input.farthestViewerM, 1),
-      );
+      : planned.zone === "terbaca"
+        ? C.money.tolerated(
+            fmt(planned.diagonalIn),
+            fmtFixed(input.farthestViewerM, 1),
+            fmtFixed(planned.heightMultiple, 1),
+            fmt(planned.maxDistanceM),
+            recommended ? fmtInt(recommended.diagonalIn) : null,
+          )
+        : recommendedMinimum
+          ? C.money.shortfallWithPanel(
+              fmt(planned.diagonalIn),
+              fmt(planned.toleratedDistanceM),
+              fmtFixed(input.farthestViewerM, 1),
+              fmtInt(recommendedMinimum.diagonalIn),
+            )
+          : C.money.shortfallNoPanel(
+              fmt(planned.diagonalIn),
+              fmt(planned.toleratedDistanceM),
+              fmtFixed(input.farthestViewerM, 1),
+              fmt(minimumDiagonalIn),
+            );
 
   // The projector handoff carries the required image WIDTH, which is the
-  // parameter the throw calculator asks for (03-UI §12.4: ?w=…).
+  // parameter the throw calculator asks for (03-UI §12.4: ?w=…). It fires on the
+  // tolerance line, not the comfort line — a room a 110" panel can still serve is
+  // not a projector room.
   const handoff: Handoff | null =
-    recommended === null
+    recommendedMinimum === null
       ? {
           href: `${PROJECTOR_TOOL_PATH}?w=${roundParam(requiredImageWidthM)}`,
           label: C.findings.diLuarPanel.hrefLabel,
@@ -606,8 +798,8 @@ export function computeScreenSize(input: ScreenSizeInput): ScreenSizeResult {
     requiredImageHeightM,
     requiredImageWidthM,
     recommended,
+    recommendedMinimum,
     planned,
-    shortfall,
     ceilingFits,
   });
 
@@ -619,7 +811,9 @@ export function computeScreenSize(input: ScreenSizeInput): ScreenSizeResult {
     requiredDisplayHeightM,
     requiredDiagonalM,
     requiredDiagonalIn,
+    minimumDiagonalIn,
     recommended,
+    recommendedMinimum,
     planned,
     subject,
     closestViewerGuidelineM,
@@ -639,7 +833,14 @@ export function computeScreenSize(input: ScreenSizeInput): ScreenSizeResult {
       diagonalIn: requiredDiagonalIn,
       diagonalCm: requiredDiagonalM * 100,
     },
+    minimum: {
+      imageHeightM: minimumImageHeightM,
+      displayHeightM: minimumDisplayHeightM,
+      diagonalIn: minimumDiagonalIn,
+    },
+    comfort,
     recommended,
+    recommendedMinimum,
     requiredPanel,
     planned,
     subject,
@@ -677,6 +878,13 @@ function roundParam(value: number): string {
 
 /* ─────────────────────────────── the headline ─────────────────────────────── */
 
+/** Zone → readout tone. The middle band is amber, never red: it is a caveat. */
+const ZONE_TONE: Record<ComfortZone, ResultTone> = {
+  nyaman: "good",
+  terbaca: "warning",
+  jauh: "bad",
+};
+
 function buildHeadline(args: {
   input: ScreenSizeInput;
   requiredDiagonalIn: number;
@@ -684,8 +892,8 @@ function buildHeadline(args: {
   requiredImageHeightM: number;
   requiredImageWidthM: number;
   recommended: PanelFit | null;
+  recommendedMinimum: PanelFit | null;
   planned: PanelFit;
-  shortfall: boolean;
   ceilingFits: boolean;
 }): ScreenSizeAnswer["headline"] {
   const {
@@ -695,25 +903,61 @@ function buildHeadline(args: {
     requiredImageHeightM,
     requiredImageWidthM,
     recommended,
+    recommendedMinimum,
     planned,
-    shortfall,
     ceilingFits,
   } = args;
 
+  // "How far does my panel reach?" — the headline is the tolerance line, because
+  // that is the honest answer to "reach"; the comfort line rides in the caption.
   if (input.solveFor === "jarak") {
     return {
       label: C.results.maxDistance,
-      value: fmt(planned.maxDistanceM),
+      value: fmt(planned.toleratedDistanceM),
       unit: C.results.unitMetre,
       caption: C.results.maxDistanceCaption(
         fmt(planned.diagonalIn),
         fmt(planned.imageHeightM),
+        fmt(planned.maxDistanceM),
       ),
-      verdict: shortfall ? C.results.verdictShort : C.results.verdictWithin,
-      tone: shortfall ? "bad" : ceilingFits ? "good" : "warning",
+      verdict: C.results.zoneVerdict[planned.zone](
+        fmtFixed(planned.heightMultiple, 1),
+      ),
+      tone:
+        planned.zone === "nyaman" && !ceilingFits
+          ? "warning"
+          : ZONE_TONE[planned.zone],
     };
   }
 
+  // "What size do I need?" — headline the panel a distributor can actually ship,
+  // not the raw geometric diagonal. 141" was arithmetically true and useless.
+  const target = recommended ?? recommendedMinimum;
+  if (target) {
+    return {
+      label: C.results.recommendedPanel,
+      value: fmtInt(target.diagonalIn),
+      unit: C.results.unitInch,
+      caption: C.results.panelCaption(
+        fmt(target.imageHeightM),
+        fmt(target.imageWidthM),
+        fmt(target.maxDistanceM),
+        fmt(target.toleratedDistanceM),
+      ),
+      verdict:
+        recommended === null && recommendedMinimum
+          ? C.results.verdictMinimumOnly(fmtInt(recommendedMinimum.diagonalIn))
+          : recommendedMinimum && recommendedMinimum.diagonalIn < target.diagonalIn
+            ? C.results.verdictPanelWithFloor(
+                fmtInt(recommendedMinimum.diagonalIn),
+              )
+            : C.results.verdictPanel(fmtInt(target.diagonalIn)),
+      tone: ceilingFits ? "good" : "warning",
+    };
+  }
+
+  // No commercial rung reaches, even at the tolerance line. Now the exact
+  // geometric diagonal IS the useful number, because a projector can hit it.
   return {
     label: C.results.requiredDiagonal,
     value: fmt(requiredDiagonalIn),
@@ -723,10 +967,8 @@ function buildHeadline(args: {
       fmt(requiredImageHeightM),
       fmt(requiredImageWidthM),
     ),
-    verdict: recommended
-      ? C.results.verdictPanel(fmtInt(recommended.diagonalIn))
-      : C.results.verdictNoPanel,
-    tone: recommended === null ? "bad" : ceilingFits ? "good" : "warning",
+    verdict: C.results.verdictNoPanel,
+    tone: "bad",
   };
 }
 
@@ -746,7 +988,9 @@ function buildSteps(args: {
   requiredDisplayHeightM: number;
   requiredDiagonalM: number;
   requiredDiagonalIn: number;
+  minimumDiagonalIn: number;
   recommended: PanelFit | null;
+  recommendedMinimum: PanelFit | null;
   planned: PanelFit;
   subject: PanelFit;
   closestViewerGuidelineM: number;
@@ -760,7 +1004,9 @@ function buildSteps(args: {
     requiredDisplayHeightM,
     requiredDiagonalM,
     requiredDiagonalIn,
+    minimumDiagonalIn,
     recommended,
+    recommendedMinimum,
     planned,
     subject,
     closestViewerGuidelineM,
@@ -812,6 +1058,21 @@ function buildSteps(args: {
         : `2 × ${eh} × ${fmt(planned.imageHeightM)}`,
       result: `${fmt(planned.maxDistanceM)} m`,
     });
+
+    steps.push({
+      label: C.steps.tolerated,
+      formula: "FV_batas = FV × 4/3",
+      substitution: `${fmt(planned.maxDistanceM)} × 1,33`,
+      result: `${fmt(planned.toleratedDistanceM)} m`,
+      note: C.stepNotes.tolerance,
+    });
+
+    steps.push({
+      label: C.steps.zone,
+      formula: "R = FV_ruang / IH",
+      substitution: `${fmtFixed(input.farthestViewerM, 1)} / ${fmt(planned.imageHeightM)}`,
+      result: `${fmtFixed(planned.heightMultiple, 1)}H — ${C.zones[planned.zone].label}`,
+    });
   } else {
     steps.push({
       label: C.steps.imageHeightFromDistance,
@@ -847,15 +1108,25 @@ function buildSteps(args: {
     });
 
     steps.push({
+      label: C.steps.minimumDiagonal,
+      formula: "D_min = D_in / (4/3)",
+      substitution: `${fmt(requiredDiagonalIn)} / 1,33`,
+      result: `${fmt(minimumDiagonalIn)}"`,
+      note: C.stepNotes.tolerance,
+    });
+
+    steps.push({
       label: C.steps.panelChoice,
-      formula: "D_panel ≥ D_in",
-      substitution: recommended
-        ? `${fmtInt(recommended.diagonalIn)}" ≥ ${fmt(requiredDiagonalIn)}"`
-        : `${fmtInt(LARGEST_PANEL_IN)}" < ${fmt(requiredDiagonalIn)}"`,
-      result: recommended
-        ? `${fmtInt(recommended.diagonalIn)}"`
+      formula: "D_panel ≥ D_min",
+      substitution: recommendedMinimum
+        ? `${fmtInt(recommendedMinimum.diagonalIn)}" ≥ ${fmt(minimumDiagonalIn)}"`
+        : `${fmtInt(LARGEST_PANEL_IN)}" < ${fmt(minimumDiagonalIn)}"`,
+      result: recommendedMinimum
+        ? `${fmtInt(recommendedMinimum.diagonalIn)}"${recommended ? ` · nyaman ${fmtInt(recommended.diagonalIn)}"` : ""}`
         : C.results.verdictNoPanel,
-      note: recommended ? C.availability[recommended.availability].note : undefined,
+      note: recommendedMinimum
+        ? C.availability[recommendedMinimum.availability].note
+        : undefined,
     });
   }
 

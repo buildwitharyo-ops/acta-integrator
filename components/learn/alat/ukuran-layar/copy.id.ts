@@ -33,10 +33,8 @@ export const UKURAN_LAYAR_COPY = {
 
   intro:
     "Berapa inci layar yang benar-benar terbaca dari kursi paling belakang? " +
-    "Kalkulator ini memakai metode DISCAS dari AVIXA: ukuran layar dan jarak " +
-    "pandang adalah satu persamaan yang sama, hanya diselesaikan untuk variabel " +
-    "yang berbeda. Semua angka dihitung di server — halaman ini tetap berfungsi " +
-    "penuh tanpa JavaScript.",
+    "Isi tiga hal: jarak kursi terjauh, konten yang ditayangkan, dan panel yang " +
+    "Anda rencanakan.",
 
   /** Chip in the show-the-math header. */
   standardChip: ["AVIXA V202.01"] as const,
@@ -50,42 +48,75 @@ export const UKURAN_LAYAR_COPY = {
 
   fields: {
     solve: {
-      label: "Saya ingin hitung",
+      label: "Yang ingin Anda tahu",
       options: [
         { value: "ukuran", label: "Ukuran layar" },
-        { value: "jarak", label: "Jarak maksimum" },
+        { value: "jarak", label: "Jangkauan" },
       ],
-      hint: "Dua pertanyaan, satu persamaan. Pilih mana yang belum Anda ketahui.",
+    },
+    /**
+     * The primary control, and the whole jargon fix. Its `value` is the DISCAS
+     * `%EH` verbatim — so this IS the `eh` field, not a second control that has
+     * to be kept in sync with it — while the face reads as a plain question.
+     * The badge keeps the H-multiple visible for anyone who works in those terms.
+     */
+    contentClass: {
+      label: "Yang paling sering ditayangkan",
+      options: [
+        {
+          value: "3",
+          label: "Rapat & presentasi",
+          description: "Slide, video call, papan tulis digital",
+          badge: "6H",
+        },
+        {
+          value: "2",
+          label: "Angka & detail",
+          description: "Spreadsheet, dashboard, denah, tabel harga",
+          badge: "4H",
+        },
+        {
+          value: "4",
+          label: "Tayangan & video",
+          description: "Signage, hiburan, konten yang ditonton saja",
+          badge: "8H",
+        },
+        {
+          value: "1",
+          label: "Teks sangat padat",
+          description: "Notulen dan dokumen yang dibaca bersama",
+          badge: "2H",
+        },
+      ],
+      hintInactive: "Diabaikan: model ADM memakai resolusi, bukan tinggi huruf.",
     },
     model: {
-      label: "Jenis konten",
+      label: "Model penglihatan",
       options: [
-        { value: "bdm", label: "Presentasi — slide, bullet, dashboard (BDM)" },
-        { value: "adm", label: "Analitis — CAD, spreadsheet, GIS, medis (ADM)" },
+        { value: "bdm", label: "BDM — dari tinggi huruf terkecil" },
+        { value: "adm", label: "ADM — dari resolusi (CAD, GIS, medis)" },
       ],
-      hint:
-        "ADM dipakai bila penonton harus membaca detail terkecil di layar — " +
-        "satu piksel harus terlihat. BDM untuk konten presentasi biasa.",
+      hint: "ADM dipakai bila satu piksel harus terlihat. Mengabaikan pilihan konten di atas.",
     },
     farthestViewer: {
-      label: "Jarak penonton terjauh",
+      label: "Jarak kursi terjauh",
       unit: "m",
-      hint: "Diukur ke MATA penonton di kursi terakhir — bukan ke dinding belakang.",
+      hint: "Ke MATA penonton di kursi terakhir, bukan ke dinding belakang.",
     },
     plannedDiagonal: {
       label: "Panel yang Anda rencanakan",
       unit: "inci",
-      hint: "Dipakai untuk membandingkan rencana Anda dengan hasil hitungan.",
     },
     elementHeight: {
       label: "Tinggi elemen terkecil (%EH)",
       options: [
-        { value: "3", label: "3% — judul besar" },
-        { value: "2", label: "2% — bullet presentasi" },
-        { value: "1", label: "1% — teks padat / tabel" },
+        { value: "4", label: "4% — tayangan pasif (8H)" },
+        { value: "3", label: "3% — judul & slide (6H)" },
+        { value: "2", label: "2% — bullet & dashboard (4H)" },
+        { value: "1", label: "1% — teks padat (2H)" },
       ],
-      hint: "Tinggi huruf atau simbol terkecil, sebagai persen dari tinggi gambar.",
-      hintInactive: "Tidak memengaruhi hasil pada model ADM.",
+      hint: "Ditetapkan oleh pilihan konten. Ubah di sini bila perlu nilai lain.",
+      hintInactive: "Tidak dipakai pada model ADM.",
     },
     verticalResolution: {
       label: "Resolusi vertikal",
@@ -95,34 +126,56 @@ export const UKURAN_LAYAR_COPY = {
         { value: "1440", label: "1440p (2K)" },
         { value: "2160", label: "2160p (4K UHD)" },
       ],
-      hint: "Jumlah baris piksel layar. Satu piksel harus menyudut ≥ 1 arcmenit.",
-      hintInactive: "Tidak memengaruhi hasil pada model BDM.",
+      hint: "Hanya dipakai pada model ADM.",
+      hintInactive: "Tidak dipakai pada model BDM.",
     },
-    displayAspect: {
-      label: "Rasio layar",
-      hint: "Bentuk panel atau layar proyeksi yang dipasang.",
-    },
+    displayAspect: { label: "Rasio layar" },
     contentAspect: {
       label: "Rasio konten",
-      hint: "Bentuk gambar yang benar-benar ditampilkan. 4:3 pada panel 16:9 tidak memakai seluruh layar.",
+      hint: "4:3 pada panel 16:9 tidak memakai seluruh layar.",
     },
     closestViewer: {
-      label: "Jarak penonton terdepan",
+      label: "Jarak kursi terdepan",
       unit: "m",
-      hint: "Opsional. Kosongkan atau isi 0 untuk memakai pedoman 1,5 × tinggi gambar.",
+      hint: "Kosongkan untuk memakai pedoman 1,5 × tinggi gambar.",
     },
     ceilingHeight: {
       label: "Tinggi plafon",
       unit: "m",
-      hint: "Dari lantai ke plafon jadi, bukan ke pelat beton.",
+      hint: "Ke plafon jadi, bukan ke pelat beton.",
     },
     eyeHeight: {
       label: "Tinggi mata duduk",
       unit: "m",
-      hint: "Bawaan 1,15 m — postur duduk orang dewasa Indonesia.",
     },
-    advancedSummary: "Parameter lanjutan",
+    advancedSummary: "Setelan lanjutan",
+    quickDistanceLabel: "Jarak umum",
+    quickPanelLabel: "Ukuran panel umum",
   },
+
+  /**
+   * The three bands. `nyaman` is where AVIXA puts the line; `terbaca` is the
+   * third of tolerance ACTA adds on top of it; `jauh` is past both.
+   */
+  zones: {
+    nyaman: {
+      label: "Nyaman",
+      short: "Nyaman dibaca",
+    },
+    terbaca: {
+      label: "Masih terbaca",
+      short: "Masih terbaca",
+    },
+    jauh: {
+      label: "Terlalu jauh",
+      short: "Terlalu jauh",
+    },
+  },
+
+  /** Printed once, near the gauge — the honest label on the tolerance. */
+  toleranceNote:
+    "Garis “nyaman” adalah angka AVIXA DISCAS. Batas “masih terbaca” ditarik " +
+    "sepertiga lebih jauh — penilaian lapangan ACTA, bukan bagian dari standar.",
 
   aspectLabels: {
     "16x9": "16:9",
@@ -186,51 +239,97 @@ export const UKURAN_LAYAR_COPY = {
     maxDistance: "JARAK PENONTON TERJAUH",
     unitInch: "inci",
     unitMetre: "m",
-    recommendedPanel: "PANEL KOMERSIAL TERDEKAT",
+    recommendedPanel: "UKURAN YANG DISARANKAN",
     imageHeight: "TINGGI GAMBAR",
     mountHeight: "TINGGI PEMASANGAN",
     closestViewer: "PENONTON TERDEPAN",
-    ladderCaption: "Jarak maksimum per ukuran panel komersial",
+    ladderCaption: "Jangkauan per ukuran panel komersial",
     ladderColumns: {
       size: "Ukuran",
       height: "Tinggi gambar",
       width: "Lebar gambar",
-      distance: "Jarak maksimum",
+      distance: "Nyaman s/d",
+      tolerated: "Terbaca s/d",
       ceiling: "Plafon minimum",
       availability: "Ketersediaan",
     },
     diagonalCaption: (cm: string, heightM: string, widthM: string) =>
       `Setara ${cm} cm. Area gambar ${heightM} m × ${widthM} m.`,
-    maxDistanceCaption: (panelIn: string, heightM: string) =>
-      `Panel ${panelIn}" memberi tinggi gambar ${heightM} m.`,
+    panelCaption: (
+      heightM: string,
+      widthM: string,
+      comfortableM: string,
+      toleratedM: string,
+    ) =>
+      `Area gambar ${heightM} m × ${widthM} m. Nyaman sampai ${comfortableM} m, ` +
+      `masih terbaca sampai ${toleratedM} m.`,
+    maxDistanceCaption: (panelIn: string, heightM: string, comfortableM: string) =>
+      `Panel ${panelIn}" memberi tinggi gambar ${heightM} m. Nyaman sampai ${comfortableM} m.`,
     verdictPanel: (panelIn: string) => `Pakai panel ${panelIn}"`,
+    verdictPanelWithFloor: (minimumIn: string) =>
+      `Minimal ${minimumIn}" bila anggaran terbatas`,
+    verdictMinimumOnly: (minimumIn: string) =>
+      `${minimumIn}" — terbaca, belum nyaman`,
     verdictNoPanel: "Di luar ukuran panel komersial",
     verdictWithin: "Kursi terjauh Anda masih terjangkau",
     verdictShort: "Kursi terjauh Anda di luar jangkauan",
+    /** Headline chip in "jangkauan" mode, one per band. */
+    zoneVerdict: {
+      nyaman: (ratio: string) => `Nyaman dibaca — ${ratio}× tinggi gambar`,
+      terbaca: (ratio: string) => `Masih terbaca — ${ratio}× tinggi gambar`,
+      jauh: (ratio: string) => `Terlalu jauh — ${ratio}× tinggi gambar`,
+    },
+    gaugeLabel: "POSISI KURSI TERJAUH",
+    gaugeCaption: (comfortableM: string, toleratedM: string) =>
+      `Nyaman sampai ${comfortableM} m, masih terbaca sampai ${toleratedM} m.`,
+    gaugeDescription: (
+      farthestM: string,
+      ratio: string,
+      zone: string,
+      comfortableM: string,
+      toleratedM: string,
+    ) =>
+      `Kursi terjauh ${farthestM} m, setara ${ratio} kali tinggi gambar — ${zone}. ` +
+      `Batas nyaman ${comfortableM} m, batas masih terbaca ${toleratedM} m.`,
+    minimumPanel: "MINIMAL",
+    comfortablePanel: "NYAMAN",
   },
 
   /** The money sentence (03-UI §12.2). Generated, never hard-coded. */
   money: {
     shortfallWithPanel: (
       plannedIn: string,
-      maxDistanceM: string,
+      toleratedM: string,
       farthestM: string,
-      neededIn: string,
+      minimumIn: string,
     ) =>
-      `Layar ${plannedIn}" yang Anda rencanakan hanya layak sampai jarak ${maxDistanceM} m. ` +
-      `Kursi terjauh Anda ${farthestM} m. Anda butuh ${neededIn}" — atau proyektor.`,
+      `Panel ${plannedIn}" masih terbaca sampai ${toleratedM} m, sedangkan kursi terjauh ` +
+      `Anda ${farthestM} m. Naikkan ke ${minimumIn}".`,
     shortfallNoPanel: (
       plannedIn: string,
-      maxDistanceM: string,
+      toleratedM: string,
       farthestM: string,
-      requiredIn: string,
+      minimumIn: string,
     ) =>
-      `Layar ${plannedIn}" yang Anda rencanakan hanya layak sampai jarak ${maxDistanceM} m. ` +
-      `Kursi terjauh Anda ${farthestM} m. Anda butuh ${requiredIn}" — di luar ukuran panel ` +
-      `komersial. Gunakan proyektor atau videowall LED.`,
-    within: (plannedIn: string, maxDistanceM: string, farthestM: string) =>
-      `Layar ${plannedIn}" yang Anda rencanakan terbaca sampai jarak ${maxDistanceM} m. ` +
-      `Kursi terjauh Anda ${farthestM} m — masih di dalam batas.`,
+      `Panel ${plannedIn}" masih terbaca sampai ${toleratedM} m, sedangkan kursi terjauh ` +
+      `Anda ${farthestM} m. Ukuran minimum ${minimumIn}" melewati panel terbesar yang ` +
+      `dijual — pakai proyektor atau videowall LED.`,
+    /** The band that used to be reported as a failure. */
+    tolerated: (
+      plannedIn: string,
+      farthestM: string,
+      ratio: string,
+      comfortableM: string,
+      comfortableIn: string | null,
+    ) =>
+      `Panel ${plannedIn}" terbaca dari ${farthestM} m — ${ratio}× tinggi gambar, ` +
+      `di atas batas nyaman ${comfortableM} m tetapi masih di dalam toleransi. ` +
+      (comfortableIn
+        ? `Untuk nyaman penuh, ${comfortableIn}".`
+        : `Untuk nyaman penuh butuh layar di luar ukuran panel komersial.`),
+    within: (plannedIn: string, comfortableM: string, farthestM: string) =>
+      `Panel ${plannedIn}" nyaman dibaca sampai ${comfortableM} m, sedangkan kursi ` +
+      `terjauh Anda ${farthestM} m. Ukuran ini sudah pas.`,
   },
 
   findings: {
@@ -249,24 +348,49 @@ export const UKURAN_LAYAR_COPY = {
     },
     diLuarPanel: {
       title: "Melebihi panel komersial terbesar",
-      detail: (requiredIn: string, largestIn: string, maxDistanceM: string) =>
-        `Ukuran yang dibutuhkan ${requiredIn}" melewati panel terbesar yang dijual ` +
-        `sebagai produk jadi (${largestIn}"), yang hanya menjangkau ${maxDistanceM} m. ` +
-        `Pada titik ini proyektor atau videowall LED lebih murah dan lebih masuk akal.`,
+      detail: (minimumIn: string, largestIn: string, toleratedM: string) =>
+        `Bahkan dengan toleransi lapangan, ruangan ini menuntut ${minimumIn}". Panel ` +
+        `terbesar yang dijual sebagai produk jadi (${largestIn}") hanya terbaca sampai ` +
+        `${toleratedM} m. Pada titik ini proyektor atau videowall LED lebih murah dan ` +
+        `lebih masuk akal.`,
       href: PROJECTOR_TOOL_PATH,
       hrefLabel: "Lanjutkan di Kalkulator Throw Distance & Kecerahan →",
     },
     panelKurang: {
       title: "Panel yang direncanakan terlalu kecil",
-      detail: (plannedIn: string, maxDistanceM: string, farthestM: string) =>
-        `Panel ${plannedIn}" terbaca sampai ${maxDistanceM} m. Kursi terjauh Anda ` +
-        `${farthestM} m, jadi baris belakang tidak akan bisa membaca konten yang ` +
-        `Anda tetapkan.`,
+      detail: (
+        plannedIn: string,
+        toleratedM: string,
+        farthestM: string,
+        minimumIn: string | null,
+      ) =>
+        `Panel ${plannedIn}" masih terbaca sampai ${toleratedM} m — sudah termasuk ` +
+        `toleransi lapangan. Kursi terjauh Anda ${farthestM} m, jadi baris belakang ` +
+        `tidak akan mengikuti konten yang Anda tetapkan. ` +
+        (minimumIn
+          ? `Ukuran terkecil yang masih bekerja: ${minimumIn}".`
+          : `Tidak ada panel komersial yang cukup — pakai proyektor atau videowall LED.`),
+    },
+    panelBatas: {
+      title: "Terbaca, tetapi di ambang",
+      detail: (
+        plannedIn: string,
+        ratio: string,
+        comfortableM: string,
+        comfortableIn: string | null,
+      ) =>
+        `Kursi terjauh berada pada ${ratio}× tinggi gambar. Panel ${plannedIn}" nyaman ` +
+        `sampai ${comfortableM} m, jadi baris belakang masih membaca tetapi harus lebih ` +
+        `berusaha — terasa pada rapat panjang dan pada konten yang lebih padat dari ` +
+        `rencana. ` +
+        (comfortableIn
+          ? `Satu tingkat ke ${comfortableIn}" menghilangkan kompromi ini.`
+          : `Untuk menghilangkan kompromi ini dibutuhkan proyektor.`),
     },
     panelCukup: {
       title: "Ukuran rencana Anda memenuhi",
       detail: (plannedIn: string, maxDistanceM: string, farthestM: string) =>
-        `Panel ${plannedIn}" terbaca sampai ${maxDistanceM} m, sedangkan kursi ` +
+        `Panel ${plannedIn}" nyaman dibaca sampai ${maxDistanceM} m, sedangkan kursi ` +
         `terjauh Anda ${farthestM} m. Tidak perlu naik ukuran.`,
     },
     penontonTerdekat: {
@@ -332,10 +456,13 @@ export const UKURAN_LAYAR_COPY = {
     displayHeightFromImage: "Koreksi rasio konten",
     diagonalMetre: "Diagonal layar",
     diagonalInch: "Diagonal dalam inci",
+    minimumDiagonal: "Diagonal minimum (dengan toleransi)",
     panelChoice: "Panel komersial terdekat",
     displayHeightFromDiagonal: "Tinggi panel",
     activeImageHeight: "Tinggi gambar aktif",
-    maxDistance: "Jarak penonton terjauh",
+    maxDistance: "Batas nyaman",
+    tolerated: "Batas masih terbaca",
+    zone: "Posisi kursi terjauh",
     closestViewer: "Penonton terdepan",
     mounting: "Tinggi pemasangan",
   },
@@ -347,12 +474,16 @@ export const UKURAN_LAYAR_COPY = {
       `Elemen terkecil setinggi ${percentEh}% dari tinggi gambar, menyudut ≈ 17,2 arcmenit.`,
     sixH: "Pada %EH 3% persamaan ini menjadi aturan 6H yang dikenal luas.",
     noFitCorrection: "Rasio konten sama dengan rasio layar — tanpa koreksi.",
+    tolerance:
+      "Faktor 4/3 adalah toleransi lapangan ACTA, bukan bagian dari DISCAS. Standar " +
+      "menyatakan jarak yang NYAMAN, bukan jarak saat konten berhenti terbaca.",
     bottomRule:
       "Bawah gambar 1,2 m dari lantai agar baris di belakang tidak terhalang kepala baris depan.",
   },
 
   /** ≥2 assumptions, and they say what the tool does NOT model (03-UI §12.5). */
   assumptions: [
+    "Batas “nyaman” adalah angka AVIXA DISCAS. Batas “masih terbaca” ditarik sepertiga lebih jauh (× 4/3) — itu penilaian lapangan ACTA, bukan klausul standar, dan sengaja dipisah supaya keduanya tidak tertukar.",
     "Perhitungan ini geometri murni: jarak, tinggi gambar, dan ketajaman mata. Kualitas gambar — kontras, kecerahan, silau jendela — tidak dimodelkan.",
     "Jarak penonton terjauh diukur ke MATA penonton di kursi terakhir, bukan ke dinding belakang. Selisih 1 m di sini mengubah ukuran layar satu tingkat penuh.",
     "Tinggi gambar dihitung dari area aktif layar. Bezel, bracket, rangka videowall, dan tebal layar proyeksi tidak dihitung — tambahkan sendiri saat mengecek plafon.",
@@ -435,6 +566,7 @@ export const UKURAN_LAYAR_COPY = {
       bottomRule: "Aturan 1,2 m untuk baris di belakang baris pertama.",
       ceilingOk: "Cukup.",
       ceilingShort: "Kurang — kendala arsitektur.",
+      eyeHeight: "Bawaan 1,15 m — postur duduk orang dewasa Indonesia.",
       closestAuto: "Otomatis: 1,5 × tinggi gambar.",
       closestManual: "Diisi manual.",
       verticalAngle: "Dari mata penonton terjauh. Geometri, bukan batas standar.",

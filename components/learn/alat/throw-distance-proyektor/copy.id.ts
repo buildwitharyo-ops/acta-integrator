@@ -68,6 +68,38 @@ export const AMBIENT_OPTIONS: readonly {
   { value: "tinggi", label: "Tinggi — jendela besar, siang hari (40 fL)" },
 ];
 
+/**
+ * The same three levels as cards. Room light is the biggest single lever on the
+ * answer and the only input a reader can judge by looking up from their desk —
+ * as a dropdown it read like a technical setting, as cards it reads like the
+ * question it is.
+ */
+export const AMBIENT_CARDS: readonly {
+  value: AmbientLevel;
+  label: string;
+  description: string;
+  badge: string;
+}[] = [
+  {
+    value: "terkontrol",
+    label: "Terkontrol",
+    description: "Tirai tertutup, lampu diredupkan",
+    badge: "22 fL",
+  },
+  {
+    value: "tinggi",
+    label: "Cahaya tinggi",
+    description: "Jendela besar, siang hari, lampu menyala",
+    badge: "40 fL",
+  },
+  {
+    value: "gelap",
+    label: "Gelap total",
+    description: "Blackout penuh — bioskop, studio",
+    badge: "12 fL",
+  },
+];
+
 export const FIELDS = {
   legend: "Parameter proyektor & layar",
   mode: {
@@ -76,7 +108,8 @@ export const FIELDS = {
     options: MODE_OPTIONS,
   },
   throwRatio: {
-    label: "Throw ratio proyektor (TR)",
+    /** Short: it now shares a two-column row and the long form wrapped. */
+    label: "Throw ratio (TR)",
     unit: "×",
     hint: "Ambil dari lembar data proyektor, biasanya 1,2–1,8. Angka kecil berarti proyektor boleh lebih dekat ke layar.",
   },
@@ -109,7 +142,10 @@ export const FIELDS = {
     label: "Kondisi cahaya ruangan",
     hint: "Pilih kondisi terburuk yang akan dipakai, bukan kondisi ideal saat demo.",
     options: AMBIENT_OPTIONS,
+    cards: AMBIENT_CARDS,
   },
+  opticsLabel: "Lensa & layar",
+  advancedSummary: "Setelan lanjutan",
   submitLabel: "Hitung",
   resetLabel: "Atur ulang",
   /** Shown by the Panel when the inputs no longer match the rendered result. */
@@ -145,6 +181,20 @@ export const RESULT = {
     marginal: (v: { target: string }) => `Nyaris — di bawah target ${v.target} fL`,
     kurang: (v: { target: string }) => `Kurang terang untuk target ${v.target} fL`,
   },
+
+  /** The band. Same three grades the engine already computed, drawn instead of chipped. */
+  gaugeLabel: "POSISI KECERAHAN ANDA",
+  gaugeZones: {
+    kurang: "Kurang",
+    marginal: "Marginal",
+    aman: "Aman",
+  },
+  gaugeCaption: (v: { target: string; ambient: string }) =>
+    `Target ${v.target} fL untuk kondisi ${v.ambient}. Zona marginal mulai 20% di bawah target — ` +
+    `masih terlihat, tanpa cadangan untuk lampu yang menua atau tirai yang lupa ditutup.`,
+  gaugeDescription: (v: { fl: string; target: string; ambient: string }) =>
+    `Kecerahan di layar ${v.fl} fL terhadap target ${v.target} fL untuk kondisi ${v.ambient}.`,
+
   brightnessCaption: (v: {
     lumens: string;
     effective: string;

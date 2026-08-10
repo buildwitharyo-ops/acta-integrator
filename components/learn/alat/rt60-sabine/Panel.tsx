@@ -135,84 +135,105 @@ export function Rt60Panel({
   );
 
   return (
-    <div data-learn-calc={RT60_TOOL_SLUG} className={cn("space-y-5", className)}>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <NumberField
-          name={RT60_PARAM.length}
-          label={RT60_COPY.field.length.label}
-          unit={RT60_COPY.field.length.unit}
-          hint={RT60_COPY.field.length.hint}
-          value={input.length}
-          onValueChange={(value) => setNumber("length", value)}
-          min={RT60_LIMITS.length.min}
-          max={RT60_LIMITS.length.max}
-          decimals={RT60_LIMITS.length.decimals}
-        />
-        <NumberField
-          name={RT60_PARAM.width}
-          label={RT60_COPY.field.width.label}
-          unit={RT60_COPY.field.width.unit}
-          hint={RT60_COPY.field.width.hint}
-          value={input.width}
-          onValueChange={(value) => setNumber("width", value)}
-          min={RT60_LIMITS.width.min}
-          max={RT60_LIMITS.width.max}
-          decimals={RT60_LIMITS.width.decimals}
-        />
-      </div>
-
-      <NumberField
-        name={RT60_PARAM.height}
-        label={RT60_COPY.field.height.label}
-        unit={RT60_COPY.field.height.unit}
-        hint={RT60_COPY.field.height.hint}
-        value={input.height}
-        onValueChange={(value) => setNumber("height", value)}
-        min={RT60_LIMITS.height.min}
-        max={RT60_LIMITS.height.max}
-        decimals={RT60_LIMITS.height.decimals}
-      />
-
+    <div data-learn-calc={RT60_TOOL_SLUG} className={cn("space-y-6", className)}>
+      {/* The room type first: it sets the target the whole answer is judged
+          against, and it is the one field a reader can answer without measuring. */}
       <SelectField
-        name={RT60_PARAM.floor}
-        label={RT60_COPY.field.floor.label}
-        options={FLOOR_OPTIONS}
-        value={input.floor}
+        name={RT60_PARAM.room}
+        label={RT60_COPY.field.room.label}
+        options={ROOM_OPTIONS}
+        value={input.room}
         onValueChange={(value) =>
-          setChoice({
-            floor: isFloorId(value) ? value : RT60_DEFAULT_INPUT.floor,
-          })
+          setChoice({ room: isRoomTypeId(value) ? value : RT60_DEFAULT_INPUT.room })
         }
       />
 
-      <SelectField
-        name={RT60_PARAM.wall}
-        label={RT60_COPY.field.wall.label}
-        options={WALL_OPTIONS}
-        value={input.wall}
-        onValueChange={(value) =>
-          setChoice({ wall: isWallId(value) ? value : RT60_DEFAULT_INPUT.wall })
-        }
-      />
+      {/* Three dimensions on one row, one hint for the group instead of three. */}
+      <fieldset className="min-w-0 border-0 p-0">
+        <legend className="body-sm font-medium text-foreground">
+          {RT60_COPY.field.dimensionsLabel}
+        </legend>
+        <div className="mt-2.5 grid gap-3 sm:grid-cols-3">
+          <NumberField
+            name={RT60_PARAM.length}
+            label={RT60_COPY.field.length.label}
+            unit={RT60_COPY.field.length.unit}
+            value={input.length}
+            onValueChange={(value) => setNumber("length", value)}
+            min={RT60_LIMITS.length.min}
+            max={RT60_LIMITS.length.max}
+            decimals={RT60_LIMITS.length.decimals}
+          />
+          <NumberField
+            name={RT60_PARAM.width}
+            label={RT60_COPY.field.width.label}
+            unit={RT60_COPY.field.width.unit}
+            value={input.width}
+            onValueChange={(value) => setNumber("width", value)}
+            min={RT60_LIMITS.width.min}
+            max={RT60_LIMITS.width.max}
+            decimals={RT60_LIMITS.width.decimals}
+          />
+          <NumberField
+            name={RT60_PARAM.height}
+            label={RT60_COPY.field.height.label}
+            unit={RT60_COPY.field.height.unit}
+            value={input.height}
+            onValueChange={(value) => setNumber("height", value)}
+            min={RT60_LIMITS.height.min}
+            max={RT60_LIMITS.height.max}
+            decimals={RT60_LIMITS.height.decimals}
+          />
+        </div>
+        <p className="caption mt-2 text-muted-foreground">
+          {RT60_COPY.field.dimensionsHint}
+        </p>
+      </fieldset>
 
-      <SelectField
-        name={RT60_PARAM.ceiling}
-        label={RT60_COPY.field.ceiling.label}
-        options={CEILING_OPTIONS}
-        value={input.ceiling}
-        onValueChange={(value) =>
-          setChoice({
-            ceiling: isCeilingId(value) ? value : RT60_DEFAULT_INPUT.ceiling,
-          })
-        }
-      />
+      <fieldset className="min-w-0 border-0 p-0">
+        <legend className="body-sm font-medium text-foreground">
+          {RT60_COPY.field.materialsLabel}
+        </legend>
+        <div className="mt-2.5 space-y-3">
+          <SelectField
+            name={RT60_PARAM.floor}
+            label={RT60_COPY.field.floor.label}
+            options={FLOOR_OPTIONS}
+            value={input.floor}
+            onValueChange={(value) =>
+              setChoice({
+                floor: isFloorId(value) ? value : RT60_DEFAULT_INPUT.floor,
+              })
+            }
+          />
+          <SelectField
+            name={RT60_PARAM.wall}
+            label={RT60_COPY.field.wall.label}
+            options={WALL_OPTIONS}
+            value={input.wall}
+            onValueChange={(value) =>
+              setChoice({ wall: isWallId(value) ? value : RT60_DEFAULT_INPUT.wall })
+            }
+          />
+          <SelectField
+            name={RT60_PARAM.ceiling}
+            label={RT60_COPY.field.ceiling.label}
+            options={CEILING_OPTIONS}
+            value={input.ceiling}
+            onValueChange={(value) =>
+              setChoice({
+                ceiling: isCeilingId(value) ? value : RT60_DEFAULT_INPUT.ceiling,
+              })
+            }
+          />
+        </div>
+      </fieldset>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <NumberField
           name={RT60_PARAM.windowArea}
           label={RT60_COPY.field.windowArea.label}
           unit={RT60_COPY.field.windowArea.unit}
-          hint={RT60_COPY.field.windowArea.hint}
           value={input.windowArea}
           onValueChange={(value) => setNumber("windowArea", value)}
           min={RT60_LIMITS.windowArea.min}
@@ -223,7 +244,6 @@ export function Rt60Panel({
           name={RT60_PARAM.people}
           label={RT60_COPY.field.people.label}
           unit={RT60_COPY.field.people.unit}
-          hint={RT60_COPY.field.people.hint}
           value={input.people}
           onValueChange={(value) => setNumber("people", value)}
           min={RT60_LIMITS.people.min}
@@ -231,17 +251,6 @@ export function Rt60Panel({
           decimals={RT60_LIMITS.people.decimals}
         />
       </div>
-
-      <SelectField
-        name={RT60_PARAM.room}
-        label={RT60_COPY.field.room.label}
-        hint={RT60_COPY.field.room.hint}
-        options={ROOM_OPTIONS}
-        value={input.room}
-        onValueChange={(value) =>
-          setChoice({ room: isRoomTypeId(value) ? value : RT60_DEFAULT_INPUT.room })
-        }
-      />
 
       {result ? (
         <div

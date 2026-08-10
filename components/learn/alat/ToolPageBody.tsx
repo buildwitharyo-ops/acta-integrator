@@ -4,6 +4,7 @@ import { ReferenceTable } from "@/components/learn/alat/_shared/ReferenceTable";
 import { ResultReadout } from "@/components/learn/alat/_shared/ResultReadout";
 import { ShowTheMath } from "@/components/learn/alat/_shared/ShowTheMath";
 import { WidgetShell } from "@/components/learn/alat/_shared/WidgetShell";
+import { ZoneGauge } from "@/components/learn/alat/_shared/ZoneGauge";
 import { RoomSection } from "@/components/learn/alat/ukuran-layar/RoomSection";
 import { WaLearnCta } from "@/components/learn/cta/WaLearnCta";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
@@ -114,6 +115,69 @@ function SectionHeading({
       </h2>
       {intro ? <p className="body-md mt-4 text-muted-foreground">{intro}</p> : null}
     </header>
+  );
+}
+
+/**
+ * A long-tail section, folded shut.
+ *
+ * The reference tables, the limits, the FAQ and the standards list are the parts
+ * of this page that earn links and answer the long-tail query — they are not
+ * padding and none of them was deleted. But stacked open they turned a
+ * calculator into an eleven-thousand-pixel document, and the person who came to
+ * size a screen scrolled past all of it. `<details>` keeps every word in the
+ * server HTML (crawlers and AI retrieval read closed details; the print
+ * stylesheet opens them) while giving the page back its shape.
+ *
+ * `<h2>` stays inside the `<summary>` so the document outline is unchanged.
+ */
+function FoldedSection({
+  id,
+  eyebrow,
+  title,
+  meta,
+  children,
+  className,
+}: {
+  id: string;
+  eyebrow?: string;
+  title: string;
+  /** Right-aligned hint of what is inside, e.g. "6 pertanyaan". */
+  meta?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <details
+      className={cn(
+        "group border-t border-border print:break-inside-avoid [&[open]_summary_svg]:rotate-90",
+        className,
+      )}
+    >
+      <summary className="flex cursor-pointer list-none items-baseline justify-between gap-6 py-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+        <span className="min-w-0">
+          {eyebrow ? (
+            <span className="mono-label block text-muted-foreground">{eyebrow}</span>
+          ) : null}
+          <span className="mt-2 flex items-center gap-3">
+            <svg
+              aria-hidden
+              viewBox="0 0 10 10"
+              className="h-2.5 w-2.5 shrink-0 text-muted-foreground transition-transform duration-200"
+            >
+              <path d="M2 1 L7 5 L2 9" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+            <h2 id={id} className="heading-lg text-balance">
+              {title}
+            </h2>
+          </span>
+        </span>
+        {meta ? (
+          <span className="caption shrink-0 text-muted-foreground">{meta}</span>
+        ) : null}
+      </summary>
+      <div className="pb-10">{children}</div>
+    </details>
   );
 }
 
@@ -241,6 +305,19 @@ function ResultRegion({ computation }: { computation: ToolComputation }) {
           {...(view.headline.verdict ? { verdict: view.headline.verdict } : {})}
           tone={view.headline.tone}
           size="lg"
+        />
+      ) : null}
+      {view.gauge ? (
+        <ZoneGauge
+          className="mt-8 border-t border-border pt-7"
+          label={view.gauge.label}
+          value={view.gauge.value}
+          valueLabel={view.gauge.valueLabel}
+          zones={view.gauge.zones}
+          max={view.gauge.max}
+          {...(view.gauge.ticks ? { ticks: view.gauge.ticks } : {})}
+          {...(view.gauge.caption ? { caption: view.gauge.caption } : {})}
+          description={view.gauge.description}
         />
       ) : null}
       <Readouts readouts={view.readouts} />
@@ -624,24 +701,12 @@ export function ToolPageBody({
         <h1 className="display-lg mt-3 text-balance">{entry.h1}</h1>
         <p className="body-lg mt-5 text-muted-foreground">{entry.intro}</p>
         <Prose text={record?.intro_md} className="mt-4" />
-        <dl className="mt-7 flex flex-wrap gap-x-8 gap-y-3 border-t border-border pt-5">
-          <div>
-            <dt className="mono-label text-muted-foreground">Standar</dt>
-            <dd className="mono-spec mt-1.5 text-foreground">
-              {entry.standardChips.join(" · ")}
-            </dd>
-          </div>
-          <div>
-            <dt className="mono-label text-muted-foreground">Diverifikasi</dt>
-            <dd className="mono-spec mt-1.5 text-foreground">{entry.verifiedAt} · ACTA</dd>
-          </div>
-          <div>
-            <dt className="mono-label text-muted-foreground">Akses</dt>
-            <dd className="mono-spec mt-1.5 text-foreground">
-              Gratis · tanpa daftar · berfungsi tanpa JavaScript
-            </dd>
-          </div>
-        </dl>
+        {/* One line, not a three-column table. The same three facts, and the
+            "berfungsi tanpa JavaScript" claim now lives only in the form footer
+            where it is actually load-bearing. */}
+        <p className="mono-spec mt-6 border-t border-border pt-5 text-muted-foreground">
+          {`${entry.standardChips.join(" · ")} · diverifikasi ${entry.verifiedAt} · gratis, tanpa daftar`}
+        </p>
       </header>
 
       <WidgetShell
@@ -656,12 +721,15 @@ export function ToolPageBody({
         result={<ResultRegion computation={computation} />}
         math={
           view.math ? (
+            /* Closed by default. Open, it printed seven substituted formulas and
+               eleven assumption bullets directly under the answer — the single
+               biggest contributor to the wall of text, and unread by anyone who
+               just wanted the size. It is one tap away and still fully indexed. */
             <ShowTheMath
               steps={view.math.steps}
               assumptions={assumptions}
               standards={view.math.standards}
               verifiedAt={view.math.verifiedAt}
-              open
               summaryLabel={entry.labels.math}
               tool={entry.slug}
             />
@@ -673,12 +741,7 @@ export function ToolPageBody({
 
       {view.diagram ? (
         <section aria-labelledby="diagram-judul" className="mt-14">
-          <SectionHeading
-            id="diagram-judul"
-            eyebrow="Potongan"
-            title="Ruangan Anda, digambar"
-            intro="Setiap diagram di situs ini punya kembaran teks: tabel di bawahnya berisi seluruh parameter dan nilai terhitung, sehingga angkanya tetap terbaca oleh pembaca layar, oleh mesin pencari, dan di hasil cetak."
-          />
+          <SectionHeading id="diagram-judul" eyebrow="Potongan" title="Ruangan Anda, digambar" />
           <div className="mt-8">
             <ToolDiagramBlock diagram={view.diagram} />
           </div>
@@ -753,122 +816,135 @@ export function ToolPageBody({
         </div>
       </section>
 
-      {/* §12.6 item 7 — the tables people bookmark and link to. */}
-      {referenceTables.length > 0 ? (
-        <section aria-labelledby="referensi-judul" className="mt-16">
-          <SectionHeading
+      {/* Everything below is folded shut. Nothing was removed — see FoldedSection. */}
+      <div className="mt-16">
+        {/* §12.6 item 7 — the tables people bookmark and link to. */}
+        {referenceTables.length > 0 ? (
+          <FoldedSection
             id="referensi-judul"
             eyebrow="Referensi"
             title="Tabel acuan"
-            intro="Halaman ini boleh ditandai dan ditautkan. Angka-angka di bawah dihitung oleh mesin yang sama seperti kalkulator, jadi tabel tidak bisa menyimpang dari hasil perhitungan."
-          />
-          <div className="mt-8 space-y-10">
-            {referenceTables.map((table) => (
-              <ReferenceTable
-                key={table.id}
-                id={`referensi-${table.id}`}
-                caption={table.caption}
-                columns={table.columns}
-                rows={table.rows}
-                {...(table.note ? { note: table.note } : {})}
-                {...(table.minWidth ? { minWidth: table.minWidth } : {})}
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
+            meta={`${referenceTables.length} tabel`}
+          >
+            <div className="space-y-10">
+              {referenceTables.map((table) => (
+                <ReferenceTable
+                  key={table.id}
+                  id={`referensi-${table.id}`}
+                  caption={table.caption}
+                  columns={table.columns}
+                  rows={table.rows}
+                  {...(table.note ? { note: table.note } : {})}
+                  {...(table.minWidth ? { minWidth: table.minWidth } : {})}
+                />
+              ))}
+            </div>
+          </FoldedSection>
+        ) : null}
 
-      {(entry.refusals.length > 0 || entry.limits.items.length > 0) && (
-        <section aria-labelledby="batas-judul" className="mt-16">
-          <SectionHeading
+        {entry.refusals.length > 0 || entry.limits.items.length > 0 ? (
+          <FoldedSection
             id="batas-judul"
             eyebrow="Batas alat ini"
             title="Yang tidak kami hitung, dan kenapa"
-          />
-          <div className="mt-8 grid gap-8 lg:grid-cols-2">
-            {entry.refusals.map((refusal) => (
-              <div
-                key={refusal.id}
-                className="relative rounded-md border border-dashed border-border bg-background p-5 print:break-inside-avoid"
-              >
-                <h3 className="heading-md text-balance">{refusal.title}</h3>
-                <p className="body-md mt-3 text-muted-foreground">{refusal.body}</p>
-                {refusal.note ? (
-                  <p className="body-sm mt-3 text-muted-foreground">{refusal.note}</p>
-                ) : null}
-              </div>
-            ))}
-            {entry.limits.items.length > 0 ? (
-              <AssumptionsList title={entry.limits.title} items={entry.limits.items} />
-            ) : null}
-          </div>
-        </section>
-      )}
-
-      {/* §12.6 item 8 — plain <h2> + prose. NO FAQPage JSON-LD: the rich result
-          ended 2026-05-07, so the markup would earn nothing and still have to be
-          maintained. The prose is the payload. */}
-      {entry.faq.length > 0 ? (
-        <section aria-labelledby="faq-judul" className="mt-16">
-          <SectionHeading id="faq-judul" eyebrow="Pertanyaan" title={entry.faqTitle} />
-          <div className="mt-8 max-w-[72ch] space-y-8">
-            {entry.faq.map((item) => (
-              <div key={item.q} className="print:break-inside-avoid">
-                <h3 className="heading-md text-balance">{item.q}</h3>
-                <p className="body-md mt-3 text-muted-foreground">{item.a}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {/* §12.6 item 9 — every standard with the date it was last checked. */}
-      {entry.standards.length > 0 ? (
-        <section aria-labelledby="standar-judul" className="mt-16">
-          <SectionHeading id="standar-judul" eyebrow="Standar" title="Sumber dan tanggal periksa" />
-          <dl className="mt-8 max-w-[72ch] divide-y divide-border border-y border-border">
-            {entry.standards.map((standard) => (
-              <div key={standard.name} className="py-5 print:break-inside-avoid">
-                <dt className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                  <span className="mono-spec text-foreground">{standard.name}</span>
-                  <span className="caption text-muted-foreground">
-                    Diperiksa {standard.checkedAt}
-                  </span>
-                </dt>
-                <dd className="body-sm mt-2 text-muted-foreground">
-                  {standard.title ? (
-                    <span className="text-foreground">{standard.title}. </span>
-                  ) : null}
-                  {standard.usedFor}
-                </dd>
-              </div>
-            ))}
-          </dl>
-          {entry.standardsNote ? (
-            <p className="body-sm mt-5 max-w-[72ch] text-muted-foreground">
-              {entry.standardsNote}
-            </p>
-          ) : null}
-        </section>
-      ) : null}
-
-      {relatedEntries.length > 0 ? (
-        <section aria-labelledby="pelajaran-judul" className="mt-16">
-          <SectionHeading id="pelajaran-judul" eyebrow="Pelajaran" title="Bacaan yang menjelaskan angkanya" />
-          <ul className="mt-6 max-w-[72ch] divide-y divide-border border-y border-border">
-            {relatedEntries.map((item) => (
-              <li key={item.slug}>
-                <Link
-                  href={`/learn/${item.slug}`}
-                  className="body-md flex min-h-11 items-center py-4 text-foreground transition-colors hover:text-accent-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            <div className="grid gap-8 lg:grid-cols-2">
+              {entry.refusals.map((refusal) => (
+                <div
+                  key={refusal.id}
+                  className="relative rounded-md border border-dashed border-border bg-background p-5 print:break-inside-avoid"
                 >
-                  {item.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+                  <h3 className="heading-md text-balance">{refusal.title}</h3>
+                  <p className="body-md mt-3 text-muted-foreground">{refusal.body}</p>
+                  {refusal.note ? (
+                    <p className="body-sm mt-3 text-muted-foreground">{refusal.note}</p>
+                  ) : null}
+                </div>
+              ))}
+              {entry.limits.items.length > 0 ? (
+                <AssumptionsList title={entry.limits.title} items={entry.limits.items} />
+              ) : null}
+            </div>
+          </FoldedSection>
+        ) : null}
+
+        {/* §12.6 item 8 — plain headings + prose. NO FAQPage JSON-LD: the rich
+            result ended 2026-05-07, so the markup would earn nothing and still
+            have to be maintained. The prose is the payload. */}
+        {entry.faq.length > 0 ? (
+          <FoldedSection
+            id="faq-judul"
+            eyebrow="Pertanyaan"
+            title={entry.faqTitle}
+            meta={`${entry.faq.length} pertanyaan`}
+          >
+            <div className="max-w-[72ch] space-y-8">
+              {entry.faq.map((item) => (
+                <div key={item.q} className="print:break-inside-avoid">
+                  <h3 className="heading-md text-balance">{item.q}</h3>
+                  <p className="body-md mt-3 text-muted-foreground">{item.a}</p>
+                </div>
+              ))}
+            </div>
+          </FoldedSection>
+        ) : null}
+
+        {/* §12.6 item 9 — every standard with the date it was last checked. */}
+        {entry.standards.length > 0 ? (
+          <FoldedSection
+            id="standar-judul"
+            eyebrow="Standar"
+            title="Sumber dan tanggal periksa"
+            meta={entry.verifiedAt}
+          >
+            <dl className="max-w-[72ch] divide-y divide-border border-y border-border">
+              {entry.standards.map((standard) => (
+                <div key={standard.name} className="py-5 print:break-inside-avoid">
+                  <dt className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                    <span className="mono-spec text-foreground">{standard.name}</span>
+                    <span className="caption text-muted-foreground">
+                      Diperiksa {standard.checkedAt}
+                    </span>
+                  </dt>
+                  <dd className="body-sm mt-2 text-muted-foreground">
+                    {standard.title ? (
+                      <span className="text-foreground">{standard.title}. </span>
+                    ) : null}
+                    {standard.usedFor}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            {entry.standardsNote ? (
+              <p className="body-sm mt-5 max-w-[72ch] text-muted-foreground">
+                {entry.standardsNote}
+              </p>
+            ) : null}
+          </FoldedSection>
+        ) : null}
+
+        {relatedEntries.length > 0 ? (
+          <FoldedSection
+            id="pelajaran-judul"
+            eyebrow="Pelajaran"
+            title="Bacaan yang menjelaskan angkanya"
+            meta={`${relatedEntries.length} bacaan`}
+          >
+            <ul className="max-w-[72ch] divide-y divide-border border-y border-border">
+              {relatedEntries.map((item) => (
+                <li key={item.slug}>
+                  <Link
+                    href={`/learn/${item.slug}`}
+                    className="body-md flex min-h-11 items-center py-4 text-foreground transition-colors hover:text-accent-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </FoldedSection>
+        ) : null}
+      </div>
 
       {siblings.length > 0 ? (
         <section aria-labelledby="alat-lain-judul" className="mt-16">

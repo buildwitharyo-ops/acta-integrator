@@ -37,6 +37,13 @@ export const PARAM_KEYS = {
   model: "m",
   farthestViewerM: "fv",
   plannedDiagonalIn: "d",
+  /**
+   * Still `eh`, still 1–4. The UI now presents it as four plain-Bahasa content
+   * classes ("Rapat & presentasi", "Angka & detail", …) rather than as an
+   * "element height percentage", but the param never changed — so no shared
+   * link, lesson embed or bookmarked URL broke, and there is exactly one source
+   * of truth for the viewing band instead of two that can disagree.
+   */
   elementHeightPercent: "eh",
   verticalResolution: "vr",
   displayAspect: "ar",
@@ -69,13 +76,19 @@ export const PARAM_ORDER = [
  * the first paint is what lets the money sentence appear with zero interaction.
  * `ceilingHeightM` 2,8 m is the modal finished ceiling of an Indonesian office
  * meeting room — the number the spec itself quotes in its hard warning.
+ *
+ * `elementHeightPercent` is 3, not 2. At %EH 2 (the 4H rule) the untouched default
+ * room answered "you need 141 inci — outside commercial panels, use a projector"
+ * for an ordinary 7 m meeting room, which is analytical-grade advice given to a
+ * room that shows slides. %EH 3 is the 6H rule: the right default for "rapat &
+ * presentasi", which is what the overwhelming majority of these rooms actually do.
  */
 export const SCREEN_SIZE_DEFAULTS: ScreenSizeInput = {
   solveFor: "ukuran",
   model: "bdm",
   farthestViewerM: 7,
   plannedDiagonalIn: 65,
-  elementHeightPercent: 2,
+  elementHeightPercent: 3,
   verticalResolution: 1080,
   displayAspect: "16x9",
   contentAspect: "16x9",
@@ -302,7 +315,7 @@ export const SCREEN_SIZE_PRESETS: readonly {
 }[] = [
   {
     id: "ruang-rapat-8-orang",
-    label: "Ruang rapat 8 orang — slide bullet, kursi terjauh 5 m",
+    label: "Ruang rapat 8 orang — slide, kursi terjauh 5 m",
     input: { ...SCREEN_SIZE_DEFAULTS, farthestViewerM: 5, ceilingHeightM: 2.8 },
   },
   {
@@ -313,6 +326,17 @@ export const SCREEN_SIZE_PRESETS: readonly {
       farthestViewerM: 9,
       ceilingHeightM: 3.2,
       plannedDiagonalIn: 86,
+    },
+  },
+  {
+    id: "ifp-98-rapat-besar",
+    /** The room that exposed the old binary test: 6,55H — readable, not restful. */
+    label: "IFP 98 inci di ruang rapat besar — kursi terjauh 8 m",
+    input: {
+      ...SCREEN_SIZE_DEFAULTS,
+      farthestViewerM: 8,
+      plannedDiagonalIn: 98,
+      ceilingHeightM: 3,
     },
   },
   {

@@ -82,11 +82,17 @@ export function WidgetShell({
         ) : null}
       </header>
 
+      {/* `min-w-0` on both columns is load-bearing, not cosmetic.
+          A grid item's automatic minimum size is its min-content width, and a
+          <select>'s min-content width is its widest <option> — "Plafon gypsum
+          9 mm pada rangka + plenum" and friends. Without this the whole form
+          refused to shrink below ~750 px and every /learn calculator scrolled
+          sideways on a phone. */}
       <div className="mt-10 grid gap-6 lg:grid-cols-12 lg:gap-8">
         <form
           method="GET"
           action={action}
-          className="relative rounded-md border border-border bg-card p-5 md:p-6 lg:col-span-5"
+          className="relative min-w-0 rounded-md border border-border bg-card p-5 md:p-6 lg:col-span-5"
         >
           <CornerTicks size={10} />
           <fieldset className="min-w-0 border-0 p-0">
@@ -117,7 +123,7 @@ export function WidgetShell({
           </p>
         </form>
 
-        <div className="space-y-6 lg:col-span-7">
+        <div className="min-w-0 space-y-6 lg:col-span-7">
           <div
             role="region"
             aria-label={resultLabel}
