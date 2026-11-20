@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { useHomeReducedMotion } from "./useHomeReducedMotion";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 import { mediaUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
+import { homepageEquipmentCopy } from "./homepage-equipment-copy";
 
 type Solution = {
   slug: string | null;
@@ -18,26 +20,12 @@ type Solution = {
   hero_image_alt: string | null;
 };
 
-const CORE_SPANS = [
-  "lg:col-span-7",
-  "lg:col-span-5",
-  "lg:col-span-8",
-  "lg:col-span-4",
-  "lg:col-span-12",
-];
-const CORE_SIZES = [
-  "(min-width: 1024px) 58vw, 100vw",
-  "(min-width: 1024px) 42vw, 100vw",
-  "(min-width: 1024px) 67vw, 100vw",
-  "(min-width: 1024px) 33vw, 100vw",
-  "100vw",
-];
 const CORE_ANNOTATIONS: Record<string, string> = {
-  "smart-meeting-room": "ONE-TOUCH JOIN",
-  "auditorium-performance-hall": "RT60 0.6s",
-  "divisible-room-multipurpose-hall": "ZONE A/B/C",
-  "pa-commercial-sound-system": "100V LINE",
-  "smart-classroom-training-room": "4K TOUCH",
+  "smart-meeting-room": "One-touch join",
+  "auditorium-performance-hall": "Room acoustics",
+  "divisible-room-multipurpose-hall": "Zone routing",
+  "pa-commercial-sound-system": "Distributed audio",
+  "smart-classroom-training-room": "Interactive display",
 };
 
 export function SolutionsBento({
@@ -47,128 +35,95 @@ export function SolutionsBento({
   content: { headline?: string; subheadline?: string };
   solutions: Solution[];
 }) {
-  const reduce = useReducedMotion();
-  const core = solutions.filter((s) => s.tier === "core").slice(0, 5);
-  const supporting = solutions.filter((s) => s.tier === "supporting").slice(0, 3);
+  const reduce = useHomeReducedMotion();
+  const core = solutions.filter((s) => s.slug && s.tier === "core");
+  const supporting = solutions.filter((s) => s.slug && s.tier === "supporting");
 
   return (
-    <section className="container py-section">
-      <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="mono-label text-accent-text">SOLUTIONS</p>
-          <h2 className="display-lg mt-3 max-w-[16ch]">
-            {content.headline ?? "A Solution for Every Space."}
-          </h2>
-        </div>
-        <p className="body-lg max-w-[38ch] text-muted-foreground">
-          {content.subheadline ??
-            "Sistem terintegrasi yang dirancang sesuai karakter ruang dan cara organisasi Anda bekerja."}
+    <section lang="en" aria-labelledby="home-solutions-title" className="container py-section">
+      <header className="mb-6 grid gap-4 border-t border-border pt-5 md:mb-8 md:grid-cols-2 md:items-end md:gap-8">
+        <h2 id="home-solutions-title" className="display-lg text-balance">
+          {homepageEquipmentCopy(content.headline, "AV Systems by Space")}
+        </h2>
+        <p className="body-md max-w-[52ch] text-muted-foreground md:justify-self-end">
+          {homepageEquipmentCopy(content.subheadline, "Explore audio, video and control systems for the way each room is used.")}
         </p>
-      </div>
+      </header>
 
-      <div className="grid gap-4 lg:grid-cols-12">
-        {core.map((s, i) => (
-          <SolutionCard
-            key={s.slug}
-            solution={s}
-            className={CORE_SPANS[i]}
-            sizes={CORE_SIZES[i]}
-            index={i}
-            reduce={reduce}
-          />
+      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr]">
+        {core.map((solution, index) => (
+          <SolutionCard key={solution.slug} solution={solution} index={index} featured={index === 0 && core.length > 2} reduce={reduce} />
         ))}
       </div>
 
-      {supporting.length > 0 ? (
-        <div className="mt-4">
-          <p className="mono-label mb-3 text-muted-foreground">Supporting</p>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {supporting.map((s, i) => (
-              <SolutionCard key={s.slug} solution={s} index={i} compact reduce={reduce} />
-            ))}
-          </div>
+      {supporting.length > 0 && (
+        <div className="mt-2.5 grid gap-2.5 md:grid-cols-3">
+          {supporting.map((solution, index) => (
+            <SolutionCard key={solution.slug} solution={solution} index={index} compact reduce={reduce} />
+          ))}
         </div>
-      ) : null}
+      )}
     </section>
   );
 }
 
 function SolutionCard({
-  solution,
-  className,
-  sizes,
-  index,
-  compact,
-  reduce,
+  solution, index, featured, compact, reduce,
 }: {
   solution: Solution;
-  className?: string;
-  sizes?: string;
   index: number;
+  featured?: boolean;
   compact?: boolean;
   reduce: boolean | null;
 }) {
-  const img = mediaUrl({
-    storage_path: solution.hero_image_path,
-    external_url: solution.hero_image_url_ext,
-  });
-  const annotation = solution.slug ? CORE_ANNOTATIONS[solution.slug] : undefined;
+  const image = mediaUrl({ storage_path: solution.hero_image_path, external_url: solution.hero_image_url_ext });
+  const annotation = CORE_ANNOTATIONS[solution.slug ?? ""];
+  const description = homepageEquipmentCopy(solution.value_prop);
+  const name = solution.name ?? "AV solution";
 
   return (
-    <motion.div
-      initial={reduce ? false : { opacity: 0, y: 20 }}
+    <motion.article
+      initial={reduce ? false : { opacity: 0.8, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
-      whileHover={reduce ? undefined : { scale: 0.985, rotate: 0.3 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.55, delay: index * 0.07, ease: "easeOut" }}
+      whileHover={reduce ? undefined : { y: -2, scale: 0.995, rotate: 0.08 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.35, delay: index * 0.035, ease: "easeOut" }}
       className={cn(
-        "dark group relative flex flex-col justify-end overflow-hidden rounded-[22px] bg-muted p-5 text-foreground",
-        compact ? "min-h-[150px]" : "min-h-[240px]",
-        className,
+        "group relative isolate flex min-w-0 overflow-hidden rounded-lg bg-[#23272b] text-white",
+        compact ? "min-h-[7.5rem] md:min-h-[9rem]" : "min-h-[13rem] md:min-h-[14.5rem]",
+        featured && "min-h-[17.5rem] sm:col-span-2 lg:col-span-1 lg:row-span-2",
       )}
     >
-      {img ? (
-        <Image
-          src={img}
-          alt={solution.hero_image_alt ?? solution.name ?? "Solusi ACTA"}
-          fill
-          sizes={compact ? "(min-width: 640px) 33vw, 100vw" : (sizes ?? "(min-width: 1024px) 60vw, 100vw")}
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      ) : null}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-0 h-[135%] bg-gradient-to-t from-background via-background/45 to-transparent transition-[height] duration-500 group-hover:h-full" />
-
-      <div className="relative z-0 flex items-end gap-3">
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <p className={compact ? "heading-md" : "heading-lg"}>{solution.name}</p>
-          {!compact && annotation ? (
-            <span className="mono-spec w-fit rounded-md bg-foreground/15 px-2 py-0.5 text-foreground/90 backdrop-blur-md">
-              {annotation}
-            </span>
-          ) : null}
-          {!compact ? (
-            <p className="body-sm line-clamp-1 text-foreground/70">{solution.value_prop}</p>
-          ) : null}
+      {image && (
+        <div className={cn("absolute inset-0", featured && "lg:bottom-auto lg:h-[64%]")}>
+          <Image
+            src={image}
+            alt={homepageEquipmentCopy(solution.hero_image_alt, name)}
+            fill
+            sizes={featured ? "(min-width: 1024px) 40vw, 100vw" : "(min-width: 1024px) 32vw, (min-width: 640px) 50vw, 100vw"}
+            className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.025] motion-safe:group-focus-within:scale-[1.025]"
+          />
         </div>
-        <CardArrow />
-      </div>
-
+      )}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-[112%] bg-gradient-to-t from-black/95 via-black/65 to-transparent motion-safe:transition-[height] motion-safe:duration-300 group-hover:h-full group-focus-within:h-full" />
       <Link
         href={`/solutions/${solution.slug}`}
-        aria-label={solution.name ?? "Solusi"}
-        className="absolute inset-0 z-20 rounded-[22px] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-      />
-    </motion.div>
-  );
-}
-
-function CardArrow() {
-  return (
-    <HugeiconsIcon
-      icon={ArrowRight01Icon}
-      size={30}
-      strokeWidth={1.5}
-      className="shrink-0 text-foreground transition-transform duration-300 group-hover:translate-x-1"
-    />
+        aria-label={name}
+        className={cn(
+          "relative flex w-full scroll-mt-24 flex-col justify-end rounded-[inherit] p-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary lg:p-5",
+          featured && "md:p-7",
+        )}
+      >
+        {!compact && annotation && (
+          <span className="mono-label mb-2.5 w-fit rounded-sm bg-black/80 px-1.5 py-1 leading-normal tracking-[0.1em] text-amber-100">{annotation}</span>
+        )}
+        <div className="flex items-start justify-between gap-3">
+          <h3 className={cn("text-balance font-display font-semibold leading-[1.15] tracking-[-0.025em]",
+            featured ? "text-[clamp(1.65rem,2.5vw,2.5rem)]" : "text-[1.18rem] xl:text-[1.35rem]")}>{name}</h3>
+          <HugeiconsIcon aria-hidden="true" icon={ArrowUpRight01Icon} size={18} strokeWidth={1.8} className="mt-1 shrink-0 motion-safe:transition-transform motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5" />
+        </div>
+        {!compact && description && <p className="mt-2 max-w-[43ch] text-sm leading-relaxed text-white/90">{description}</p>}
+      </Link>
+    </motion.article>
   );
 }

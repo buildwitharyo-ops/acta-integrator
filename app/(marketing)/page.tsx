@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/shared/JsonLd";
-import { MarqueeStrip } from "@/components/shared/MarqueeStrip";
+import { HomeTechnologyStrip } from "@/components/shared/HomeTechnologyStrip";
 import { Reveal } from "@/components/shared/Reveal";
 import { ArticlesPreview } from "@/components/sections/ArticlesPreview";
 import { CatalogTeaser } from "@/components/sections/CatalogTeaser";
@@ -55,7 +55,7 @@ export default async function Home() {
 
       <Hero content={get<HeroContent>("hero")} image={null} />
 
-      <MarqueeStrip logos={BRAND_LOGOS} heading={trust.label ?? "Technology We Work With"} />
+      <HomeTechnologyStrip logos={BRAND_LOGOS} heading={trust.label ?? "Technology We Work With"} />
 
       <SolutionsBento
         content={get<{ headline?: string; subheadline?: string }>("solutions")}
@@ -69,22 +69,22 @@ export default async function Home() {
         }>("how_we_work")}
       />
 
-      <Reveal>
+      <Reveal subtle>
         <CatalogTeaser
           content={get<{ headline?: string; subheadline?: string }>("catalog_teaser")}
           categories={categoryPreviews}
         />
       </Reveal>
 
-      <Reveal>
+      <Reveal subtle>
         <ImpactSection />
       </Reveal>
 
-      <Reveal>
+      <Reveal subtle>
         <Testimonials />
       </Reveal>
 
-      <Reveal>
+      <Reveal subtle>
         <ArticlesPreview articles={articles} />
       </Reveal>
 

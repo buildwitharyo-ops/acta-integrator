@@ -19,38 +19,48 @@ export function FinalCta({
   content: { headline?: string; subheadline?: string };
   settings: Settings;
 }) {
-  const contact = [
-    settings?.email ?? "acta.arc@gmail.com",
-    formatWaDisplay(settings?.whatsapp_number),
-    settings?.city ?? "Jakarta, Indonesia",
-    settings?.instagram ?? "@acta.integrator",
-  ].join(" · ");
+  const email = settings?.email ?? "acta.arc@gmail.com";
+  const phone = formatWaDisplay(settings?.whatsapp_number);
+  const instagram = settings?.instagram ?? "@acta.integrator";
+  const heading = content.headline?.trim();
+  const description = content.subheadline?.trim();
+  // Translate the published default while allowing editors to replace either field.
+  const projectTitle = !heading || heading === "Have a Project? Let's Talk."
+    ? "Plan your AV project"
+    : heading;
+  const projectIntro = !description || description === "Konsultasikan kebutuhan sistem AV Anda dengan tim ACTA — gratis, tanpa komitmen."
+    ? "Tell us how you use the space, what needs to change and when you need it ready. Start with a free consultation on scope and budget."
+    : description;
 
   return (
-    <section className="relative overflow-hidden bg-card text-foreground">
+    <section lang="en" aria-labelledby="home-contact" className="relative isolate overflow-hidden border-y border-border bg-card text-foreground">
       <DottedSurface />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_center,hsl(var(--card)/0.85),transparent_75%)]"
       />
-      <div className="container relative z-10 py-expansive text-center">
-        <SignalMeter variant="footer" className="mx-auto mb-10 max-w-[440px]" />
-        <h2 className="display-xl mx-auto max-w-[16ch]">
-          {content.headline ?? "Have a Project? Let's Talk."}
-        </h2>
-        <p className="body-lg mx-auto mt-5 max-w-[48ch] text-muted-foreground">
-          {content.subheadline ??
-            "Ceritakan kebutuhan ruang Anda — tim ACTA bantu petakan opsi sistem dan anggarannya. Gratis, tanpa komitmen."}
-        </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-          <WhatsAppCTA context="general" label="Konsultasi via WhatsApp" size="lg" emphasis="orbit" />
-          <Button asChild variant="glass" size="lg">
-            <TrackedLink href="/contact" ctaId="final_cta_kirim_kebutuhan" location="home_final_cta">
-              Kirim Kebutuhan
-            </TrackedLink>
-          </Button>
+      <div className="container relative z-10 py-section">
+        <SignalMeter variant="footer" className="mb-9 max-w-48" />
+        <div className="grid items-end gap-7 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:gap-16">
+          <div>
+            <h2 id="home-contact" className="display-lg text-balance">{projectTitle}</h2>
+            <p className="body-lg mt-4 max-w-[48ch] text-muted-foreground">{projectIntro}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 lg:justify-end">
+            <WhatsAppCTA context="general" label="Chat on WhatsApp" size="lg" emphasis="orbit" />
+            <Button asChild variant="glass" size="lg">
+              <TrackedLink href="/contact" ctaId="final_cta_kirim_kebutuhan" location="home_final_cta">
+                Send a project brief
+              </TrackedLink>
+            </Button>
+          </div>
         </div>
-        <p className="mono-spec mx-auto mt-10 max-w-[64ch] text-muted-foreground">{contact}</p>
+        <address className="mt-10 flex flex-wrap items-center gap-x-7 border-t border-border pt-3 text-sm not-italic text-muted-foreground">
+          <a href={`mailto:${email}`} className="inline-flex min-h-11 items-center hover:underline">{email}</a>
+          <a href={`tel:+${phone.replace(/\D/g, "")}`} className="inline-flex min-h-11 items-center hover:underline">{phone}</a>
+          <a href={`https://instagram.com/${instagram.replace(/^@/, "")}`} className="inline-flex min-h-11 items-center hover:underline">{instagram}</a>
+          <span className="inline-flex min-h-11 items-center lg:ml-auto">{settings?.city ?? "Jakarta, Indonesia"}</span>
+        </address>
       </div>
     </section>
   );

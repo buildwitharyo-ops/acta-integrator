@@ -1,0 +1,229 @@
+.section {
+  padding-block: 100px;
+  background: hsl(var(--background));
+}
+
+.header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.header h2 {
+  margin-top: 0;
+  font-family: var(--font-display);
+  font-size: clamp(28px,3.4vw,46px);
+  line-height: 1.08;
+  letter-spacing: -.04em;
+  font-weight: 600;
+}
+
+.intro {
+  max-width: 56ch;
+  margin-top: 20px;
+  color: hsl(var(--muted-foreground));
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 16px;
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1.4;
+  transition: color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.controls button:hover {
+  color: hsl(var(--accent-text));
+  border-color: hsl(var(--accent-text));
+  transform: translateY(-1px);
+}
+
+.controls button:active {
+  transform: translateY(1px);
+}
+
+.controls button:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 3px;
+}
+
+.viewport {
+  height: 540px;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+}
+
+.desktopTracks {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+.card {
+  min-width: 0;
+  margin-bottom: 20px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  padding: 28px;
+  background: hsl(var(--card));
+}
+
+.role {
+  color: hsl(var(--accent-text));
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: .04em;
+}
+
+.card h3 {
+  margin-top: 14px;
+  font-family: var(--font-display);
+  font-size: 23px;
+  line-height: 1.25;
+  font-weight: 500;
+  letter-spacing: -.025em;
+}
+
+.body {
+  margin-top: 14px;
+  color: hsl(var(--foreground) / .82);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.mobileTrack, .staticGrid {
+  display: none;
+}
+
+.showAll {
+  height: auto;
+  overflow: visible;
+  mask-image: none;
+}
+
+.showAll .desktopTracks, .showAll .mobileTrack {
+  display: none;
+}
+
+.showAll .staticGrid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 20px;
+}
+
+.staticGrid .card {
+  margin: 0;
+}
+
+@media (max-width: 1023px) {
+  .header {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .controls {
+    justify-content: flex-start;
+  }
+  .desktopTracks {
+    display: none;
+  }
+  .mobileTrack {
+    display: block;
+    max-width: 620px;
+    margin-inline: auto;
+  }
+  .showAll .staticGrid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .section {
+    padding-block: 64px;
+  }
+  .header {
+    margin-bottom: 28px;
+  }
+  .intro {
+    font-size: 15px;
+  }
+  .controls {
+    width: 100%;
+  }
+  .controls button {
+    flex: 1;
+  }
+  .viewport {
+    height: 520px;
+  }
+  .showAll {
+    height: auto;
+  }
+  .card {
+    padding: 24px;
+  }
+  .card h3 {
+    font-size: 22px;
+  }
+  .showAll .staticGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controls {
+    display: none;
+  }
+  .viewport {
+    height: auto;
+    overflow: visible;
+    mask-image: none;
+  }
+  .desktopTracks, .mobileTrack {
+    display: none;
+  }
+  .staticGrid {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 20px;
+  }
+  .track {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 1023px) {
+  .staticGrid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 639px) {
+  .staticGrid {
+    grid-template-columns: 1fr;
+  }
+}

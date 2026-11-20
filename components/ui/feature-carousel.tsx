@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
+import { usePreviewPlayback } from "@/components/sections/usePreviewPlayback";
+import { useHomeReducedMotion } from "@/components/sections/useHomeReducedMotion";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowUpRight01Icon, PauseIcon, PlayIcon } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { CornerTicks } from "@/components/shared/CornerTicks";
 import { cn } from "@/lib/utils";
@@ -22,7 +25,7 @@ export type FeatureItem = {
 
 export function FeatureCarousel({
   items,
-  ctaLabel = "Lihat detail",
+  ctaLabel = "View details",
   interval = 4500,
   className,
 }: {
@@ -31,115 +34,125 @@ export function FeatureCarousel({
   interval?: number;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useHomeReducedMotion();
+  const previewId = useId();
+  const carousel = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const { paused, suspended, controlProps, regionProps } = usePreviewPlayback();
 
   useEffect(() => {
-    if (reduce || paused || items.length <= 1) return;
-    const t = setInterval(() => setActive((i) => (i + 1) % items.length), interval);
-    return () => clearInterval(t);
-  }, [reduce, paused, items.length, interval, active]);
+    if (reduce || suspended || items.length <= 1) return;
+    const timer = window.setTimeout(() => setActive((index) => (index + 1) % items.length), interval);
+    return () => window.clearTimeout(timer);
+  }, [reduce, suspended, items.length, interval, active]);
 
-  const current = items[active];
+  const current = items[active] ?? items[0];
   if (!current) return null;
 
   return (
     <div
+      ref={carousel}
       role="group"
       aria-roledescription="carousel"
-      aria-label="Kategori perangkat"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocusCapture={() => setPaused(true)}
-      onBlurCapture={() => setPaused(false)}
-      onTouchStart={() => setPaused(true)}
-      onTouchEnd={() => setPaused(false)}
-      onTouchCancel={() => setPaused(false)}
-      className={cn("grid gap-5 lg:grid-cols-2 lg:items-stretch lg:gap-6", className)}
+      aria-label="Equipment categories"
+      {...regionProps}
+      className={cn("grid min-w-0 gap-5 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:items-stretch md:gap-8 lg:gap-12", className)}
     >
-      <div className="flex flex-col gap-2">
-        {items.map((item, i) => {
-          const on = i === active;
-          return (
-            <button
-              key={item.key}
-              aria-current={on ? "true" : undefined}
-              type="button"
-              onClick={() => setActive(i)}
-              onFocus={() => setActive(i)}
-              onMouseEnter={() => setActive(i)}
-              className={cn(
-                "group relative flex items-center overflow-hidden rounded-[14px] border px-4 py-3 text-left transition-colors lg:flex-1",
-                on ? "border-primary/45 bg-card" : "border-border hover:border-border hover:bg-card/60",
-              )}
-            >
-              <span className="flex w-full items-center gap-3">
-                <HugeiconsIcon
-                  icon={item.icon}
-                  size={22}
-                  strokeWidth={1.5}
-                  className={cn(
-                    "shrink-0 transition-colors",
-                    on ? "text-accent-text" : "text-muted-foreground group-hover:text-foreground",
-                  )}
-                />
-                <span
-                  className={cn(
-                    "heading-md flex-1 transition-colors",
-                    on ? "text-accent-text" : "text-foreground/85 group-hover:text-foreground",
-                  )}
+      <div className="flex min-w-0 flex-col">
+        <div className="divide-y divide-border border-y border-border">
+          {items.map((item, index) => {
+            const selected = current.key === item.key;
+            return (
+              <div
+                key={item.key}
+                onFocusCapture={() => setActive(index)}
+                onPointerEnter={(event) => {
+                  if (event.pointerType === "mouse" && !carousel.current?.contains(document.activeElement)) {
+                    setActive(index);
+                  }
+                }}
+                onPointerMove={(event) => {
+                  // Focus can scroll a different row under a stationary pointer.
+                  if (event.pointerType === "mouse" && (event.movementX || event.movementY)) {
+                    setActive(index);
+                  }
+                }}
+                className={cn("relative flex items-stretch", selected && "bg-accent/65")}
+              >
+                <button
+                  type="button"
+                  aria-label={`Preview ${item.title}`}
+                  aria-controls={previewId}
+                  aria-current={selected || undefined}
+                  onClick={() => setActive(index)}
+                  className="group flex min-h-14 min-w-0 flex-1 items-center gap-2.5 px-2 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:gap-3 sm:px-3"
                 >
-                  {item.title}
-                </span>
-                {item.meta ? <span className="mono-spec text-muted-foreground">{item.meta}</span> : null}
-              </span>
-              {on && !reduce && !paused ? (
-                <motion.span
-                  key={`${active}-progress`}
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: interval / 1000, ease: "linear" }}
-                  className="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-primary"
-                />
-              ) : on ? (
-                <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary/50" />
-              ) : null}
-            </button>
-          );
-        })}
+                  <HugeiconsIcon aria-hidden="true" icon={item.icon} size={19} strokeWidth={1.5} className={cn("shrink-0", selected ? "text-accent-text" : "text-muted-foreground")} />
+                  <span className={cn("font-display text-base leading-snug", selected ? "font-semibold" : "font-medium")}>{item.title}</span>
+                  {item.meta && <span className="ml-auto shrink-0 text-xs tabular-nums text-muted-foreground">{item.meta}</span>}
+                </button>
+                <Link
+                  href={item.href}
+                  aria-label={`Browse ${item.title} products`}
+                  className="inline-flex min-h-11 w-11 shrink-0 items-center justify-center text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                >
+                  <HugeiconsIcon aria-hidden="true" icon={ArrowUpRight01Icon} size={17} />
+                </Link>
+                {selected && (
+                  !reduce && !suspended ? (
+                    <motion.span
+                      key={`${item.key}-progress`}
+                      aria-hidden="true"
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ duration: interval / 1000, ease: "linear" }}
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 origin-left bg-primary"
+                    />
+                  ) : <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-primary" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {!reduce && items.length > 1 && (
+          <button
+            type="button"
+            aria-label={paused ? "Play catalog preview" : "Pause catalog preview"}
+            {...controlProps}
+            className="mt-1 inline-flex min-h-11 w-fit items-center gap-2 px-2 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-ring"
+          >
+            <HugeiconsIcon aria-hidden="true" icon={paused ? PlayIcon : PauseIcon} size={14} />
+            {paused ? "Play preview" : "Pause preview"}
+          </button>
+        )}
       </div>
 
-      <div className="relative overflow-hidden rounded-[20px] bg-card ring-1 ring-border">
-        <AnimatePresence mode="wait" initial={false}>
+      <div id={previewId} className="min-w-0 overflow-hidden rounded-lg border border-border bg-card">
+        <div className="relative aspect-[16/8] w-full max-h-[22rem] overflow-hidden bg-[#e9eaec] text-[#33383e]">
           <motion.div
             key={current.key}
-            initial={reduce ? false : { opacity: 0 }}
+            initial={reduce ? false : { opacity: 0.15 }}
             animate={{ opacity: 1 }}
-            exit={reduce ? undefined : { opacity: 0 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="absolute inset-0 flex items-center justify-center"
           >
-            <div className="relative aspect-[16/9]">
-              {current.image ? (
-                <Image src={current.image} alt={current.imageAlt} fill sizes="(min-width: 1024px) 560px, 100vw" className="object-contain p-5" />
-              ) : (
-                <div className="texture-grid absolute inset-0 opacity-40" />
-              )}
-              <CornerTicks />
-            </div>
-            <div className="p-5 pt-4">
-              {current.meta ? <p className="mono-spec text-muted-foreground">{current.meta}</p> : null}
-              <p className="heading-lg mt-1">{current.title}</p>
-              <p className="body-md mt-2 max-w-[52ch] text-muted-foreground">{current.description}</p>
-              <Link
-                href={current.href}
-                className="mono-label mt-3 inline-flex min-h-[44px] items-center text-accent-text underline-offset-4 hover:underline"
-              >
-                {ctaLabel}
-              </Link>
-            </div>
+            {current.image ? (
+              <Image src={current.image} alt={current.imageAlt} fill sizes="(min-width: 1280px) 740px, (min-width: 768px) 60vw, 100vw" className="object-contain p-5 md:p-8" />
+            ) : (
+              <HugeiconsIcon aria-hidden="true" icon={current.icon} size={64} strokeWidth={1} />
+            )}
           </motion.div>
-        </AnimatePresence>
+          <CornerTicks className="inset-3" />
+        </div>
+        <div className="grid gap-3 p-4 sm:grid-cols-[1fr_auto] sm:items-start md:p-5">
+          <div className="min-w-0">
+            <h3 className="heading-lg">{current.title}</h3>
+            {current.description && <p className="body-sm mt-1 max-w-[48ch] text-muted-foreground">{current.description}</p>}
+          </div>
+          <Link href={current.href} className="inline-flex min-h-11 w-fit items-center gap-2 text-sm font-medium text-foreground underline decoration-primary underline-offset-4 focus-visible:outline-ring">
+            {ctaLabel}<span aria-hidden="true">↗</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

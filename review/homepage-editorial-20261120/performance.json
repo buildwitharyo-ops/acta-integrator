@@ -1,0 +1,304 @@
+{
+ "page": "http://127.0.0.1:3020/",
+ "partial": false,
+ "results": [
+  {
+   "w": 1440,
+   "rows": [
+    {
+     "name": "host CPU load (before/after)",
+     "value": "24/23 %",
+     "verdict": "PASS",
+     "note": ""
+    },
+    {
+     "name": "total transfer",
+     "value": "2021.8 KiB",
+     "verdict": "WARN",
+     "note": "html 27.8K  css 22K  js 370.2K  font 105.3K  img 751.3K  other 745.2K"
+    },
+    {
+     "name": "requests",
+     "value": 109,
+     "verdict": "WARN",
+     "note": "85 by load"
+    },
+    {
+     "name": "images bytes",
+     "value": "751.3 KiB",
+     "verdict": "PASS",
+     "note": "46 files"
+    },
+    {
+     "name": "largest image",
+     "value": "117.8 KiB",
+     "verdict": "PASS",
+     "note": "home-engineering/yamaha-dm7.webp"
+    },
+    {
+     "name": "JS parsed",
+     "value": "1116.9 KiB",
+     "verdict": "FAIL",
+     "note": "35 files, 370.2K gz"
+    },
+    {
+     "name": "CSS",
+     "value": "22 KiB",
+     "verdict": "PASS",
+     "note": "3 files"
+    },
+    {
+     "name": "font families",
+     "value": 4,
+     "verdict": "FAIL",
+     "note": "Inter, Inter Fallback, IBM Plex Mono, fontDisplay"
+    },
+    {
+     "name": "font files",
+     "value": 4,
+     "verdict": "PASS",
+     "note": "105.3K"
+    },
+    {
+     "name": "font bytes",
+     "value": "105.3 KiB",
+     "verdict": "PASS",
+     "note": ""
+    },
+    {
+     "name": "images without width+height",
+     "value": 21,
+     "verdict": "FAIL",
+     "note": "logo-acta-black-192.webp, logo-acta-white-192.webp, meeting-room-2944ce33.png?width=640&resize=contain&quality=75"
+    },
+    {
+     "name": "below-fold images not lazy",
+     "value": 2,
+     "verdict": "WARN",
+     "note": "logo-acta-black-192.webp, logo-acta-white-192.webp"
+    },
+    {
+     "name": "oversized images (natural > 2.2x shown)",
+     "value": 2,
+     "verdict": "WARN",
+     "note": "audac-luna-front.webp 1119px for 180; yamaha-dm3.webp 1200px for 180"
+    },
+    {
+     "name": "WebGL live at load",
+     "value": 0,
+     "verdict": "PASS",
+     "note": ""
+    },
+    {
+     "name": "WebGL live at bottom",
+     "value": 0,
+     "verdict": "PASS",
+     "note": ""
+    },
+    {
+     "name": "WebGL peak live",
+     "value": 0,
+     "verdict": "PASS",
+     "note": "0 contexts made in all"
+    },
+    {
+     "name": "long tasks",
+     "value": 0,
+     "verdict": "PASS",
+     "note": "runs 2, 0..0, max 0ms"
+    },
+    {
+     "name": "blocking time",
+     "value": "0 ms",
+     "verdict": "PASS",
+     "note": "runs 2, 0..0 ms; at load 0ms"
+    },
+    {
+     "name": "FCP (CPU, relative)",
+     "value": "114 ms",
+     "verdict": "PASS",
+     "note": "runs 2, 84..144"
+    },
+    {
+     "name": "LCP (CPU, relative)",
+     "value": "114 ms",
+     "verdict": "PASS",
+     "note": "runs 2, 84..144, h1.display-xl"
+    },
+    {
+     "name": "layout shift",
+     "value": "0.000",
+     "verdict": "PASS",
+     "note": "runs 2, 0.000..0.000; at load 0.000"
+    },
+    {
+     "name": "modules loaded, never mounted",
+     "value": 0,
+     "verdict": "PASS",
+     "note": ""
+    },
+    {
+     "name": "broken requests",
+     "value": 1,
+     "verdict": "FAIL",
+     "note": "insights/script.js"
+    },
+    {
+     "name": "page height",
+     "value": "7.2 screens",
+     "verdict": "PASS",
+     "note": "DOM 882 nodes"
+    }
+   ]
+  },
+  {
+   "w": 390,
+   "rows": [
+    {
+     "name": "host CPU load (before/after)",
+     "value": "24/23 %",
+     "verdict": "PASS",
+     "note": ""
+    },
+    {
+     "name": "total transfer",
+     "value": "1998.9 KiB",
+     "verdict": "WARN",
+     "note": "html 27.8K  css 22K  js 370.2K  font 105.3K  img 728.5K  other 745.2K"
+    },
+    {
+     "name": "requests",
+     "value": 109,
+     "verdict": "WARN",
+     "note": "64 by load"
+    },
+    {
+     "name": "images bytes",
+     "value": "728.5 KiB",
+     "verdict": "PASS",
+     "note": "46 files"
+    },
+    {
+     "name": "largest image",
+     "value": "117.8 KiB",
+     "verdict": "PASS",
+     "note": "home-engineering/yamaha-dm7.webp"
+    },
+    {
+     "name": "JS parsed",
+     "value": "1116.9 KiB",
+     "verdict": "FAIL",
+     "note": "35 files, 370.2K gz"
+    },
+    {
+     "name": "CSS",
+     "value": "22 KiB",
+     "verdict": "PASS",
+     "note": "3 files"
+    },
+    {
+     "name": "font families",
+     "value": 4,
+     "verdict": "FAIL",
+     "note": "Inter, Inter Fallback, IBM Plex Mono, fontDisplay"
+    },
+    {
+     "name": "font files",
+     "value": 4,
+     "verdict": "PASS",
+     "note": "105.3K"
+    },
+    {
+     "name": "font bytes",
+     "value": "105.3 KiB",
+     "verdict": "PASS",
+     "note": ""
+    },
+    {
+     "name": "images without width+height",
+     "value": 21,
+     "verdict": "FAIL",
+     "note": "logo-acta-black-192.webp, logo-acta-white-192.webp, meeting-room-2944ce33.png?width=640&resize=contain&quality=75"
+    },
+    {
+     "name": "below-fold images not lazy",
+     "value": 0,
+     "verdict": "PASS",
+     "note": "2 marked lazy in the page source, set eager by system.js once the page has loaded"
+    },
+    {
+     "name": "oversized images (natural > 2.2x shown)",
+     "value": 7,
+     "verdict": "FAIL",
+     "note": "audac-luna-front.webp 1119px for 300; audac-luna-rear.webp 1132px for 294; yamaha-dm3.webp 1200px for 294"
+    },
+    {
+     "name": "WebGL live at load",
+     "value": 0,
+     "verdict": "PASS",
+     "note": ""
+    },
+    {
+     "name": "WebGL live at bottom",
+     "value": 0,
+     "verdict": "PASS",
+     "note": ""
+    },
+    {
+     "name": "WebGL peak live",
+     "value": 0,
+     "verdict": "PASS",
+     "note": "0 contexts made in all"
+    },
+    {
+     "name": "long tasks",
+     "value": 0,
+     "verdict": "PASS",
+     "note": "runs 2, 0..0, max 0ms"
+    },
+    {
+     "name": "blocking time",
+     "value": "0 ms",
+     "verdict": "PASS",
+     "note": "runs 2, 0..0 ms; at load 0ms"
+    },
+    {
+     "name": "FCP (CPU, relative)",
+     "value": "102 ms",
+     "verdict": "PASS",
+     "note": "runs 2, 92..112"
+    },
+    {
+     "name": "LCP (CPU, relative)",
+     "value": "102 ms",
+     "verdict": "PASS",
+     "note": "runs 2, 92..112, p.body-lg"
+    },
+    {
+     "name": "layout shift",
+     "value": "0.000",
+     "verdict": "PASS",
+     "note": "runs 2, 0.000..0.000; at load 0.000"
+    },
+    {
+     "name": "modules loaded, never mounted",
+     "value": 0,
+     "verdict": "PASS",
+     "note": ""
+    },
+    {
+     "name": "broken requests",
+     "value": 1,
+     "verdict": "FAIL",
+     "note": "insights/script.js"
+    },
+    {
+     "name": "page height",
+     "value": "12.5 screens",
+     "verdict": "PASS",
+     "note": "DOM 879 nodes"
+    }
+   ]
+  }
+ ]
+}

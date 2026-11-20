@@ -1,0 +1,341 @@
+gate: checking http://127.0.0.1:3020/ (service); this takes a few minutes on a CPU Chrome
+gate: rounds used up; 111 FAIL open
+  FAIL assets           (the page)  [1440]
+       the script _vercel/insights/script.js did not load (404)
+       fix: fix the path, or remove the reference
+  FAIL spill            section.container.py-section > div.grid:nth-of-type(1) > article.group.relative:nth-of-typ  [1440]
+       runs 171px past the bottom edge of the panel it sits on (div.grid:nth-of-type(1) > article.group.relative:nth-of-type(1) > div.absolute.inset-0 > img.object-cover)
+       fix: keep the box inside the panel it starts on: shrink it, or grow the panel to hold it
+  FAIL overlap-text     h2#home-testimonials-title "Room Operating Scenarios"  [1440, 390]
+       lies over the text "Audio, display, and control need to work" (article.Testimonials_card__5PQ3p:nth-of-type(1) > p.Testimonials_body__AdlVW) (and 1 more like it: "Planning examples for op")
+       fix: move the box off the text (or the text off the box)
+  FAIL overlap-text     section#what-we-deliver "WHAT WE DELIVER Built for Daily Operatio"  [1440, 390]
+       lies over the text "Daily use" (article.Testimonials_card__5PQ3p:nth-of-type(1) > p.Testimonials_role__J79G_)
+       fix: move the box off the text (or the text off the box)
+  FAIL cut-text         div.Testimonials_desktopTracks__lvuTV > div.Testimonials_track___QlHr.animate-scroll-y:nth  [1440]
+       cut 20px at the top by the overflow of div#home-operating-scenarios
+       fix: give the text room: no overflow clipping a line, no line past its box
+  FAIL cut-text         div.Testimonials_desktopTracks__lvuTV > div.Testimonials_track___QlHr.animate-scroll-y:nth  [1440]
+       2 of 3 lines hidden by the overflow of div#home-operating-scenarios
+       fix: give the text room: no overflow clipping a line, no line past its box
+  FAIL scroll-reveal    main.min-h-screen > section.container.py-section > div.grid:nth-of-type(1) > article.group  [1440, 390]
+       starts an animation (0.3 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > section.container.py-section > div.grid:nth-of-type(1) > article.group  [1440, 390]
+       starts an animation (0.3 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > section.container.py-section > div.grid:nth-of-type(1) > article.group  [1440, 390]
+       starts an animation (0.3 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > section.container.py-section > div.grid:nth-of-type(1) > article.group  [1440, 390]
+       starts an animation (0.3 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > section.container.py-section > div.grid:nth-of-type(1) > article.group  [1440, 390]
+       starts an animation (0.3 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > section.container.py-section > div.grid:nth-of-type(2) > article.group  [1440, 390]
+       starts an animation (0.3 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > section.container.py-section > div.grid:nth-of-type(2) > article.group  [1440, 390]
+       starts an animation (0.3 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > section.container.py-section > div.grid:nth-of-type(2) > article.group  [1440, 390]
+       starts an animation (0.3 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > div:nth-of-type(1) "Equipment Catalog Browse equipment by fu"  [1440, 390]
+       starts an animation (0.7 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > div:nth-of-type(2) "WHAT WE DELIVER Built for Daily Operatio"  [1440, 390]
+       starts an animation (0.7 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > div:nth-of-type(3) "Room Operating Scenarios Planning exampl"  [1440, 390]
+       starts an animation (0.7 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal    main.min-h-screen > div:nth-of-type(4)  [1440, 390]
+       starts an animation (0.7 s) the moment it is scrolled into view (an IntersectionObserver)
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL card-layout      main.min-h-screen > section.container.py-section > div.grid:nth-of-type(1) "ONE-TOUCH JOIN  [1440, 390]
+       4 of 5 cards drawn one way (one panel, ground, placement and fragment): copies of one card
+       fix: a card layout at most twice on a page: build the other sections another way
+  FAIL card-layout      section#what-we-deliver > div.container > div.engineering_accordion__2cMd1 "OPERATION − St  [1440]
+       4 of 4 cards drawn one way (one panel, ground, placement and fragment): copies of one card
+       fix: a card layout at most twice on a page: build the other sections another way
+  FAIL button-styles    (the page)  [1440, 390]
+       3 button styles on the page: pill, fill #d99530 x3 ("Konsultasi"); pill, outline #2b2f36 x1 ("View all brands +"); pill, outline #f1f1ee x1 ("Discuss your project ↗")
+       fix: one primary and one secondary button: one shape, one height per size, one label size
+  FAIL copy-headline    main.min-h-screen > section.relative.flex > div.container.relative > h1.display-xl.mt-5 "A  [1440]
+       "Audio Visual Technology, Without Friction." does not name what is sold (commercial av integration, commercial, integration, from flags); only the line under it does
+       fix: put the category noun in the h1 (and who it is for, or where), in 2 to 8 words
+  FAIL copy-fact        main.min-h-screen > section.relative.flex > div.container.relative > h1.display-xl.mt-5 "A  [1440]
+       the first screen holds no number, price, date, place, platform or genre
+       fix: put one hard fact from the brief on the first screen: a number, a price, a date, the place, the platforms it runs on or a game's genre; take it from the brief or remove the claim
+  FAIL copy-headings    h2#work-title "From Design to Handover"  [1440]
+       "From Design to Handover" names no product, part, place or section (3 headings like it; at most one brand line per page) (and 2 more like it: "Equipment Catalog", "Built for Daily Operatio")
+       fix: name the thing in every heading: the product, a part, the place or a section noun
+  FAIL heading-scale    article.group.relative:nth-of-type(1) > a.relative.flex > div.flex.items-start > h3.text-b  [1440, 390]
+       an h3 at 36px, as large as the smallest h2 (12px) or larger (and 2 more like it: "Auditorium & Performance", "Divisible Room / Multipu")
+       fix: size headings by level: the h1 largest, one size per level, each level below the one above
+  FAIL heading-scale    h2#home-testimonials-title "Room Operating Scenarios"  [1440]
+       h2 headings in 4 sizes, 12px ("TECHNOLOGY WE WORK WITH") to 46px (x3.83)
+       fix: size headings by level: the h1 largest, one size per level, each level below the one above
+  FAIL top-stagger      section#what-we-deliver > div.container > div.engineering_accordion__2cMd1 "OPERATION − St  [1440]
+       4 boxes side by side start at different heights (+0, +130, +90, +50px)
+       fix: align the tops of the boxes in the row (one floor, one ceiling)
+  FAIL top-stagger      div#home-operating-scenarios > div.Testimonials_desktopTracks__lvuTV "Operations One integ  [1440]
+       3 boxes side by side start at different heights (+147, +0, +199px)
+       fix: align the tops of the boxes in the row (one floor, one ceiling)
+  FAIL text-contrast    div.container.relative > div.grid.items-end > div:nth-of-type(1) > p.body-lg.mt-4 "Tell us  [1440, 390]
+       body text in #9a9fa7 on #1d2025 reads 6.14:1 (needs 7:1)
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast    div.grid.gap-8 > div:nth-of-type(4) > ul.space-y-2 > li.mono-spec.pt-1 "Jakarta, Indonesia  [1440, 390]
+       a caption, label or muted line in #72767d on #14161a reads 3.96:1 (needs 4.5:1); 2 like it, like "Instalasi Audio Visual"
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL section-gaps     main.min-h-screen > section.relative.flex / section#home-technology  [1440, 390]
+       35px between these sections, -78% against the median 162px
+       fix: use one gap between sections (all within 25% of each other)
+  FAIL section-gaps     main.min-h-screen > section.relative.isolate / footer.dark.bg-background  [1440]
+       55px between these sections, -66% against the median 162px
+       fix: use one gap between sections (all within 25% of each other)
+  FAIL moment-none      (the page)  [1440]
+       a service page (--type) deals no moment: every kind carries one, two on a long page (moments.md)
+       fix: deal one (moments.mjs pick --page service --photo) and mount it in its own section
+  FAIL section-height (screen-short, screen-height) section#home-technology "<style> #home-technology .HomeTechnology"  [1440, 390]
+       the section is 190px tall (0.2 screens), 710px short of one screen (900px): every section after the hero is one screen or two, 2px either way (SR-2)
+       fix: set the section to one screen or two (height: calc(var(--h,1) * 100vh), --h 1 or 2) and cut or split its content to fit
+  FAIL section-height   main.min-h-screen > section.relative.isolate "Plan your AV projectTell us how you use "  [1440]
+       the section is 464px tall (0.5 screens), 436px short of one screen (900px): every section after the hero is one screen or two, 2px either way (SR-2)
+       fix: set the section to one screen or two (height: calc(var(--h,1) * 100vh), --h 1 or 2) and cut or split its content to fit
+  FAIL section-height   footer.dark.bg-background "OUTPUT — TANGERANG, IDSmarter Systems. R"  [1440]
+       the section is 563px tall (0.6 screens), 337px short of one screen (900px): every section after the hero is one screen or two, 2px either way (and 5 more like it: "Equipment CatalogBrowse ", "What we deliverBuilt for", "
+       fix: set the section to one screen or two (height: calc(var(--h,1) * 100vh), --h 1 or 2) and cut or split its content to fit
+  FAIL section-height (screen-short, screen-height) section#how-we-work "How we workFrom Design to HandoverFollow"  [1440]
+       the section starts at 2001px, 201px below the screen grid (2 x 900px): sections start on whole screens (SR-2)
+       fix: make every section above it exactly one or two screens tall, so this one starts on a whole screen
+  FAIL section-height   main.min-h-screen > section.container.py-section "AV Systems by SpaceSelect a space to see  [1440]
+       the section starts at 1091px, 191px below the screen grid (1 x 900px): sections start on whole screens (and 5 more like it: "Equipment CatalogBrowse ", "COMMERCIAL AV / MULTIMED", "Plan your AV projectTell") (SR-2)
+       fix: make every section above it exactly one or two screens tall, so this one starts on a whole screen
+  FAIL section-air      section#home-technology "<style> #home-technology .HomeTechnology"  [1440]
+       the content fills 23.1% of the section's height (44 of 190px): 55% or more (40% WARN) (SR-3)
+       fix: fill the section to 55%: more content, a picture or a background layer, or merge it into the section above as its last block
+  FAIL section-air      section#what-we-deliver > div.container > div.engineering_impactFooter__gtXtX "Planning a   [1440]
+       a top border across 100% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)
+       fix: take the rule out: sections and their parts are parted by their ground and the air between them
+  FAIL section-air      main.min-h-screen > section.relative.isolate > div.container.relative > address.mt-10.flex  [1440]
+       a top border across 100% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)
+       fix: take the rule out: sections and their parts are parted by their ground and the air between them
+  FAIL one-section      h2#home-contact "Plan your AV project"  [1440]
+       the screen at scroll 5461px (the top of section 8) shows 391px of section 8 and the heading of section 8 whole and the content of 2 sections, over 24px each beside section 9: a screen shows one section (another may peek
+       fix: make each section exactly one screen or two, so a screen shows one section and no neighbour peeks
+  FAIL one-section      footer.dark.bg-background "OUTPUT — TANGERANG, IDSmarter Systems. R"  [1440]
+       the screen at scroll 5400px (stride 6) shows 375px of section 9 and the content of 2 sections, over 24px each beside section 8: a screen shows one section (another may peek 8px, 24px WARN) (SR-4)
+       fix: make each section exactly one screen or two, so a screen shows one section and no neighbour peeks
+  FAIL one-section      main.min-h-screen > section.relative.isolate "Plan your AV projectTell us how you use "  [1440]
+       the screen at scroll 5589px (the top of section 9) shows 263px of section 8 and the content of 2 sections, over 24px each beside section 9: a screen shows one section (another may peek 8px, 24px WARN) (and 7 more like it
+       fix: make each section exactly one screen or two, so a screen shows one section and no neighbour peeks
+  FAIL one-section      main.min-h-screen > div:nth-of-type(1) "Equipment CatalogBrowse equipment by fun"  [1440]
+       a <div> sits directly in <main>: every part of <main> is a <section> (SR-4)
+       fix: put every block of <main> in a <section>, and give a band its own section instead of a ground inside one
+  FAIL one-section      main.min-h-screen > div:nth-of-type(2) "What we deliverBuilt for Daily Operation"  [1440]
+       a <div> sits directly in <main>: every part of <main> is a <section> (SR-4)
+       fix: put every block of <main> in a <section>, and give a band its own section instead of a ground inside one
+  FAIL one-section      main.min-h-screen > div:nth-of-type(3) "<style> #home-testimonials .Testimonials"  [1440]
+       a <div> sits directly in <main>: every part of <main> is a <section> (SR-4)
+       fix: put every block of <main> in a <section>, and give a band its own section instead of a ground inside one
+  FAIL one-heading      h2#home-solutions-title "AV Systems by Space"  [1440]
+       headings of two sections show whole on one screen at 11 of 112 scroll positions (9.8%; at scroll 400, 450, 500, 550px), here with "TECHNOLOGY WE WORK WITH": at most 3% on a desktop (SR-5)
+       fix: make the sections one screen tall so their headings sit a screen apart and two never share one
+  FAIL container-edges  main.min-h-screen > section.relative.flex "COMMERCIAL AV / MULTIMEDIA SYSTEMS INTEG"  [1440]
+       the content of section 1 runs 334px from the left and 334px from the right (read from its outermost blocks: no .wrap): the page's container starts at 44px; the margin is 64-120px at 1440px (one container, equal margins,
+       fix: use one container on every section and the nav (.wrap): one margin left and right, 64-120px on a desktop, 16-24px on a phone
+  FAIL container-edges  header.sticky.top-0 "SolutionsProductsLearnAboutContactKonsul"  [1440]
+       the nav's content runs 44px from the left and 44px from the right (read from its outermost blocks: no .wrap): the margin is 64-120px at 1440px (one container, equal margins, 2px either way) (and 8 more like it: "<style>
+       fix: use one container on every section and the nav (.wrap): one margin left and right, 64-120px on a desktop, 16-24px on a phone
+  FAIL container-edges  footer.dark.bg-background "OUTPUT — TANGERANG, IDSmarter Systems. R"  [1440]
+       a <footer> at the top of the page, outside header.nav, main, footer.closing and nav.actionbar (and 14 more like it: "COMMERCIAL AV / MULTIMED", main.min-h-screen > section.relative.flex > div.pointer-events-none.absolute
+       fix: build the page as header.nav, a main of sections (each one in-flow .wrap plus background layers) and footer.closing
+  FAIL container-edges  main.min-h-screen > section.relative.flex > div.pointer-events-none.absolute:nth-of-type(2  [1440]
+       a box runs 0-1440px, outside the container lines of section 1 at 334-1106px: full width is for background layers and grounds only (SR-6)
+       fix: keep it inside the container lines (.wrap): full width is for background layers and grounds only
+  FAIL container-edges  div.HomeTechnologyStrip_track__AmMLk.animate-marquee > ul.HomeTechnologyStrip_row__2dR71:n  [1440]
+       a box runs 0-48px, outside the container lines of section 2 at 44-1396px: full width is for background layers and grounds only (and 3 more like it: "What we deliverBuilt for", "<style> #home-testimonia", main.min-h-scree
+       fix: keep it inside the container lines (.wrap): full width is for background layers and grounds only
+  FAIL container-edges  footer.dark.bg-background > div.container.py-compact > div.mb-9.flex > span.mono-label.shr  [1440]
+       1 text block starts on a left line at x 1201, 1157px from the container's left: text starts on the container's left, or on one split line (x 617, 732, 847) (and 2 more like it: x 635, x 67) (SR-6)
+       fix: start the text on the container's left, or on the one split line every split shares
+  FAIL container-edges  div:nth-of-type(1) > section.container.py-section > div.grid.min-w-0 > div.min-w-0.overflo  [1440]
+       a box over half the container wide runs 614-1396px, not on the container's lines at 44-1396px (and 6 more like it: main.min-h-screen > section.relative.flex > div.pointer-events-none.absolute:nth-of-type(2), footer.dark.
+       fix: run the picture or box from the container's left line to its right line, or put it in a row or a split
+  FAIL row-lines        main.min-h-screen > section.container.py-section > div.grid:nth-of-type(1) "One-touch join  [1440]
+       a row of 2 items: its first item starts at 579px, the container's left line at 44px (2px either way) (SR-7)
+       fix: start the row's first item on the container's left line and end its last on the right line, every item one height
+  FAIL row-lines        div#home-technology-brands  [1440]
+       a clipped carousel: its window runs 0-1440px, not on the container at 44-1396px; 1 item cut at rest (SR-7)
+       fix: show every item inside the container, or stack them: no sideways scroller, no half-cut carousel
+  FAIL split-pair       section#how-we-work > div.container > div.engineering_workLayout__Dt1ep "01Consultation &   [1440]
+       the split's left column starts with a picture or a box, not text: text left, the visual right, on every split (SR-8)
+       fix: put the text in the left column and the visual in the right, on every split
+  FAIL cut-text         div.Testimonials_mobileTrack__xPFTV > div.Testimonials_track___QlHr.animate-scroll-y > art  [390]
+       cut 13px at the top by the overflow of div#home-operating-scenarios
+       fix: give the text room: no overflow clipping a line, no line past its box
+  FAIL card-layout      section#what-we-deliver > div.container > div.engineering_accordion__2cMd1 "OPERATION Stra  [390]
+       4 of 4 cards drawn one way (one panel, ground, placement and fragment): copies of one card
+       fix: a card layout at most twice on a page: build the other sections another way
+  FAIL heading-scale    h2#home-solutions-title "AV Systems by Space"  [390]
+       h2 headings in 3 sizes, 12px ("TECHNOLOGY WE WORK WITH") to 28px (x2.33)
+       fix: size headings by level: the h1 largest, one size per level, each level below the one above
+  FAIL visual-empty     div.min-w-0.overflow-hidden > div.relative.w-full > div.absolute.inset-0 > img.object-cont  [390]
+       the picture telycam-drive-plus-n-20x-ndi-hx-fhd-ptz-came has still not loaded after the page was walked: its frame shows empty
+       fix: make the visual draw at this width: a picture that loads, an effect that renders, or its still fallback; never an empty ground or frame
+  FAIL edge-left        #home-technology div.HomeTechnologyStrip_controls___K6LW "PauseⅡView all brands+"  [1440]
+       starts at x 1156.9; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL bleed-one-side   #home-technology ul.HomeTechnologyStrip_row__2dR71.HomeTechnologyStrip_clone__skruz  [1440, 390]
+       runs from x 4352.9 out to the right viewport edge; the left side stays at 44
+       fix: bleed the visual to both edges or keep it on the .wrap lines
+  FAIL edge-left        header.mb-6.grid p.body-md.max-w-[52ch] "Select a space to see how its la"  [1440]
+       starts at x 871.1; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-right       section.container.py-section article.group.relative "One-touch joinSmart Meeting Room"  [1440]
+       ends at x 568.7; the right line is 1396
+       fix: end it on the .wrap right line
+  FAIL edge-left        section.container.py-section h3.text-balance.font-display "Smart Meeting Room"  [1440, 390]
+       starts at x 64; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section p.mt-2.max-w-[43ch] "Start a hybrid meeting from one "  [1440]
+       starts at x 64; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section article.group.relative "Room acousticsAuditorium & Perfo"  [1440]
+       starts at x 578.7; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-right       section.container.py-section article.group.relative "Room acousticsAuditorium & Perfo"  [1440]
+       ends at x 982.4; the right line is 1396
+       fix: end it on the .wrap right line
+  FAIL edge-left        section.container.py-section h3.text-balance.font-display "Auditorium & Performance Hall"  [1440, 390]
+       starts at x 598.7; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section p.mt-2.max-w-[43ch] "Sound coverage and display place"  [1440]
+       starts at x 598.7; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section article.group.relative "Zone routingDivisible Room / Mul"  [1440]
+       starts at x 992.4; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section h3.text-balance.font-display "Divisible Room / Multipurpose H  [1440, 390]
+       starts at x 1012.4; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section p.mt-2.max-w-[43ch] "Audio zones follow the partition"  [1440]
+       starts at x 1012.4; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section article.group.relative "Distributed audioPA & Commercial"  [1440]
+       starts at x 578.7; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-right       section.container.py-section article.group.relative "Distributed audioPA & Commercial"  [1440]
+       ends at x 982.4; the right line is 1396
+       fix: end it on the .wrap right line
+  FAIL edge-left        section.container.py-section h3.text-balance.font-display "PA & Commercial Sound System"  [1440, 390]
+       starts at x 598.7; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section p.mt-2.max-w-[43ch] "Distribute music, paging and ann"  [1440]
+       starts at x 598.7; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section article.group.relative "Interactive displaySmart Classro"  [1440]
+       starts at x 992.4; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section h3.text-balance.font-display "Smart Classroom & Training Room  [1440, 390]
+       starts at x 1012.4; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section p.mt-2.max-w-[43ch] "Bring teaching materials to lear"  [1440]
+       starts at x 1012.4; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-right       section.container.py-section article.group.relative "House of Worship AV"  [1440]
+       ends at x 488; the right line is 1396
+       fix: end it on the .wrap right line
+  FAIL edge-left        section.container.py-section h3.text-balance.font-display "House of Worship AV"  [1440, 390]
+       starts at x 64; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section h3.text-balance.font-display "Broadcast & Podcast Studio"  [1440, 390]
+       starts at x 518; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section article.group.relative "Sports & Entertainment Venue"  [1440]
+       starts at x 952; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        section.container.py-section h3.text-balance.font-display "Sports & Entertainment Venue"  [1440, 390]
+       starts at x 972; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        header.mb-6.grid p.body-md.max-w-[52ch] "Browse equipment by function, co"  [1440]
+       starts at x 871.1; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        div div.min-w-0.overflow-hidden "AudioLoudspeakers, mixers and di"  [1440]
+       starts at x 613.6; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        div div.min-w-0 "AudioLoudspeakers, mixers and di"  [1440]
+       starts at x 634.6; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        div h3.heading-lg "Audio"  [1440]
+       starts at x 634.6; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        div p.body-sm.mt-1 "Loudspeakers, mixers and digital"  [1440]
+       starts at x 634.6; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        div a.inline-flex.min-h-11 "Browse category↗"  [1440, 390]
+       starts at x 1242.8; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        div h3 "Straightforward room control"  [1440]
+       starts at x 67; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        div p "Audio, video, and room controls "  [1440]
+       starts at x 67; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        div h3 "Acoustics"  [1440]
+       starts at x 764.2; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        div h3 "Support"  [1440]
+       starts at x 986.4; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        div h3 "Handover"  [1440]
+       starts at x 1208.7; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-right       section.relative.isolate div.relative.w-full  [1440, 390]
+       ends at x 236; the right line is 1396
+       fix: end it on the .wrap right line
+  FAIL edge-left        section.relative.isolate div.flex.flex-wrap "Chat on WhatsAppSend a project b"  [1440]
+       starts at x 810.5; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-right       footer.dark.bg-background div "Smarter Systems. Real Impact.Int"  [1440]
+       ends at x 427.3; the right line is 1396
+       fix: end it on the .wrap right line
+  FAIL edge-left        footer.dark.bg-background div "SolutionsSmart Meeting RoomAudit"  [1440]
+       starts at x 467.3; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        footer.dark.bg-background div "Company & ResourcesAboutContactK"  [1440]
+       starts at x 781.1; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL edge-left        footer.dark.bg-background div "Kontak+62 815 6390 5555acta.arc@"  [1440]
+       starts at x 1094.8; the lines are 44 and the column starts
+       fix: start it on the .wrap left line
+  FAIL screen-short     section.relative.flex section.relative.flex "COMMERCIAL AV / MULTIMEDIA SYSTE"  [1440, 390]
+       828px tall; one screen under the nav is 900px
+       fix: make the section one full screen (--h: 1, layout-v4.md section 2)
+  FAIL neighbour        #home-technology section.HomeTechnologyStrip_section__dqnpk "<style> #home-technology .Hom  [1440, 390]
+       framed, 303px of section.container.py-section section.container.py-section "AV Systems by SpaceSelect a spac" shows
+       fix: keep the next section's heading and picture out of this screen
+  FAIL screen-height    section.container.py-section section.container.py-section "AV Systems by SpaceSelect a spa  [1440, 390]
+       910px, 1.01 screens; a section is exactly one or two (--h)
+       fix: make the section exactly one or two screens (--h: 1 or 2)
+  FAIL screen-short     section.relative.isolate section.relative.isolate "Plan your AV projectTell us how "  [1440, 390]
+       464px tall; one screen under the nav is 900px
+       fix: make the section one full screen (--h: 1, layout-v4.md section 2)
+  FAIL screen-height    section.relative.isolate section.relative.isolate "Plan your AV projectTell us how "  [1440, 390]
+       464px, 0.52 screens; a section is exactly one or two (--h)
+       fix: make the section exactly one or two screens (--h: 1 or 2)
+  FAIL neighbour        section.relative.isolate section.relative.isolate "Plan your AV projectTell us how "  [1440, 390]
+       framed, 436px of the footer shows
+       fix: keep the next section's heading and picture out of this screen
+  FAIL hero-fold        section.relative.flex section.relative.flex "COMMERCIAL AV / MULTIMEDIA SYSTE"  [1440, 390]
+       starts at y 73, not under the nav
+       fix: the hero fills the first screen alone, its button inside it
+  WAIVED effect-kind main.min-h-screen > section.relative.flex > div.pointer-events-none.absolute:nth: The brief explicitly preserves ACTA’s live animated hero and its background effects.
+  WAIVED phone-number main.min-h-screen > section.relative.isolate > div.container.relative > address.: This is the real published ACTA business number from site settings. The brief preserves live contact data.
+  WAIVED copy-slop-word copy "effortless" in "We design, integrate, and support AV environments tha...": This word comes from the production hero. The brief requires that copy to remain verbatim.
+  38 WARN (not blocking), first: no-visual section#how-we-work "From Design to Hand; text-only section#home-testimonials "Room Operatin; card-visual div#home-operating-scenarios > div.Testi; card-visual div#home-operating-scenarios > div.Testi; card-visual div#home-operating-scenarios > div.Testi
+Stop fixing: put these open FAILs and the waivers in your report, then finish.
+GATE: OPEN 111 (rounds used up)

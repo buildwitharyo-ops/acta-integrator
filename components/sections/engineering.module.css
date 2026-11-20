@@ -1,0 +1,596 @@
+.work {
+  padding-block: 88px;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border-block: 1px solid hsl(var(--border));
+}
+.heading {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  align-items: end;
+  gap: 72px;
+  margin-bottom: 44px;
+}
+.eyebrow {
+  color: hsl(var(--accent-text));
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+}
+.heading h2 {
+  margin-top: 16px;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.2vw, 44px);
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+.heading > p {
+  justify-self: end;
+  max-width: 43ch;
+  color: hsl(var(--muted-foreground));
+  font-size: 16px;
+  line-height: 1.7;
+}
+.workLayout {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 64px;
+  align-items: stretch;
+}
+.workContent {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+.tabList {
+  border-top: 1px solid hsl(var(--border));
+}
+.tab {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr 18px;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  min-height: 65px;
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 17px 0;
+  color: hsl(var(--muted-foreground));
+  font-size: clamp(15px, 1.4vw, 18px);
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: left;
+  transition: color 180ms ease;
+}
+.tab:hover,
+.tab[aria-selected="true"] {
+  color: hsl(var(--foreground));
+}
+.tab, .cardTrigger, .contactLink, .pause, .effectToggle {
+  scroll-margin-block: 5.5rem 1rem;
+}
+.tab:focus-visible,
+.panel:focus-visible,
+.pause:focus-visible,
+.effectToggle:focus-visible,
+.contactLink:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 5px;
+}
+.tabNumber {
+  color: hsl(var(--muted-foreground));
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+}
+.tab[aria-selected="true"] .tabNumber,
+.tab[aria-selected="true"] .tabArrow {
+  color: hsl(var(--accent-text));
+}
+.tabArrow {
+  font-size: 18px;
+  opacity: 0;
+  transform: translate(-3px, 3px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+.tab[aria-selected="true"] .tabArrow,
+.tab:hover .tabArrow {
+  opacity: 1;
+  transform: none;
+}
+.tabTrack {
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  overflow: hidden;
+}
+.tabTrack > span {
+  display: block;
+  height: 100%;
+  background: hsl(var(--primary));
+  transform-origin: left;
+}
+.panel {
+  min-height: 174px;
+  padding-top: 28px;
+}
+.panel h3 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+.panel p {
+  margin-top: 12px;
+  max-width: 52ch;
+  color: #b6bdc6;
+  font-size: 15px;
+  line-height: 1.75;
+}
+.playback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+.pause {
+  display: inline-flex;
+  gap: 10px;
+  min-height: 44px;
+  align-items: center;
+  color: hsl(var(--muted-foreground));
+  font-size: 12px;
+  transition: color 180ms ease;
+}
+.pause:hover {
+  color: hsl(var(--foreground));
+}
+.pause > span {
+  color: hsl(var(--accent-text));
+}
+.workVisual {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  background: #cbd0ce;
+}
+.visualTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  color: #384241;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.visualTop > span:last-child {
+  color: #684013;
+}
+.productStage {
+  position: relative;
+  flex: 1;
+  min-height: 295px;
+  width: 100%;
+  margin-block: 24px;
+}
+.productLayer {
+  position: absolute;
+  inset: 0;
+}
+.workProduct {
+  object-fit: contain;
+}
+.visualBottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.visualBottom strong {
+  display: block;
+  color: #151b1c;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.visualBottom div > span {
+  display: block;
+  margin-top: 3px;
+  color: #35403f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.crosshair {
+  color: #684013;
+  font-size: 25px;
+  font-weight: 300;
+}
+.workOutput {
+  margin-top: 20px;
+  padding-top: 17px;
+  border-top: 1px solid #9fa8a6;
+  color: #35403f;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.7;
+}
+.impact {
+  padding-block: 88px;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+.impact .heading {
+  margin-bottom: 22px;
+}
+.sparkBand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  min-height: 70px;
+  margin-bottom: 24px;
+}
+.sparkLine {
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  height: 1px;
+  background: hsl(var(--primary) / 0.45);
+}
+.sparkField {
+  position: absolute;
+  inset: -4px 0 0;
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, #000, transparent 85%);
+}
+.sparkBand > .eyebrow,
+.effectToggle {
+  position: relative;
+  z-index: 1;
+}
+.effectToggle {
+  min-height: 44px;
+  padding-block: 10px;
+  color: hsl(var(--muted-foreground));
+  font-size: 11px;
+  white-space: nowrap;
+}
+.effectToggle:hover {
+  color: hsl(var(--foreground));
+}
+.accordion {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+.impactCard {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #171a1f;
+  border: 1px solid #30343c;
+  border-radius: 8px;
+  color: #efefe9;
+  transition: border-color 200ms ease;
+}
+.impactCard[data-open="true"] {
+  border-color: hsl(var(--primary) / 0.65);
+}
+.cardTop {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 20px 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: #d0d2d7;
+}
+.cardLabel {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  color: #dda348;
+}
+.cardPlus {
+  margin-left: auto;
+  font-size: 20px;
+  font-weight: 300;
+  color: #dda348;
+}
+.impactImage {
+  position: relative;
+  min-height: 190px;
+  flex: 1;
+  margin: 20px 14px 0;
+}
+.impactCard[data-open="true"] .impactImage {
+  background: #535a5c;
+  border-radius: 4px;
+}
+.impactProduct {
+  padding: 8px;
+  object-fit: contain;
+  transition:
+    transform 500ms ease,
+    opacity 250ms ease;
+}
+.impactCard[data-open="false"] .impactProduct {
+  opacity: 0.8;
+}
+.impactCard[data-open="true"] .impactProduct {
+  transform: scale(1.02);
+}
+.cardCopy {
+  padding: 24px 22px;
+}
+.cardCopy h3 {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 1.7vw, 24px);
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+.cardDetails {
+  overflow: hidden;
+}
+.cardDetails p {
+  margin-top: 14px;
+  max-width: 49ch;
+  color: #b7bdc7;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.cardDetails > span {
+  display: block;
+  margin-top: 18px;
+  color: #d6ae70;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.6;
+}
+.cardTrigger {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.cardTrigger:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: -5px;
+}
+.impactFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid hsl(var(--border));
+}
+.impactFooter > p {
+  color: hsl(var(--muted-foreground));
+  font-size: 14px;
+  line-height: 1.65;
+}
+.contactLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  min-height: 48px;
+  padding: 12px 22px;
+  border: 1px solid hsl(var(--foreground) / 0.25);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+}
+.contactLink:hover {
+  background: hsl(var(--muted));
+  transform: translateY(-2px);
+}
+.contactLink:active {
+  transform: translateY(1px);
+}
+@media (max-width: 1100px) {
+  .workLayout {
+    gap: 36px;
+  }
+  .heading {
+    gap: 40px;
+  }
+  .workVisual {
+    padding: 20px;
+  }
+  .tab {
+    gap: 9px;
+    grid-template-columns: 24px 1fr 16px;
+  }
+  .cardCopy {
+    padding: 20px 16px;
+  }
+  .cardTop {
+    padding-inline: 16px;
+  }
+  .accordion {
+    gap: 8px;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .impactImage {
+    min-height: 160px;
+    margin-inline: 8px;
+  }
+  .cardCopy h3 {
+    font-size: 18px;
+  }
+  .cardDetails p {
+    font-size: 13px;
+  }
+  .impactCard[data-open="false"] .cardCopy {
+    padding-inline: 10px;
+  }
+  .impactCard[data-open="false"] .cardCopy h3 {
+    font-size: 14px;
+    letter-spacing: -0.02em;
+  }
+}
+@media (max-width: 767px) {
+  .work,
+  .impact {
+    padding-block: 60px;
+  }
+  .heading {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+  .heading h2 {
+    font-size: clamp(27px, 6.5vw, 36px);
+    margin-top: 12px;
+  }
+  .heading > p {
+    justify-self: start;
+    font-size: 15px;
+  }
+  .workLayout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .workContent {
+    order: 0;
+  }
+  .workVisual {
+    min-height: 360px;
+  }
+  .productStage {
+    min-height: 220px;
+    margin-block: 18px;
+  }
+  .panel {
+    min-height: 180px;
+  }
+  .tab {
+    min-height: 60px;
+    font-size: 16px;
+  }
+  .panel h3 {
+    font-size: 20px;
+  }
+  .playback {
+    padding-top: 8px;
+  }
+  .sparkBand {
+    gap: 8px;
+  }
+  .sparkBand > .eyebrow {
+    font-size: 9px;
+  }
+  .accordion {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .impactCard {
+    min-height: 0;
+  }
+  .cardTop {
+    padding: 20px 20px 0;
+  }
+  .cardPlus {
+    display: none;
+  }
+  .impactImage {
+    min-height: 210px;
+    margin-inline: 22px;
+  }
+  .cardCopy {
+    padding: 22px;
+  }
+  .cardCopy h3 {
+    font-size: 23px;
+  }
+  .cardDetails p {
+    font-size: 14px;
+  }
+  .impactFooter {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+  .contactLink {
+    width: 100%;
+  }
+}
+@media (max-width: 359px) {
+  .tab {
+    font-size: 14px;
+  }
+  .workVisual {
+    padding: 16px;
+  }
+  .productStage {
+    min-height: 190px;
+  }
+  .visualTop {
+    font-size: 9px;
+    gap: 8px;
+  }
+  .workOutput {
+    font-size: 9px;
+  }
+  .sparkBand {
+    flex-wrap: wrap;
+  }
+  .effectToggle {
+    font-size: 10px;
+  }
+  .cardCopy {
+    padding: 20px;
+  }
+  .cardCopy h3 {
+    font-size: 21px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .tabArrow,
+  .pause,
+  .impactCard,
+  .impactProduct,
+  .contactLink {
+    transition: none;
+  }
+  .impactProduct {
+    transform: none !important;
+  }
+}

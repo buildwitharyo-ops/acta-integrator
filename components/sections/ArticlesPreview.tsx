@@ -6,14 +6,11 @@ export function ArticlesPreview({ articles }: { articles: ArticleCardData[] }) {
   if (articles.length === 0) return null;
 
   return (
-    <section className="container py-section">
-      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="mono-label text-accent-text">INSIGHTS</p>
-          <h2 className="display-lg mt-3 max-w-[16ch]">Insights from the AV Industry</h2>
-        </div>
+    <section lang="en" aria-labelledby="home-insights" className="container py-section">
+      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 border-b border-border pb-6">
+        <h2 id="home-insights" className="display-lg">AV field notes</h2>
         <Button asChild variant="pill">
-          <Link href="/learn">Semua Artikel</Link>
+          <Link href="/learn">Browse articles <span aria-hidden>↗</span></Link>
         </Button>
       </div>
 

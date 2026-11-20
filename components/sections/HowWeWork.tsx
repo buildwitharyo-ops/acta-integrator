@@ -2,195 +2,286 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "motion/react";
+import { usePreviewPlayback } from "./usePreviewPlayback";
+import { useHomeReducedMotion } from "./useHomeReducedMotion";
+import styles from "./engineering.module.css";
 
 type Step = { no?: string; title?: string; description?: string };
-
 const DEFAULT_STEPS: Step[] = [
   {
     no: "01",
     title: "Consultation & System Design",
     description:
-      "Kami mulai dari kebutuhan, bukan katalog. Site survey, analisis ruang & akustik, lalu desain sistem dan RAB transparan.",
+      "We assess the space, its users, and the way it needs to work. The design brings room layout, acoustics, connectivity, and budget into one system plan.",
   },
   {
     no: "02",
     title: "Installation & Integration",
     description:
-      "Pemasangan rapi, terdokumentasi. Audio, visual, dan kontrol bekerja sebagai satu sistem yang mulus.",
+      "We install and configure the equipment as a connected system. Audio, video, and control are tested together against the room’s intended use.",
   },
   {
     no: "03",
     title: "Equipment Supply",
     description:
-      "Perangkat kelas profesional dari brand terpercaya, dipilih tepat ukuran untuk project Anda dan didukung after-sales.",
+      "Equipment is selected for its role in the design. We consider compatibility, installation requirements, and the existing devices you want to retain.",
   },
   {
     no: "04",
     title: "Training & Maintenance",
     description:
-      "Kami latih tim Anda mengoperasikan sistem, lalu mendampingi dengan dukungan teknis berkelanjutan.",
+      "We walk operators through everyday use and provide system documentation. Maintenance and technical support follow the agreed project scope.",
   },
 ];
-
-// One relevant photo per step (design desk → integration/racks → pro AV gear → training).
-const STEP_BG = [
-  "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1600&q=80&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=1600&q=80&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1600&q=80&auto=format&fit=crop",
+// Exact legacy/CMS wording is refreshed; unrelated editorial edits remain authoritative.
+const LEGACY_DESCRIPTIONS = [
+  [
+    "Kami mulai dari kebutuhan, bukan katalog. Site survey, analisis ruang & akustik, lalu desain sistem dan RAB transparan.",
+    "Kami mulai dari kebutuhan dan ruang Anda, bukan dari katalog. Analisis fungsi, akustik, dan anggaran menghasilkan desain sistem yang tepat ukuran — tidak kurang, tidak berlebihan.",
+  ],
+  [
+    "Pemasangan rapi, terdokumentasi. Audio, visual, dan kontrol bekerja sebagai satu sistem yang mulus.",
+    "Pemasangan rapi dengan standar engineering: audio, visual, dan kontrol bekerja sebagai satu sistem, bukan kumpulan perangkat terpisah.",
+  ],
+  [
+    "Perangkat kelas profesional dari brand terpercaya, dipilih tepat ukuran untuk project Anda dan didukung after-sales.",
+    "Perangkat kelas profesional dari brand yang kami kenal sampai ke level konfigurasi — dipilih sesuai desain sistem, bukan sekadar yang tersedia.",
+  ],
+  [
+    "Kami latih tim Anda mengoperasikan sistem, lalu mendampingi dengan dukungan teknis berkelanjutan.",
+    "Sistem terbaik pun butuh operator yang percaya diri. Kami melatih tim Anda dan mendampingi dengan dukungan teknis jangka panjang.",
+  ],
 ];
+const LEGACY_DESCRIPTION_MAP = new Map(
+  LEGACY_DESCRIPTIONS.flatMap((sources, index) =>
+    sources.map(
+      (source) => [source, DEFAULT_STEPS[index]?.description] as const,
+    ),
+  ),
+);
+const VISUALS = [
+  {
+    image: "audac-luna-front",
+    name: "AUDAC LUNA-F",
+    type: "Audio matrix processor",
+    detail: "System architecture",
+    output: "Room requirements · System design · Scope planning",
+  },
+  {
+    image: "audac-luna-rear",
+    name: "AUDAC LUNA-F",
+    type: "Connection detail",
+    detail: "Integration & signal routing",
+    output: "Installation · Configuration · Commissioning",
+  },
+  {
+    image: "yamaha-dm3",
+    name: "Yamaha DM3",
+    type: "Digital mixing console",
+    detail: "Equipment selection",
+    output: "Compatibility · Function · Equipment supply",
+  },
+  {
+    image: "yamaha-dm7",
+    name: "Yamaha DM7",
+    type: "Operator interface",
+    detail: "Operation & handover",
+    output: "Operator training · Documentation · Maintenance",
+  },
+];
+const INTERVAL = 6500;
 
 export function HowWeWork({
   content,
 }: {
   content: { headline?: string; steps?: Step[] };
 }) {
-  const steps = content.steps && content.steps.length > 0 ? content.steps : DEFAULT_STEPS;
-  const reduce = useReducedMotion();
+  const steps = content.steps?.length
+    ? content.steps.map((step) => ({
+        ...step,
+        description:
+          LEGACY_DESCRIPTION_MAP.get(step.description ?? "") ??
+          step.description,
+      }))
+    : DEFAULT_STEPS;
+  const headline =
+    !content.headline || content.headline === "From Consultation to Handover."
+      ? "From Design to Handover"
+      : content.headline;
+  const reduce = useHomeReducedMotion();
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const { paused, suspended, controlProps, regionProps } = usePreviewPlayback();
   const total = steps.length;
-  const no = (s: Step, i: number) => s.no ?? String(i + 1).padStart(2, "0");
-  const tabId = (i: number) => `hww-tab-${i}`;
-  const PANEL_ID = "hww-panel";
+  const frozen = suspended || reduce;
+  const current = steps[active] ?? steps[0];
+  const visual = VISUALS[active % VISUALS.length] ?? VISUALS[0]!;
+  const no = (step: Step, index: number) =>
+    step.no ?? String(index + 1).padStart(2, "0");
 
   useEffect(() => {
-    if (reduce || paused || total <= 1) return;
-    const t = setInterval(() => setActive((a) => (a + 1) % total), 1500);
-    return () => clearInterval(t);
-  }, [reduce, paused, total, active]);
+    if (frozen || total < 2) return;
+    const timer = setInterval(
+      () => setActive((value) => (value + 1) % total),
+      INTERVAL,
+    );
+    return () => clearInterval(timer);
+  }, [frozen, total, active]);
 
-  const current = steps[active] ?? steps[0];
   if (!current) return null;
-
-  const onTabKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const onTabKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
     let next = active;
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (active + 1) % total;
-    else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = (active - 1 + total) % total;
-    else if (e.key === "Home") next = 0;
-    else if (e.key === "End") next = total - 1;
+    if (event.key === "ArrowRight" || event.key === "ArrowDown")
+      next = (active + 1) % total;
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp")
+      next = (active - 1 + total) % total;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = total - 1;
     else return;
-    e.preventDefault();
+    event.preventDefault();
     setActive(next);
-    document.getElementById(tabId(next))?.focus();
+    document.getElementById(`hww-tab-${next}`)?.focus();
   };
 
   return (
-    <section className="dark relative isolate overflow-hidden bg-card text-foreground">
-      <div className="absolute inset-0 -z-10">
-        {STEP_BG.map((src, i) => (
-          <motion.div
-            key={i}
-            className="absolute inset-0"
-            initial={false}
-            animate={{ opacity: i === active % STEP_BG.length ? 1 : 0 }}
-            transition={{ duration: reduce ? 0 : 0.6, ease: "easeInOut" }}
-          >
-            <Image src={src} alt="" fill sizes="100vw" className="object-cover" />
-          </motion.div>
-        ))}
-        <div className="absolute inset-0 bg-background/70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/35" />
-        <div className="texture-grid absolute inset-0 opacity-[0.05]" />
-      </div>
-
-      <div
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
-        onFocusCapture={() => setPaused(true)}
-        onBlurCapture={() => setPaused(false)}
-        className="container relative py-section"
-      >
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <section
+      id="how-we-work"
+      lang="en"
+      className={`dark ${styles.work}`}
+      aria-labelledby="work-title"
+    >
+      <div className="container">
+        <header className={styles.heading}>
           <div>
-            <p className="mono-label text-accent-text">HOW WE WORK</p>
-            <h2 className="display-lg mt-3 max-w-[20ch]">
-              {content.headline ?? "From Consultation to Handover."}
-            </h2>
+            <p className={styles.eyebrow}>How we work</p>
+            <h2 id="work-title">{headline}</h2>
           </div>
-          <p className="mono-spec text-muted-foreground">
-            {String(active + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+          <p>
+            Follow a project from the site survey through equipment selection,
+            commissioning and operator training.
           </p>
-        </div>
-
+        </header>
         <div
-          role="tablist"
-          aria-label="Tahapan kerja"
-          aria-orientation="horizontal"
-          onKeyDown={onTabKey}
-          className="mt-8 flex flex-wrap gap-2.5"
+          className={styles.workLayout}
+          {...regionProps}
         >
-          {steps.map((s, i) => {
-            const on = i === active;
-            return (
-              <button
-                key={i}
-                id={tabId(i)}
-                role="tab"
-                aria-selected={on}
-                aria-controls={PANEL_ID}
-                tabIndex={on ? 0 : -1}
-                type="button"
-                onClick={() => setActive(i)}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-pill px-4 py-2.5 text-sm font-medium ring-1 ring-inset backdrop-blur-md transition-colors",
-                  on
-                    ? "bg-foreground/[0.16] text-foreground ring-foreground/45 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.28)]"
-                    : "bg-foreground/[0.05] text-foreground/75 ring-foreground/15 hover:bg-foreground/[0.11] hover:text-foreground hover:ring-foreground/25",
-                )}
-              >
-                <span
-                  className={cn(
-                    "font-mono text-xs tabular-nums",
-                    on ? "text-accent-text" : "text-accent-text/75",
-                  )}
+          <div className={styles.workContent}>
+            <div
+              role="tablist"
+              aria-label="Project stages"
+              aria-orientation="vertical"
+              onKeyDown={onTabKey}
+              className={styles.tabList}
+            >
+              {steps.map((step, index) => (
+                <button
+                  key={index}
+                  id={`hww-tab-${index}`}
+                  role="tab"
+                  aria-selected={index === active}
+                  aria-controls="hww-panel"
+                  tabIndex={index === active ? 0 : -1}
+                  type="button"
+                  onClick={() => setActive(index)}
+                  className={styles.tab}
                 >
-                  {no(s, i)}
-                </span>
-                {s.title}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mt-6 flex gap-1.5">
-          {steps.map((_, i) => (
-            <div key={i} className="h-1 flex-1 overflow-hidden rounded-full bg-foreground/15">
-              <motion.div
-                className="h-full origin-left bg-primary"
-                initial={false}
-                animate={{ scaleX: i <= active ? 1 : 0 }}
-                transition={{ duration: reduce ? 0 : 0.4, ease: "easeOut" }}
-              />
+                  <span className={styles.tabNumber}>{no(step, index)}</span>
+                  <span>{step.title}</span>
+                  <span className={styles.tabArrow} aria-hidden="true">
+                    ↗
+                  </span>
+                  <span className={styles.tabTrack} aria-hidden="true">
+                    {index === active ? (
+                      <motion.span
+                        key={`${active}-${frozen}`}
+                        initial={{ scaleX: frozen ? 1 : 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{
+                          duration: frozen ? 0 : INTERVAL / 1000,
+                          ease: "linear",
+                        }}
+                      />
+                    ) : null}
+                  </span>
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
-
-        <div className="mt-10 grid items-start gap-6 sm:grid-cols-[auto_1fr] sm:gap-10">
-          <span className="font-mono text-[clamp(3.5rem,9vw,6rem)] font-medium leading-none tabular-nums text-primary/25">
-            {no(current, active)}
-          </span>
-          <div
-            role="tabpanel"
-            id={PANEL_ID}
-            aria-labelledby={tabId(active)}
-            tabIndex={0}
-            className="min-h-[7rem]"
-          >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={active}
-                initial={reduce ? false : { opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduce ? undefined : { opacity: 0 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-              >
-                <p className="heading-lg">{current.title}</p>
-                <p className="body-lg mt-3 max-w-[58ch] text-foreground/75">{current.description}</p>
-              </motion.div>
-            </AnimatePresence>
+            <div
+              role="tabpanel"
+              id="hww-panel"
+              aria-labelledby={`hww-tab-${active}`}
+              tabIndex={0}
+              className={styles.panel}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={active}
+                  initial={{ opacity: reduce ? 1 : 0, y: reduce ? 0 : 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: reduce ? 1 : 0 }}
+                  transition={{ duration: reduce ? 0 : 0.22 }}
+                >
+                  <h3>{current.title}</h3>
+                  <p>{current.description}</p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+            <div className={styles.playback}>
+              <span className={styles.eyebrow}>
+                {no(current, active)} / {String(total).padStart(2, "0")}
+              </span>
+              {!reduce ? (
+                <button
+                  type="button"
+                  {...controlProps}
+                  className={styles.pause}
+                >
+                  <span aria-hidden="true">{paused ? "▶" : "Ⅱ"}</span>
+                  {paused ? "Play stages" : "Pause stages"}
+                </button>
+              ) : null}
+            </div>
+          </div>
+          <div className={styles.workVisual}>
+            <div className={styles.visualTop}>
+              <span>{visual.detail}</span>
+              <span aria-hidden="true">0{active + 1}</span>
+            </div>
+            <div className={styles.productStage}>
+              {VISUALS.map((item, index) => (
+                <motion.div
+                  key={item.image}
+                  initial={false}
+                  animate={{
+                    opacity: index === active % VISUALS.length ? 1 : 0,
+                    scale:
+                      index === active % VISUALS.length ? 1 : reduce ? 1 : 0.98,
+                  }}
+                  transition={{ duration: reduce ? 0 : 0.45 }}
+                  className={styles.productLayer}
+                  aria-hidden={index !== active % VISUALS.length}
+                >
+                  <Image
+                    src={`/images/home-engineering/${item.image}.webp`}
+                    alt={`${item.name} — ${item.type}; catalog product photograph`}
+                    unoptimized
+                    fill
+                    sizes="(min-width:1024px) 50vw, 100vw"
+                    className={styles.workProduct}
+                  />
+                </motion.div>
+              ))}
+            </div>
+            <div className={styles.visualBottom}>
+              <div>
+                <strong>{visual.name}</strong>
+                <span>{visual.type}</span>
+              </div>
+              <span className={styles.crosshair} aria-hidden="true">
+                +
+              </span>
+            </div>
+            <div className={styles.workOutput}>{visual.output}</div>
           </div>
         </div>
       </div>

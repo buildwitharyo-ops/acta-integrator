@@ -1,0 +1,613 @@
+{
+  "results": [
+    {
+      "width": 1440,
+      "theme": "light",
+      "name": "Server-rendered hero, metadata, structured data and original link destinations",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "name": "Theme toggle, desktop menus or mobile accordions, navigation links",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "name": "Technology logos and pause / resume / expanded view",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "name": "Eight persistent solution detail links",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "name": "Manual, keyboard and active stage panels",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "name": "Catalog selectors, counts, synced image, category destinations",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "name": "Delivery accordion and all four outcomes",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "name": "Scenario marquee, nine readable items and pause state",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "name": "English sections, readable images, ordered headings, horizontal fit",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "name": "Timed stage and catalog advance, progress and durable pause",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "name": "Theme toggle, desktop menus or mobile accordions, navigation links",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "name": "Technology logos and pause / resume / expanded view",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "name": "Eight persistent solution detail links",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "name": "Manual, keyboard and active stage panels",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "name": "Catalog selectors, counts, synced image, category destinations",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "name": "Delivery accordion and all four outcomes",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "name": "Scenario marquee, nine readable items and pause state",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "name": "English sections, readable images, ordered headings, horizontal fit",
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "name": "Reduced motion, static lists, scoped accessibility scan",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "light",
+      "name": "Theme toggle, desktop menus or mobile accordions, navigation links",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "light",
+      "name": "Technology logos and pause / resume / expanded view",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "light",
+      "name": "Eight persistent solution detail links",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "light",
+      "name": "Manual, keyboard and active stage panels",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "light",
+      "name": "Catalog selectors, counts, synced image, category destinations",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "light",
+      "name": "Delivery accordion and all four outcomes",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "light",
+      "name": "Scenario marquee, nine readable items and pause state",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "light",
+      "name": "English sections, readable images, ordered headings, horizontal fit",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "dark",
+      "name": "Theme toggle, desktop menus or mobile accordions, navigation links",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "dark",
+      "name": "Technology logos and pause / resume / expanded view",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "dark",
+      "name": "Eight persistent solution detail links",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "dark",
+      "name": "Manual, keyboard and active stage panels",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "dark",
+      "name": "Catalog selectors, counts, synced image, category destinations",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "dark",
+      "name": "Delivery accordion and all four outcomes",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "dark",
+      "name": "Scenario marquee, nine readable items and pause state",
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "theme": "dark",
+      "name": "English sections, readable images, ordered headings, horizontal fit",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "name": "Theme toggle, desktop menus or mobile accordions, navigation links",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "name": "Technology logos and pause / resume / expanded view",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "name": "Eight persistent solution detail links",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "name": "Manual, keyboard and active stage panels",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "name": "Catalog selectors, counts, synced image, category destinations",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "name": "Delivery accordion and all four outcomes",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "name": "Scenario marquee, nine readable items and pause state",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "light",
+      "name": "English sections, readable images, ordered headings, horizontal fit",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "name": "Theme toggle, desktop menus or mobile accordions, navigation links",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "name": "Technology logos and pause / resume / expanded view",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "name": "Eight persistent solution detail links",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "name": "Manual, keyboard and active stage panels",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "name": "Catalog selectors, counts, synced image, category destinations",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "name": "Delivery accordion and all four outcomes",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "name": "Scenario marquee, nine readable items and pause state",
+      "pass": true
+    },
+    {
+      "width": 768,
+      "theme": "dark",
+      "name": "English sections, readable images, ordered headings, horizontal fit",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "name": "Theme toggle, desktop menus or mobile accordions, navigation links",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "name": "Technology logos and pause / resume / expanded view",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "name": "Eight persistent solution detail links",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "name": "Manual, keyboard and active stage panels",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "name": "Catalog selectors, counts, synced image, category destinations",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "name": "Delivery accordion and all four outcomes",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "name": "Scenario marquee, nine readable items and pause state",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "name": "English sections, readable images, ordered headings, horizontal fit",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "name": "Touch selection and contact destinations",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "name": "Theme toggle, desktop menus or mobile accordions, navigation links",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "name": "Technology logos and pause / resume / expanded view",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "name": "Eight persistent solution detail links",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "name": "Manual, keyboard and active stage panels",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "name": "Catalog selectors, counts, synced image, category destinations",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "name": "Delivery accordion and all four outcomes",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "name": "Scenario marquee, nine readable items and pause state",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "name": "English sections, readable images, ordered headings, horizontal fit",
+      "pass": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "name": "Reduced motion, static lists, scoped accessibility scan",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "name": "Theme toggle, desktop menus or mobile accordions, navigation links",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "name": "Technology logos and pause / resume / expanded view",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "name": "Eight persistent solution detail links",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "name": "Manual, keyboard and active stage panels",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "name": "Catalog selectors, counts, synced image, category destinations",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "name": "Delivery accordion and all four outcomes",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "name": "Scenario marquee, nine readable items and pause state",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "name": "English sections, readable images, ordered headings, horizontal fit",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "name": "Theme toggle, desktop menus or mobile accordions, navigation links",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "name": "Technology logos and pause / resume / expanded view",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "name": "Eight persistent solution detail links",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "name": "Manual, keyboard and active stage panels",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "name": "Catalog selectors, counts, synced image, category destinations",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "name": "Delivery accordion and all four outcomes",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "name": "Scenario marquee, nine readable items and pause state",
+      "pass": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "name": "English sections, readable images, ordered headings, horizontal fit",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "captured": [
+    {
+      "width": 1440,
+      "theme": "dark",
+      "audit": []
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "audit": []
+    }
+  ],
+  "linkResults": [
+    [
+      "/",
+      200
+    ],
+    [
+      "/about",
+      200
+    ],
+    [
+      "/contact",
+      200
+    ],
+    [
+      "/learn",
+      200
+    ],
+    [
+      "/news",
+      200
+    ],
+    [
+      "/products",
+      200
+    ],
+    [
+      "/products/c/audio",
+      200
+    ],
+    [
+      "/products/c/conferencing-collaboration",
+      200
+    ],
+    [
+      "/products/c/display",
+      200
+    ],
+    [
+      "/products/c/ptz-camera",
+      200
+    ],
+    [
+      "/products/c/video-processing",
+      200
+    ],
+    [
+      "/products/compare",
+      200
+    ],
+    [
+      "/solutions",
+      200
+    ],
+    [
+      "/solutions/auditorium-performance-hall",
+      200
+    ],
+    [
+      "/solutions/broadcast-podcast-studio",
+      200
+    ],
+    [
+      "/solutions/divisible-room-multipurpose-hall",
+      200
+    ],
+    [
+      "/solutions/house-of-worship",
+      200
+    ],
+    [
+      "/solutions/pa-commercial-sound-system",
+      200
+    ],
+    [
+      "/solutions/smart-classroom-training-room",
+      200
+    ],
+    [
+      "/solutions/smart-meeting-room",
+      200
+    ],
+    [
+      "/solutions/sports-entertainment-venue",
+      200
+    ]
+  ]
+}

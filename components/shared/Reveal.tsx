@@ -8,9 +8,12 @@ type RevealProps = {
   children: ReactNode;
   className?: string;
   stagger?: boolean;
+  subtle?: boolean;
 };
 
-export function Reveal({ children, className, stagger = false }: RevealProps) {
+const subtleReveal = { ...reveal, hidden: { opacity: 0.92, y: 12 } };
+
+export function Reveal({ children, className, stagger = false, subtle = false }: RevealProps) {
   const reduced = useReducedMotion();
 
   if (reduced) {
@@ -23,8 +26,8 @@ export function Reveal({ children, className, stagger = false }: RevealProps) {
       className={className}
       initial="hidden"
       whileInView="show"
-      viewport={viewportOnce}
-      variants={stagger ? staggerParent : reveal}
+      viewport={subtle ? { once: true, amount: "some" } : viewportOnce}
+      variants={stagger ? staggerParent : subtle ? subtleReveal : reveal}
     >
       {children}
     </motion.div>

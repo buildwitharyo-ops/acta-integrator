@@ -1,6 +1,7 @@
 import { FeatureCarousel, type FeatureItem } from "@/components/ui/feature-carousel";
 import { categoryIcon } from "@/components/shared/section-icons";
 import { mediaUrl } from "@/lib/media";
+import { homepageEquipmentCopy } from "./homepage-equipment-copy";
 
 type CategoryPreview = {
   slug: string | null;
@@ -17,34 +18,32 @@ export function CatalogTeaser({
   content: { headline?: string; subheadline?: string };
   categories: CategoryPreview[];
 }) {
-  const items: FeatureItem[] = categories
-    .filter((c) => c.slug)
-    .map((c) => ({
-      key: c.slug!,
-      icon: categoryIcon(c.slug),
-      title: c.name ?? "",
-      meta: `${c.count} produk`,
-      description: c.description ?? "",
-      href: `/products/c/${c.slug}`,
-      image: mediaUrl(c.image),
-      imageAlt: c.name ? `Contoh perangkat kategori ${c.name}` : "Perangkat AV",
-    }));
+  const items: FeatureItem[] = categories.flatMap((category) => {
+    if (!category.slug) return [];
+    const name = category.name ?? category.slug;
+    return [{
+      key: category.slug,
+      icon: categoryIcon(category.slug),
+      title: name,
+      meta: `${category.count} ${category.count === 1 ? "product" : "products"}`,
+      description: homepageEquipmentCopy(category.description),
+      href: `/products/c/${category.slug}`,
+      image: mediaUrl(category.image),
+      imageAlt: `${name} equipment from ACTA’s catalog`,
+    }];
+  });
 
   return (
-    <section className="container py-compact">
-      <p className="mono-label text-accent-text">CATALOG</p>
-      <h2 className="display-lg mt-2.5 max-w-[20ch]">
-        {content.headline ?? "Professional Gear, Curated by Need."}
-      </h2>
-
-      <p className="body-md mt-3 max-w-[62ch] text-muted-foreground">
-        {content.subheadline ??
-          "Enam kategori perangkat yang kami desain, pasok, dan integrasikan. Harga mengikuti kebutuhan project — minta penawaran, tim kami respons cepat."}
-      </p>
-
-      {items.length > 0 ? (
-        <FeatureCarousel items={items} ctaLabel="Lihat kategori" className="mt-6" />
-      ) : null}
+    <section lang="en" aria-labelledby="home-catalog-title" className="container py-section">
+      <header className="mb-6 grid gap-4 border-t border-border pt-5 md:mb-8 md:grid-cols-2 md:items-end md:gap-8">
+        <h2 id="home-catalog-title" className="display-lg text-balance">
+          {homepageEquipmentCopy(content.headline, "Equipment Catalog")}
+        </h2>
+        <p className="body-md max-w-[52ch] text-muted-foreground md:justify-self-end">
+          {homepageEquipmentCopy(content.subheadline, "Browse equipment by function, review its specifications and request a quotation for your project.")}
+        </p>
+      </header>
+      {items.length > 0 && <FeatureCarousel items={items} ctaLabel="Browse category" />}
     </section>
   );
 }
