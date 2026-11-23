@@ -1,0 +1,40 @@
+/* Homepage catalog only. The existing hero's ParticleNetwork is reused unchanged. */
+.preview {
+  min-width: 0;
+  background: transparent;
+}
+
+.stage {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 16 / 8;
+  max-height: 22rem;
+  overflow: hidden;
+  color: hsl(var(--foreground));
+  background: transparent;
+}
+
+.equipment {
+  object-fit: contain;
+  padding: 12px 20px;
+  /* Gentle, theme-adaptive separation keeps black hardware legible on both
+     canvases without adding an opaque backdrop to the original alpha image. */
+  filter: drop-shadow(0 14px 18px hsl(var(--foreground) / .12))
+    drop-shadow(0 0 1px hsl(var(--foreground) / .45));
+}
+
+@media (min-width: 768px) {
+  .equipment {
+    padding: 20px 28px;
+  }
+}
+
+@media (max-width: 389px) {
+  .stage {
+    aspect-ratio: 16 / 9;
+  }
+  .equipment {
+    padding: 8px 12px;
+  }
+}

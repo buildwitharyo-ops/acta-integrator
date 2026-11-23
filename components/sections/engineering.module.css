@@ -353,6 +353,18 @@
 .impactCard[data-open="true"] .impactProduct {
   transform: scale(1.02);
 }
+.impactCard[data-open="true"] .studioFrame {
+  background: transparent;
+}
+.impactCard[data-open="true"] .studioFrame .projectPhoto {
+  /* Keep both foreground monitors in frame as the accordion changes shape. */
+  height: auto;
+  max-height: 100%;
+  margin-block: auto;
+  padding: 0;
+  object-position: center bottom;
+  transform: none;
+}
 .cardCopy {
   padding: 24px 22px;
 }
@@ -540,6 +552,11 @@
   .impactImage {
     min-height: 210px;
     margin-inline: 22px;
+  }
+  .studioFrame {
+    flex: none;
+    min-height: 0;
+    aspect-ratio: 1040 / 626;
   }
   .cardCopy {
     padding: 22px;

@@ -1,0 +1,339 @@
+{
+  "sourceArchive": "ACTA-Solutions-Approval-Assets-v1.zip",
+  "usage": "AI-generated concept illustrations; not ACTA project documentation.",
+  "processing": "Uncropped proportional resize; WebP quality 80 effort 5; no creative alteration.",
+  "assets": [
+    {
+      "slug": "smart-meeting-room",
+      "source": "01-smart-meeting-room-concept-v1.png",
+      "sourceSha256": "0b6d41107ec1d0932d840f86c5d9297435db9ebffc2149fc27d4ac5453e55c80",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "sourceBytes": 2304650,
+      "alt": "Ilustrasi konsep ruang rapat dengan layar, kamera konferensi, dan panel kontrol meja.",
+      "aspectRatio": "1672 / 941",
+      "objectPosition": "50% 50%",
+      "derivatives": [
+        {
+          "src": "/images/home-solutions/smart-meeting-room-480.webp",
+          "width": 480,
+          "height": 270,
+          "bytes": 11926,
+          "sha256": "39583591a800e33ac13e8c315ff062f0f74d90a27417352224ba245a1a07d6ed"
+        },
+        {
+          "src": "/images/home-solutions/smart-meeting-room-800.webp",
+          "width": 800,
+          "height": 450,
+          "bytes": 25712,
+          "sha256": "1103ff48890d1f0846b4df1f9aca9a3eb0d8774d47834e9b55c91fa64200ca52"
+        },
+        {
+          "src": "/images/home-solutions/smart-meeting-room-1200.webp",
+          "width": 1200,
+          "height": 675,
+          "bytes": 51288,
+          "sha256": "b1d1a26b3276560367df75590e93c4b59f55c68a827e3e8941550694c913c856"
+        },
+        {
+          "src": "/images/home-solutions/smart-meeting-room-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 94084,
+          "sha256": "f01c56274d59c46946e5ca762835ed4427ba9c64cf419c6307deb3d1a97d95ea"
+        }
+      ]
+    },
+    {
+      "slug": "auditorium-performance-hall",
+      "source": "02-auditorium-concept-v1.png",
+      "sourceSha256": "030559079b48e0b66ec5041979933803d3e8890aa488a8210b542c3134c874e4",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "sourceBytes": 2334045,
+      "alt": "Ilustrasi konsep auditorium dengan proyeksi, pengeras suara gantung, dan mikrofon podium.",
+      "aspectRatio": "1672 / 941",
+      "objectPosition": "50% 50%",
+      "derivatives": [
+        {
+          "src": "/images/home-solutions/auditorium-performance-hall-480.webp",
+          "width": 480,
+          "height": 270,
+          "bytes": 11326,
+          "sha256": "8d1cdf628aa0e7edaa27b06fad97dfcb05aaeae70fcde270d749581e1f593353"
+        },
+        {
+          "src": "/images/home-solutions/auditorium-performance-hall-800.webp",
+          "width": 800,
+          "height": 450,
+          "bytes": 30188,
+          "sha256": "9f6adff5a220bc70eefe42963bd7cad65f7df2818eb9220d21b799190c118740"
+        },
+        {
+          "src": "/images/home-solutions/auditorium-performance-hall-1200.webp",
+          "width": 1200,
+          "height": 675,
+          "bytes": 63608,
+          "sha256": "bb73fdf2478a45c1751eaace976d8126803184ed61d05fdfc94888c5713c9c0b"
+        },
+        {
+          "src": "/images/home-solutions/auditorium-performance-hall-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 115244,
+          "sha256": "627b77020ec7d4c323033dbfd9cd3a3547e552ba168b32b8a742d84f400d6a72"
+        }
+      ]
+    },
+    {
+      "slug": "divisible-multipurpose-hall",
+      "source": "03-divisible-hall-concept-v1.png",
+      "sourceSha256": "fb064013a2e176a4c05856e219d02d4fc0610e8f01f6231e8fb03278ae4e915b",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "sourceBytes": 2544281,
+      "alt": "Ilustrasi konsep ruang serbaguna dengan partisi bergerak dan sistem proyeksi di setiap zona.",
+      "aspectRatio": "1672 / 941",
+      "objectPosition": "50% 50%",
+      "derivatives": [
+        {
+          "src": "/images/home-solutions/divisible-multipurpose-hall-480.webp",
+          "width": 480,
+          "height": 270,
+          "bytes": 12648,
+          "sha256": "b845724b1cc2c778bcd19cfa5ee3a5958d4af832c5952629b5e519d6479e59d1"
+        },
+        {
+          "src": "/images/home-solutions/divisible-multipurpose-hall-800.webp",
+          "width": 800,
+          "height": 450,
+          "bytes": 33230,
+          "sha256": "c2fa77edc34e300c12855edf64b4e7ea0bed5874074a45b4f71267b845ade48b"
+        },
+        {
+          "src": "/images/home-solutions/divisible-multipurpose-hall-1200.webp",
+          "width": 1200,
+          "height": 675,
+          "bytes": 74654,
+          "sha256": "5ea8d0e2923a59ce244bb3c2cdd7c83448d40957d10009c195052f2cb95bc2d8"
+        },
+        {
+          "src": "/images/home-solutions/divisible-multipurpose-hall-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 140316,
+          "sha256": "cad31d9fc66e49f7494552d2e1763cc835069789007512832ba37f06e8528438"
+        }
+      ]
+    },
+    {
+      "slug": "pa-commercial-sound-system",
+      "source": "04-pa-commercial-sound-concept-v1.png",
+      "sourceSha256": "0417ae2eda7c479295a52633a3f0f5f573f44bc5599ee2ed7e7843b5397fb684",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "sourceBytes": 1888631,
+      "alt": "Ilustrasi konsep area resepsionis dengan mikrofon paging dan pengeras suara plafon.",
+      "aspectRatio": "1672 / 941",
+      "objectPosition": "50% 50%",
+      "derivatives": [
+        {
+          "src": "/images/home-solutions/pa-commercial-sound-system-480.webp",
+          "width": 480,
+          "height": 270,
+          "bytes": 9950,
+          "sha256": "fce2cb8c7b98665609022397ccd09054a38a3b6f07bc2269eb849b5545b3fad4"
+        },
+        {
+          "src": "/images/home-solutions/pa-commercial-sound-system-800.webp",
+          "width": 800,
+          "height": 450,
+          "bytes": 22008,
+          "sha256": "bb31fd72b55863acbabb735397ade0957141b24a4ef568d219f8081cb1541c6b"
+        },
+        {
+          "src": "/images/home-solutions/pa-commercial-sound-system-1200.webp",
+          "width": 1200,
+          "height": 675,
+          "bytes": 42324,
+          "sha256": "fb8eaeec445161e23177ae0e56c1d6d29e4b5d891c367dcdf1a29f198fc0b67b"
+        },
+        {
+          "src": "/images/home-solutions/pa-commercial-sound-system-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 67740,
+          "sha256": "54a32893ab20f998392db77b6acd4d91e9926494682db1f43b1050f015959f08"
+        }
+      ]
+    },
+    {
+      "slug": "smart-classroom-training-room",
+      "source": "05-smart-classroom-concept-v1.png",
+      "sourceSha256": "3ad26cea9f639eac555d1791d020f77a64220fc5108552c05539e64179058a7b",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "sourceBytes": 2191563,
+      "alt": "Ilustrasi konsep ruang kelas dengan layar interaktif, kamera, dan pengeras suara dinding.",
+      "aspectRatio": "1672 / 941",
+      "objectPosition": "50% 50%",
+      "derivatives": [
+        {
+          "src": "/images/home-solutions/smart-classroom-training-room-480.webp",
+          "width": 480,
+          "height": 270,
+          "bytes": 10830,
+          "sha256": "928e208224a97cf91329864a7f6aba9cf59b17ef281cbaed6954d9dd1ee256b5"
+        },
+        {
+          "src": "/images/home-solutions/smart-classroom-training-room-800.webp",
+          "width": 800,
+          "height": 450,
+          "bytes": 25348,
+          "sha256": "863da0cee081b9dc9073b3fc67955832f32aa3f02f2394e911f0fd5e88983619"
+        },
+        {
+          "src": "/images/home-solutions/smart-classroom-training-room-1200.webp",
+          "width": 1200,
+          "height": 675,
+          "bytes": 54892,
+          "sha256": "3290661768e942178313c9849ba8822fed8af4c4670161d4448dff9aaa37c858"
+        },
+        {
+          "src": "/images/home-solutions/smart-classroom-training-room-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 101624,
+          "sha256": "a3b754ff31bad08d2a4e568ccbeffd2a04ea3c293fbb28892205bf927f55064b"
+        }
+      ]
+    },
+    {
+      "slug": "house-of-worship",
+      "source": "06-house-of-worship-concept-v1.png",
+      "sourceSha256": "0b8dced72465fa963ae330dff5a0cdd11f227cf02679624a984d0f89dc66121e",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "sourceBytes": 2146739,
+      "alt": "Ilustrasi konsep ruang ibadah dengan mikrofon podium, pengeras suara, proyeksi, dan kamera.",
+      "aspectRatio": "1672 / 941",
+      "objectPosition": "50% 50%",
+      "derivatives": [
+        {
+          "src": "/images/home-solutions/house-of-worship-480.webp",
+          "width": 480,
+          "height": 270,
+          "bytes": 13004,
+          "sha256": "75f820b5b961af47f9f9e40201cd9c8fdeba7ca81069d31d39dfb9f5da1c32c9"
+        },
+        {
+          "src": "/images/home-solutions/house-of-worship-800.webp",
+          "width": 800,
+          "height": 450,
+          "bytes": 29190,
+          "sha256": "4a6bba5b7ce098f7e12dc8fee2e426eea5b13d8c9a629590d87eebe2ed669a96"
+        },
+        {
+          "src": "/images/home-solutions/house-of-worship-1200.webp",
+          "width": 1200,
+          "height": 675,
+          "bytes": 58766,
+          "sha256": "b925ffa22fb81c48a107ed09861cb7af41baadc5e644a7814f1d25aae3b76edb"
+        },
+        {
+          "src": "/images/home-solutions/house-of-worship-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 99372,
+          "sha256": "2d4cd908ded65d3d69b207499f8b62ea072588bfee60325e03aa80d864c71e68"
+        }
+      ]
+    },
+    {
+      "slug": "broadcast-podcast-studio",
+      "source": "07-broadcast-podcast-concept-v1.png",
+      "sourceSha256": "7c63110768b7ded98e18f0ed4570d5bee4e09ff2abdcc0a1e7b543b10d173526",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "sourceBytes": 2415962,
+      "alt": "Ilustrasi konsep studio podcast dua kursi dengan mikrofon, headphone, kamera, dan pencahayaan.",
+      "aspectRatio": "1672 / 941",
+      "objectPosition": "50% 50%",
+      "derivatives": [
+        {
+          "src": "/images/home-solutions/broadcast-podcast-studio-480.webp",
+          "width": 480,
+          "height": 270,
+          "bytes": 13152,
+          "sha256": "5007f6ca066be99d4bf485a241e4bf6b08579d1d9b2a2f9e1376d0b856f2aa81"
+        },
+        {
+          "src": "/images/home-solutions/broadcast-podcast-studio-800.webp",
+          "width": 800,
+          "height": 450,
+          "bytes": 32548,
+          "sha256": "ebb18bfc2a923c0a57f29ff58e5440680b39859add24f7397cb1d020e9084091"
+        },
+        {
+          "src": "/images/home-solutions/broadcast-podcast-studio-1200.webp",
+          "width": 1200,
+          "height": 675,
+          "bytes": 70630,
+          "sha256": "ec2a5b6810dca58d6439b69eb82e498875b3ec47c0240b6632e28b5e8fac513f"
+        },
+        {
+          "src": "/images/home-solutions/broadcast-podcast-studio-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 124150,
+          "sha256": "e0227b9dbd1d1b1e5f0c7e30b8427ee271ab691c6401b6f27d0c027bbb957fd3"
+        }
+      ]
+    },
+    {
+      "slug": "sports-entertainment-venue",
+      "source": "08-sports-entertainment-concept-v1.png",
+      "sourceSha256": "a186d7630eb68d617fa0c0b47652f3d7b4b4d5b0410247d0590f455afa7507d8",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "sourceBytes": 2616102,
+      "alt": "Ilustrasi konsep arena padel dengan pengeras suara terpasang dan layar informasi.",
+      "aspectRatio": "1672 / 941",
+      "objectPosition": "50% 50%",
+      "derivatives": [
+        {
+          "src": "/images/home-solutions/sports-entertainment-venue-480.webp",
+          "width": 480,
+          "height": 270,
+          "bytes": 22934,
+          "sha256": "a9f8f76d03d437401adcf3b8b44955f5bfd1de394132341e867c0c906f0b756a"
+        },
+        {
+          "src": "/images/home-solutions/sports-entertainment-venue-800.webp",
+          "width": 800,
+          "height": 450,
+          "bytes": 54482,
+          "sha256": "4e4937c567914a542f2b7dc7eff7a8aca3e4e4dae71b4ca771f4a006c8d77ec6"
+        },
+        {
+          "src": "/images/home-solutions/sports-entertainment-venue-1200.webp",
+          "width": 1200,
+          "height": 675,
+          "bytes": 107406,
+          "sha256": "0268cf2d75ef29bd76835b0fac98212c7f5096e8c3ec8f3e82835d05e6741815"
+        },
+        {
+          "src": "/images/home-solutions/sports-entertainment-venue-1672.webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 177230,
+          "sha256": "0f13bb40d53b39ac5e564276c8ccf0b7a1e9ffe6e2a86b1f00b88aaf1ad8bd76"
+        }
+      ]
+    }
+  ],
+  "recoveredFromBranch": "feat/homepage-refresh-20261111",
+  "introducedByCommit": "d93d141c8fbb18eab7a8480046f95da74bd3d730",
+  "archiveSha256": "2527e1d13ab20e1a2db0ec7710e4092be084f8548e21b95dc60ed474bd60a753",
+  "verification": "All eight source hashes match the prior committed manifest. All 32 derivatives are byte-identical to the prior branch; no images generated during this recovery."
+}

@@ -71,47 +71,29 @@ function resolveStep(step: Step) {
 
 const VISUALS = [
   {
-    image: "/images/home-delivery/room-layout.webp",
+    image: "/images/home-delivery/room-sightlines.webp",
     name: "Seating layout and sightlines",
-    alt: "Curved rows of conference desks face a single projection screen.",
+    alt: "Rows of chairs face the front of a hall, with speakers along the side wall.",
     detail: "Room assessment",
-    credit: {
-      author: "Dmckelvey4",
-      source: "https://commons.wikimedia.org/wiki/File:Meeting_Room.jpg",
-      license: "CC BY-SA 4.0",
-      terms: "https://creativecommons.org/licenses/by-sa/4.0/",
-    },
   },
   {
-    image: "/images/home-engineering/audac-luna-rear.webp",
-    name: "AUDAC LUNA-F signal connections",
-    alt: "Inputs and outputs on the rear of an AUDAC LUNA-F matrix processor.",
-    detail: "Signal routing",
-    credit: null,
+    image: "/images/home-delivery/av-system-routing.webp",
+    name: "Video distribution and camera control",
+    alt: "ACTA single-line drawing showing a workstation feeding a video wall and two monitors, with PTZ cameras, a camera controller and a remote video display connected through an AV switch.",
+    detail: "ACTA single-line diagram",
+    fullDrawing: "/images/home-delivery/av-system-drawing.webp",
   },
   {
-    image: "/images/home-delivery/patch-bay.webp",
-    name: "Patch connections in a studio rack",
-    alt: "Patch cables connect labelled audio channels in a studio equipment rack.",
+    image: "/images/home-delivery/installation-rack.webp",
+    name: "Rack wiring and system controls",
+    alt: "Short patch leads connect rack-mounted equipment above a touchscreen audio mixer.",
     detail: "System connections",
-    credit: {
-      author: "Will Fisher",
-      source: "https://commons.wikimedia.org/wiki/File:Patch_Bay_-_Control_Room_A,_In_Your_Ear_Studios.jpg",
-      license: "CC BY-SA 2.0",
-      terms: "https://creativecommons.org/licenses/by-sa/2.0/",
-    },
   },
   {
-    image: "/images/home-delivery/console-check.webp",
-    name: "Checking a mixing console",
-    alt: "A sound technician adjusts the mixing console before a live performance.",
+    image: "/images/home-delivery/operator-workstation.webp",
+    name: "The operator’s workstation",
+    alt: "A recording workstation with monitor speakers, a microphone and a view into the live room.",
     detail: "Operator controls",
-    credit: {
-      author: "Nenad Stojković",
-      source: "https://commons.wikimedia.org/wiki/File:A_sound_technician_is_focused_on_adjusting_the_mixing_console.jpg",
-      license: "CC BY 2.0",
-      terms: "https://creativecommons.org/licenses/by/2.0/",
-    },
   },
 ];
 const INTERVAL = 6500;
@@ -287,7 +269,7 @@ export function HowWeWork({
                     unoptimized
                     fill
                     sizes="(min-width:1024px) 50vw, 100vw"
-                    className={item.credit ? "rounded-sm object-cover" : styles.workProduct}
+                    className={item.fullDrawing ? styles.workProduct : "rounded-sm object-cover"}
                   />
                 </motion.div>
               ))}
@@ -295,14 +277,19 @@ export function HowWeWork({
             <div className={styles.visualBottom}>
               <div>
                 <strong>{visual.name}</strong>
-                {visual.credit ? (
+                {visual.fullDrawing && (
                   <span>
-                    Reference photo (cropped) ·{" "}
-                    <a className="underline underline-offset-2" href={visual.credit.source}>{visual.credit.author}</a>
-                    {" · "}
-                    <a className="underline underline-offset-2" href={visual.credit.terms}>{visual.credit.license}</a>
+                    <a
+                      href={visual.fullDrawing}
+                      target="_blank"
+                      rel="noopener"
+                      aria-label="Open full-size system drawing in a new tab"
+                      className="inline-block py-1 underline underline-offset-2"
+                    >
+                      Open full-size drawing <span aria-hidden="true">↗</span>
+                    </a>
                   </span>
-                ) : <span>Catalog product photograph</span>}
+                )}
               </div>
               <span className={styles.crosshair} aria-hidden="true">
                 +

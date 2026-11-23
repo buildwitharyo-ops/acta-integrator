@@ -9,6 +9,7 @@ import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 import { mediaUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 import { homepageEquipmentCopy } from "./homepage-equipment-copy";
+import { homepageConceptImageSrc, homepageSolutionConcept } from "@/lib/homepage-solution-imagery";
 
 type Solution = {
   slug: string | null;
@@ -63,6 +64,11 @@ export function SolutionsBento({
           ))}
         </div>
       )}
+      {solutions.some((solution) => homepageSolutionConcept(solution)) && (
+        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+          Room concepts shown here are AI-generated illustrations.
+        </p>
+      )}
     </section>
   );
 }
@@ -76,7 +82,10 @@ function SolutionCard({
   compact?: boolean;
   reduce: boolean | null;
 }) {
-  const image = mediaUrl({ storage_path: solution.hero_image_path, external_url: solution.hero_image_url_ext });
+  const concept = homepageSolutionConcept(solution);
+  const image = concept
+    ? homepageConceptImageSrc(concept.asset, 800)
+    : mediaUrl({ storage_path: solution.hero_image_path, external_url: solution.hero_image_url_ext });
   const annotation = CORE_ANNOTATIONS[solution.slug ?? ""];
   const description = homepageEquipmentCopy(solution.value_prop);
   const name = solution.name ?? "AV solution";
@@ -98,7 +107,8 @@ function SolutionCard({
         <div className={cn("absolute inset-0", featured && "lg:bottom-auto lg:h-[64%]")}>
           <Image
             src={image}
-            alt={homepageEquipmentCopy(solution.hero_image_alt, name)}
+            alt={concept?.alt ?? homepageEquipmentCopy(solution.hero_image_alt, name)}
+            loader={concept ? ({ width }) => homepageConceptImageSrc(concept.asset, width) : undefined}
             fill
             sizes={featured ? "(min-width: 1024px) 40vw, 100vw" : "(min-width: 1024px) 32vw, (min-width: 640px) 50vw, 100vw"}
             className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.025] motion-safe:group-focus-within:scale-[1.025]"

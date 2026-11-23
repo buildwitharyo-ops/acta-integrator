@@ -10,6 +10,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowUpRight01Icon, PauseIcon, PlayIcon } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { CornerTicks } from "@/components/shared/CornerTicks";
+import styles from "./feature-carousel.module.css";
 import { cn } from "@/lib/utils";
 
 export type FeatureItem = {
@@ -127,24 +128,30 @@ export function FeatureCarousel({
         )}
       </div>
 
-      <div id={previewId} className="min-w-0 overflow-hidden rounded-lg border border-border bg-card">
-        <div className="relative aspect-[16/8] w-full max-h-[22rem] overflow-hidden bg-[#e9eaec] text-[#33383e]">
+      <div id={previewId} className={styles.preview}>
+        <div className={styles.stage} data-catalog-stage>
           <motion.div
             key={current.key}
             initial={reduce ? false : { opacity: 0.15 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute inset-0 z-10 flex items-center justify-center"
           >
             {current.image ? (
-              <Image src={current.image} alt={current.imageAlt} fill sizes="(min-width: 1280px) 740px, (min-width: 768px) 60vw, 100vw" className="object-contain p-5 md:p-8" />
+              <Image
+                src={current.image}
+                alt={current.imageAlt}
+                fill
+                sizes="(min-width: 1280px) 740px, (min-width: 768px) 60vw, 100vw"
+                className={styles.equipment}
+              />
             ) : (
               <HugeiconsIcon aria-hidden="true" icon={current.icon} size={64} strokeWidth={1} />
             )}
           </motion.div>
           <CornerTicks className="inset-3" />
         </div>
-        <div className="grid gap-3 p-4 sm:grid-cols-[1fr_auto] sm:items-start md:p-5">
+        <div className="grid gap-3 border-t border-border px-1 pt-5 sm:grid-cols-[1fr_auto] sm:items-start md:pt-6">
           <div className="min-w-0">
             <h3 className="heading-lg">{current.title}</h3>
             {current.description && <p className="body-sm mt-1 max-w-[48ch] text-muted-foreground">{current.description}</p>}

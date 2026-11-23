@@ -186,7 +186,7 @@ export function ImpactSection() {
                     {expanded ? "−" : "+"}
                   </span>
                 </div>
-                <div className={styles.impactImage}>
+                <div className={`${styles.impactImage} ${card.image === "ronald-capital" ? styles.studioFrame : ""}`}>
                   {/* Responsive derivatives extracted from the supplied profile. */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
