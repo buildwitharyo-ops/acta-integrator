@@ -73,15 +73,39 @@ test("homepage partner marquee uses the profile lineup and preserves grouped acc
   const movingNames = await brands.getByRole("img").evaluateAll((items) => items.map((item) => item.getAttribute("aria-label")));
   expect(movingNames.sort()).toEqual(HOMEPAGE_BRAND_PARTNERS.map((logo) => logo.name).sort());
   await brands.getByRole("button", { name: "View all brands", exact: true }).click();
-  await expect(brands.getByRole("button", { name: "Show moving brands", exact: true })).toHaveAttribute("aria-expanded", "true");
+  await expect(brands.getByRole("button", { name: "Show fewer", exact: true })).toHaveAttribute("aria-expanded", "true");
   for (const group of HOMEPAGE_BRAND_GROUPS) {
     const region = brands.getByRole("group", { name: group.label, exact: true });
     await expect(region).toBeVisible();
     await expect(region.getByRole("img")).toHaveCount(group.logos.length);
   }
-  await brands.getByRole("button", { name: "Show moving brands", exact: true }).click();
-  await expect(brands.getByRole("button", { name: "Pause", exact: true })).toBeVisible();
+  await brands.getByRole("button", { name: "Show fewer", exact: true }).click();
+  await expect(brands.getByRole("button", { name: "View all brands", exact: true })).toHaveAttribute("aria-expanded", "false");
+  await expect(brands.getByRole("button")).toHaveCount(1);
   await expect(brands.getByRole("img")).toHaveCount(HOMEPAGE_BRAND_PARTNERS.length);
+});
+
+test("delivery drawings and the handover overview open from their mobile previews", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const delivery = page.locator("#how-we-work");
+  for (const preview of [
+    { stage: "Design", file: "av-drawing-set.webp" },
+    { stage: "Commission & hand over", file: "acta-care-overview.webp" },
+  ]) {
+    await delivery.getByRole("tab", { name: new RegExp(preview.stage) }).click();
+    const image = delivery.locator('[aria-hidden="false"] img');
+    await expect(image).toHaveCSS("object-fit", "contain");
+    await image.scrollIntoViewIfNeeded();
+    const bounds = (await image.boundingBox())!;
+    const opened = page.waitForEvent("popup");
+    await page.mouse.click(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    const popup = await opened;
+    await expect(popup).toHaveURL(new URL(`/images/home-delivery/${preview.file}`, page.url()).href);
+    await popup.locator("img").evaluate((asset: HTMLImageElement) => asset.decode());
+    await popup.close();
+  }
 });
 
 test.describe("homepage without JavaScript", () => {

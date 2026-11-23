@@ -28,7 +28,6 @@ function Brand({ logo }: { logo: MarqueeLogo }) {
 }
 
 export function HomeTechnologyStrip({ logos, heading, className }: HomeTechnologyStripProps) {
-  const [paused, setPaused] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const available = new Set(logos.map((logo) => logo.src));
   const groups = HOMEPAGE_BRAND_GROUPS.map((group) => ({
@@ -45,7 +44,7 @@ export function HomeTechnologyStrip({ logos, heading, className }: HomeTechnolog
     >
       <noscript>
         <style>{`
-          #home-technology .${styles.controls} { display: none; }
+          #home-technology .${styles.disclosure} { display: none; }
           #home-technology .${styles.viewport} {
             overflow: visible;
             mask-image: none;
@@ -59,36 +58,22 @@ export function HomeTechnologyStrip({ logos, heading, className }: HomeTechnolog
       </noscript>
       <div className={`container ${styles.heading}`}>
         <h2 className={styles.label}>{heading}</h2>
-        <div className={styles.controls}>
-          {!showAll ? (
-            <button
-              type="button"
-              aria-pressed={paused}
-              onClick={() => setPaused((value) => !value)}
-            >
-              {paused ? "Play" : "Pause"}
-              <span aria-hidden="true">{paused ? "▷" : "Ⅱ"}</span>
-            </button>
-          ) : null}
-          <button
-            type="button"
-            aria-expanded={showAll}
-            aria-controls="home-technology-brands"
-            onClick={() => setShowAll((value) => !value)}
-          >
-            {showAll ? "Show moving brands" : "View all brands"}
-            <span aria-hidden="true">{showAll ? "−" : "+"}</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          className={styles.disclosure}
+          aria-expanded={showAll}
+          aria-controls="home-technology-brands"
+          onClick={() => setShowAll((value) => !value)}
+        >
+          {showAll ? "Show fewer" : "View all brands"}
+          <span className={styles.chevron} aria-hidden="true" />
+        </button>
       </div>
       <div
         id="home-technology-brands"
         className={`${styles.viewport} ${showAll ? styles.expanded : ""}`}
       >
-        <div
-          className={`${styles.track} animate-marquee`}
-          style={{ animationPlayState: paused ? "paused" : "running" }}
-        >
+        <div className={`${styles.track} animate-marquee`}>
           <ul className={styles.row}>
             {logos.map((logo) => (
               <li key={logo.name}><Brand logo={logo} /></li>

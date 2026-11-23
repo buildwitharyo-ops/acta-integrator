@@ -46,8 +46,8 @@ const DELIVERY_STAGES = [
   {
     title: "Commission & hand over",
     description:
-      "We test the system, document the configuration and train the operators who will use the room.",
-    output: "Testing & training",
+      "We test the system and train your operators. Your team uses ACTA Care to find operating guides, handover documents and system records, check warranties and request support.",
+    output: "Operator training & client portal",
     legacyTitle: "Training & Maintenance",
     legacyDescriptions: [
       "Kami latih tim Anda mengoperasikan sistem, lalu mendampingi dengan dukungan teknis berkelanjutan.",
@@ -71,17 +71,17 @@ function resolveStep(step: Step) {
 
 const VISUALS = [
   {
-    image: "/images/home-delivery/room-sightlines.webp",
-    name: "Seating layout and sightlines",
-    alt: "Rows of chairs face the front of a hall, with speakers along the side wall.",
-    detail: "Room assessment",
+    image: "/images/home-delivery/acta-site-survey.webp",
+    name: "On site with the ACTA team",
+    alt: "An ACTA team member follows a colleague’s pointing hand as they review the space on site.",
+    detail: "Site survey",
   },
   {
-    image: "/images/home-delivery/av-system-routing.webp",
-    name: "Video distribution and camera control",
-    alt: "ACTA single-line drawing showing a workstation feeding a video wall and two monitors, with PTZ cameras, a camera controller and a remote video display connected through an AV switch.",
-    detail: "ACTA single-line diagram",
-    fullDrawing: "/images/home-delivery/av-system-drawing.webp",
+    image: "/images/home-delivery/av-drawing-set-preview.webp",
+    name: "Rack elevations and single-line diagrams",
+    alt: "Four ACTA engineering sheets in a two-by-two overview. The top pair shows a rack elevation and signal paths. The lower pair combines each rack with its connection diagram.",
+    detail: "ACTA drawing set",
+    fullSize: { href: "/images/home-delivery/av-drawing-set.webp", label: "Open all four sheets" },
   },
   {
     image: "/images/home-delivery/installation-rack.webp",
@@ -90,10 +90,11 @@ const VISUALS = [
     detail: "System connections",
   },
   {
-    image: "/images/home-delivery/operator-workstation.webp",
-    name: "The operator’s workstation",
-    alt: "A recording workstation with monitor speakers, a microphone and a view into the live room.",
-    detail: "Operator controls",
+    image: "/images/home-delivery/acta-care-overview.webp",
+    name: "Your handover in ACTA Care",
+    alt: "ACTA Care portal overview with operating guides and SOPs, handover documents, installation photos, equipment and diagrams, service tickets and warranty coverage.",
+    detail: "Client portal",
+    fullSize: { href: "/images/home-delivery/acta-care-overview.webp", label: "View portal overview" },
   },
 ];
 const INTERVAL = 6500;
@@ -269,7 +270,7 @@ export function HowWeWork({
                     unoptimized
                     fill
                     sizes="(min-width:1024px) 50vw, 100vw"
-                    className={item.fullDrawing ? styles.workProduct : "rounded-sm object-cover"}
+                    className={item.fullSize ? styles.workProduct : "rounded-sm object-cover"}
                   />
                 </motion.div>
               ))}
@@ -277,23 +278,21 @@ export function HowWeWork({
             <div className={styles.visualBottom}>
               <div>
                 <strong>{visual.name}</strong>
-                {visual.fullDrawing && (
+                {visual.fullSize && (
                   <span>
                     <a
-                      href={visual.fullDrawing}
+                      href={visual.fullSize.href}
                       target="_blank"
                       rel="noopener"
-                      aria-label="Open full-size system drawing in a new tab"
-                      className="inline-block py-1 underline underline-offset-2"
+                      aria-label={`${visual.fullSize.label} in a new tab`}
+                      className={styles.previewLink}
                     >
-                      Open full-size drawing <span aria-hidden="true">↗</span>
+                      {visual.fullSize.label} <span aria-hidden="true">↗</span>
                     </a>
                   </span>
                 )}
               </div>
-              <span className={styles.crosshair} aria-hidden="true">
-                +
-              </span>
+              {!visual.fullSize && <span className={styles.crosshair} aria-hidden="true">+</span>}
             </div>
             {current.output && <div className={styles.workOutput}>Stage output · {current.output}</div>}
           </div>

@@ -1,5 +1,29 @@
 [
   {
+    "file": "acta-site-survey.webp",
+    "creator": "ACTA",
+    "source": "ACTA site survey photograph, supplied by the team.",
+    "excerpt": "AI-assisted landscape edit of the site discussion."
+  },
+  {
+    "file": "av-drawing-set.webp",
+    "creator": "ACTA",
+    "source": "Four ACTA as-built AV drawings.",
+    "excerpt": "Public overview of rack elevations and single-line diagrams. Project identifiers and internal notes are omitted. Device labels and schedules are generalized."
+  },
+  {
+    "file": "av-drawing-set-preview.webp",
+    "creator": "ACTA",
+    "source": "av-drawing-set.webp",
+    "excerpt": "Reduced-size overview of the same four complete sheets."
+  },
+  {
+    "file": "acta-care-overview.webp",
+    "creator": "ACTA",
+    "source": "Illustration generated from the ACTA Care portal navigation supplied by the team.",
+    "excerpt": "Overview of the six handover and support areas available to clients."
+  },
+  {
     "file": "room-sightlines.webp",
     "creator": "ACTA",
     "source": "ACTA Company Profile 2027, page 15.",
