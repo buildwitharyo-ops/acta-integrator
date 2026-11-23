@@ -64,11 +64,6 @@ export function SolutionsBento({
           ))}
         </div>
       )}
-      {solutions.some((solution) => homepageSolutionConcept(solution)) && (
-        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-          Room concepts shown here are AI-generated illustrations.
-        </p>
-      )}
     </section>
   );
 }
