@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import { TrackedLink } from "@/components/shared/TrackedLink";
 import { motion } from "motion/react";
@@ -15,43 +14,53 @@ const SparklesCore = dynamic(
   { ssr: false },
 );
 
-// Delivery priorities, not measured results or blanket service-level guarantees.
+// Actual selected works from the owner-supplied ACTA Company Profile 2027.
+// Exact PDF pages, extracted photo objects and documented scope are recorded in
+// public/images/home-results/sources.json. No performance outcome is inferred.
 const CARDS = [
   {
-    label: "Operation",
-    title: "Straightforward room control",
+    label: "Meeting rooms",
+    title: "PT Triputra Agro Persada",
     description:
-      "Audio, video, and room controls are configured around the tasks people perform. A clear operating sequence makes the system easier to use.",
-    image: "telycam-meetbar",
-    product: "Telycam Meet Bar",
-    alt: "Telycam Meet Bar with integrated camera and speakers; catalog product photograph",
+      "A divisible meeting-room system with three rooms and six AV presets, including audio zoning and camera selection.",
+    image: "triputra-agro-persada",
+    scope: "Divisible meeting room",
+    width: 1040,
+    height: 626,
+    alt: "Completed divisible meeting room at PT Triputra Agro Persada, with display, ceiling projector, and installed loudspeaker",
   },
   {
-    label: "Acoustics",
-    title: "Sound designed for the space",
+    label: "Zoned audio",
+    title: "PT Airin Graha Solusindo",
     description:
-      "Room acoustics, loudspeaker placement, and signal processing are considered together. The design follows the listening task and the room’s physical conditions.",
-    image: "martin-fp12",
-    product: "Martin Audio FlexPoint FP12",
-    alt: "Martin Audio FlexPoint FP12 loudspeaker; catalog product photograph",
+      "Speaker coverage and audio control organised by floor and zone for an entertainment audio system.",
+    image: "airin-graha-solusindo",
+    scope: "Entertainment audio system",
+    width: 1040,
+    height: 780,
+    alt: "Installed wall loudspeakers and audio equipment in a PT Airin Graha Solusindo entertainment space",
   },
   {
-    label: "Support",
-    title: "Support beyond handover",
+    label: "Broadcast",
+    title: "St. John Bosco Church",
     description:
-      "We support your team with maintenance and troubleshooting after installation. Remote or on-site assistance follows the service arrangements agreed for your project.",
-    image: "audac-luna-front",
-    product: "AUDAC LUNA-F",
-    alt: "AUDAC LUNA-F audio matrix processor; catalog product photograph",
+      "Camera placement and live production control for worship services, with equipment and operators in the worship space.",
+    image: "john-bosco-church",
+    scope: "Worship broadcast system",
+    width: 1040,
+    height: 602,
+    alt: "ACTA team and camera production equipment inside St. John Bosco Church",
   },
   {
-    label: "Handover",
-    title: "Operators ready to take over",
+    label: "Studio",
+    title: "Ronald Capital",
     description:
-      "Documentation and practical training give your team a reference for daily operation. Maintenance and support are defined within the project scope.",
-    image: "yamaha-dm3",
-    product: "Yamaha DM3",
-    alt: "Yamaha DM3 digital mixing console and operator controls; catalog product photograph",
+      "Video, audio, and operator controls arranged for broadcast and podcast studio production.",
+    image: "ronald-capital",
+    scope: "Broadcast & podcast studio",
+    width: 1040,
+    height: 626,
+    alt: "Ronald Capital studio with production screens, microphone, and camera equipment arranged around the table",
   },
 ];
 
@@ -109,11 +118,11 @@ export function ImpactSection() {
         <header className={styles.heading}>
           <div>
             <p className={styles.eyebrow}>What we deliver</p>
-            <h2 id="impact-title">Built for Daily Operation</h2>
+            <h2 id="impact-title">Results That Speak for Themselves</h2>
           </div>
           <p>
-            System design, integration, and handover shaped around the way your
-            team uses the room.
+            Selected ACTA projects, from divisible meeting rooms and zoned audio
+            to live broadcast and studio production.
           </p>
         </header>
         <div className={styles.sparkBand}>
@@ -148,7 +157,7 @@ export function ImpactSection() {
         <div
           className={styles.accordion}
           role="group"
-          aria-label="System delivery priorities"
+          aria-label="Selected ACTA project results"
         >
           {CARDS.map((card, index) => {
             const expanded = isDesktop ? open === index : true;
@@ -178,13 +187,23 @@ export function ImpactSection() {
                   </span>
                 </div>
                 <div className={styles.impactImage}>
-                  <Image
-                    src={`/images/home-engineering/${card.image}.webp`}
+                  {/* Responsive derivatives extracted from the supplied profile. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/images/home-results/${card.image}-800.webp`}
+                    srcSet={[480, 800, 1040]
+                      .map(
+                        (width) =>
+                          `/images/home-results/${card.image}-${width}.webp ${width}w`,
+                      )
+                      .join(", ")}
+                    sizes="(min-width:768px) 45vw, calc(100vw - 80px)"
+                    width={card.width}
+                    height={card.height}
                     alt={card.alt}
-                    unoptimized
-                    fill
-                    sizes="(min-width:768px) 45vw, 100vw"
-                    className={styles.impactProduct}
+                    loading="lazy"
+                    decoding="async"
+                    className={`${styles.impactProduct} ${styles.projectPhoto}`}
                   />
                 </div>
                 <div className={styles.cardCopy}>
@@ -201,7 +220,7 @@ export function ImpactSection() {
                     aria-hidden={!expanded}
                   >
                     <p>{card.description}</p>
-                    <span>{card.product}</span>
+                    <span>{card.scope}</span>
                   </motion.div>
                 </div>
                 {isDesktop ? (
@@ -213,7 +232,7 @@ export function ImpactSection() {
                     aria-label={`${card.label} — ${card.title}`}
                     onPointerEnter={(event) => {
                       const accordion = event.currentTarget.closest(
-                        '[aria-label="System delivery priorities"]',
+                        '[aria-label="Selected ACTA project results"]',
                       );
                       const keyboardControl = accordion?.querySelector(
                         "button:focus-visible",

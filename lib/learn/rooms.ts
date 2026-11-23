@@ -345,7 +345,7 @@ const RUANG_RAPAT: RoomArchetype = {
       href: "/solutions/smart-meeting-room",
       label: "Smart Meeting Room",
       kind: "solusi",
-      why: "Ruang lingkup pekerjaan lengkap untuk ruangan berukuran ini: tampilan, konferensi, kendali, dan pekerjaan akustik yang menyertainya.",
+      why: "ACTA mengintegrasikan layar, kamera konferensi, mikrofon, dan kontrol untuk ruang rapat.",
     },
     {
       href: "/products/c/conferencing-collaboration",
@@ -481,7 +481,7 @@ const AUDITORIUM: RoomArchetype = {
       href: "/solutions/auditorium-performance-hall",
       label: "Auditorium & Performance Hall",
       kind: "solusi",
-      why: "Ruang lingkup pekerjaan untuk aula pada skala ini: tata suara utama, tampilan, kendali, dan koordinasi dengan pekerjaan interior akustik.",
+      why: "Untuk aula, ACTA mengintegrasikan mikrofon, tata suara, tampilan panggung, dan kontrol operator.",
     },
     {
       href: "/products/c/display",
@@ -623,7 +623,7 @@ const MASJID: RoomArchetype = {
       href: "/solutions/house-of-worship",
       label: "House of Worship AV",
       kind: "solusi",
-      why: "Ruang lingkup pekerjaan untuk rumah ibadah: tata suara utama, penundaan waktu, tampilan teks, dan penanganan akustik ruang berlangit-langit tinggi.",
+      why: "Untuk rumah ibadah, ACTA mengintegrasikan tata suara, tampilan teks, kamera, dan kontrol siaran langsung.",
     },
     {
       href: "/products/c/audio",

@@ -339,6 +339,14 @@
     transform 500ms ease,
     opacity 250ms ease;
 }
+.projectPhoto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 3px;
+}
 .impactCard[data-open="false"] .impactProduct {
   opacity: 0.8;
 }

@@ -8,86 +8,110 @@ import { useHomeReducedMotion } from "./useHomeReducedMotion";
 import styles from "./engineering.module.css";
 
 type Step = { no?: string; title?: string; description?: string };
-const DEFAULT_STEPS: Step[] = [
+// ACTA company profile, p. 9 ("How we deliver"). Page 8 describes service offerings.
+const DELIVERY_STAGES = [
   {
-    no: "01",
-    title: "Consultation & System Design",
+    title: "Understand",
     description:
-      "We assess the space, its users, and the way it needs to work. The design brings room layout, acoustics, connectivity, and budget into one system plan.",
+      "We review how people use the room, identify technical constraints and agree on the project scope.",
+    output: "Room requirements",
+    legacyTitle: "Consultation & System Design",
+    legacyDescriptions: [
+      "Kami mulai dari kebutuhan, bukan katalog. Site survey, analisis ruang & akustik, lalu desain sistem dan RAB transparan.",
+      "Kami mulai dari kebutuhan dan ruang Anda, bukan dari katalog. Analisis fungsi, akustik, dan anggaran menghasilkan desain sistem yang tepat ukuran — tidak kurang, tidak berlebihan.",
+    ],
   },
   {
-    no: "02",
-    title: "Installation & Integration",
+    title: "Design",
     description:
-      "We install and configure the equipment as a connected system. Audio, video, and control are tested together against the room’s intended use.",
+      "We map the signal flow, specify the equipment and define the controls people need to operate the room.",
+    output: "System design",
+    legacyTitle: "Installation & Integration",
+    legacyDescriptions: [
+      "Pemasangan rapi, terdokumentasi. Audio, visual, dan kontrol bekerja sebagai satu sistem yang mulus.",
+      "Pemasangan rapi dengan standar engineering: audio, visual, dan kontrol bekerja sebagai satu sistem, bukan kumpulan perangkat terpisah.",
+    ],
   },
   {
-    no: "03",
-    title: "Equipment Supply",
+    title: "Integrate",
     description:
-      "Equipment is selected for its role in the design. We consider compatibility, installation requirements, and the existing devices you want to retain.",
+      "We install and connect the equipment, then configure audio, video and control to work together.",
+    output: "Configured system",
+    legacyTitle: "Equipment Supply",
+    legacyDescriptions: [
+      "Perangkat kelas profesional dari brand terpercaya, dipilih tepat ukuran untuk project Anda dan didukung after-sales.",
+      "Perangkat kelas profesional dari brand yang kami kenal sampai ke level konfigurasi — dipilih sesuai desain sistem, bukan sekadar yang tersedia.",
+    ],
   },
   {
-    no: "04",
-    title: "Training & Maintenance",
+    title: "Commission & hand over",
     description:
-      "We walk operators through everyday use and provide system documentation. Maintenance and technical support follow the agreed project scope.",
+      "We test the system, document the configuration and train the operators who will use the room.",
+    output: "Testing & training",
+    legacyTitle: "Training & Maintenance",
+    legacyDescriptions: [
+      "Kami latih tim Anda mengoperasikan sistem, lalu mendampingi dengan dukungan teknis berkelanjutan.",
+      "Sistem terbaik pun butuh operator yang percaya diri. Kami melatih tim Anda dan mendampingi dengan dukungan teknis jangka panjang.",
+    ],
   },
 ];
-// Exact legacy/CMS wording is refreshed; unrelated editorial edits remain authoritative.
-const LEGACY_DESCRIPTIONS = [
-  [
-    "Kami mulai dari kebutuhan, bukan katalog. Site survey, analisis ruang & akustik, lalu desain sistem dan RAB transparan.",
-    "Kami mulai dari kebutuhan dan ruang Anda, bukan dari katalog. Analisis fungsi, akustik, dan anggaran menghasilkan desain sistem yang tepat ukuran — tidak kurang, tidak berlebihan.",
-  ],
-  [
-    "Pemasangan rapi, terdokumentasi. Audio, visual, dan kontrol bekerja sebagai satu sistem yang mulus.",
-    "Pemasangan rapi dengan standar engineering: audio, visual, dan kontrol bekerja sebagai satu sistem, bukan kumpulan perangkat terpisah.",
-  ],
-  [
-    "Perangkat kelas profesional dari brand terpercaya, dipilih tepat ukuran untuk project Anda dan didukung after-sales.",
-    "Perangkat kelas profesional dari brand yang kami kenal sampai ke level konfigurasi — dipilih sesuai desain sistem, bukan sekadar yang tersedia.",
-  ],
-  [
-    "Kami latih tim Anda mengoperasikan sistem, lalu mendampingi dengan dukungan teknis berkelanjutan.",
-    "Sistem terbaik pun butuh operator yang percaya diri. Kami melatih tim Anda dan mendampingi dengan dukungan teknis jangka panjang.",
-  ],
-];
-const LEGACY_DESCRIPTION_MAP = new Map(
-  LEGACY_DESCRIPTIONS.flatMap((sources, index) =>
-    sources.map(
-      (source) => [source, DEFAULT_STEPS[index]?.description] as const,
-    ),
-  ),
-);
+
+function resolveStep(step: Step) {
+  // Only migrate an exact legacy entry. A custom title or description keeps its original context.
+  const stage = DELIVERY_STAGES.find((candidate) =>
+    candidate.legacyTitle === step.title &&
+    candidate.legacyDescriptions.includes(step.description ?? ""),
+  );
+  if (stage) {
+    return { ...step, title: stage.title, description: stage.description, output: stage.output };
+  }
+  const profileStage = DELIVERY_STAGES.find((candidate) => candidate.title === step.title);
+  return { ...step, output: profileStage?.output };
+}
+
 const VISUALS = [
   {
-    image: "audac-luna-front",
-    name: "AUDAC LUNA-F",
-    type: "Audio matrix processor",
-    detail: "System architecture",
-    output: "Room requirements · System design · Scope planning",
+    image: "/images/home-delivery/room-layout.webp",
+    name: "Seating layout and sightlines",
+    alt: "Curved rows of conference desks face a single projection screen.",
+    detail: "Room assessment",
+    credit: {
+      author: "Dmckelvey4",
+      source: "https://commons.wikimedia.org/wiki/File:Meeting_Room.jpg",
+      license: "CC BY-SA 4.0",
+      terms: "https://creativecommons.org/licenses/by-sa/4.0/",
+    },
   },
   {
-    image: "audac-luna-rear",
-    name: "AUDAC LUNA-F",
-    type: "Connection detail",
-    detail: "Integration & signal routing",
-    output: "Installation · Configuration · Commissioning",
+    image: "/images/home-engineering/audac-luna-rear.webp",
+    name: "AUDAC LUNA-F signal connections",
+    alt: "Inputs and outputs on the rear of an AUDAC LUNA-F matrix processor.",
+    detail: "Signal routing",
+    credit: null,
   },
   {
-    image: "yamaha-dm3",
-    name: "Yamaha DM3",
-    type: "Digital mixing console",
-    detail: "Equipment selection",
-    output: "Compatibility · Function · Equipment supply",
+    image: "/images/home-delivery/patch-bay.webp",
+    name: "Patch connections in a studio rack",
+    alt: "Patch cables connect labelled audio channels in a studio equipment rack.",
+    detail: "System connections",
+    credit: {
+      author: "Will Fisher",
+      source: "https://commons.wikimedia.org/wiki/File:Patch_Bay_-_Control_Room_A,_In_Your_Ear_Studios.jpg",
+      license: "CC BY-SA 2.0",
+      terms: "https://creativecommons.org/licenses/by-sa/2.0/",
+    },
   },
   {
-    image: "yamaha-dm7",
-    name: "Yamaha DM7",
-    type: "Operator interface",
-    detail: "Operation & handover",
-    output: "Operator training · Documentation · Maintenance",
+    image: "/images/home-delivery/console-check.webp",
+    name: "Checking a mixing console",
+    alt: "A sound technician adjusts the mixing console before a live performance.",
+    detail: "Operator controls",
+    credit: {
+      author: "Nenad Stojković",
+      source: "https://commons.wikimedia.org/wiki/File:A_sound_technician_is_focused_on_adjusting_the_mixing_console.jpg",
+      license: "CC BY 2.0",
+      terms: "https://creativecommons.org/licenses/by/2.0/",
+    },
   },
 ];
 const INTERVAL = 6500;
@@ -97,17 +121,12 @@ export function HowWeWork({
 }: {
   content: { headline?: string; steps?: Step[] };
 }) {
-  const steps = content.steps?.length
-    ? content.steps.map((step) => ({
-        ...step,
-        description:
-          LEGACY_DESCRIPTION_MAP.get(step.description ?? "") ??
-          step.description,
-      }))
-    : DEFAULT_STEPS;
+  const steps: (Step & { output?: string })[] = content.steps?.length
+    ? content.steps.map(resolveStep)
+    : DELIVERY_STAGES;
   const headline =
     !content.headline || content.headline === "From Consultation to Handover."
-      ? "From Design to Handover"
+      ? "How We Deliver"
       : content.headline;
   const reduce = useHomeReducedMotion();
   const [active, setActive] = useState(0);
@@ -115,7 +134,9 @@ export function HowWeWork({
   const total = steps.length;
   const frozen = suspended || reduce;
   const current = steps[active] ?? steps[0];
-  const visual = VISUALS[active % VISUALS.length] ?? VISUALS[0]!;
+  const profileIndex = DELIVERY_STAGES.findIndex((stage) => stage.title === current?.title);
+  const visualIndex = profileIndex < 0 ? active % VISUALS.length : profileIndex;
+  const visual = VISUALS[visualIndex]!;
   const no = (step: Step, index: number) =>
     step.no ?? String(index + 1).padStart(2, "0");
 
@@ -153,12 +174,11 @@ export function HowWeWork({
       <div className="container">
         <header className={styles.heading}>
           <div>
-            <p className={styles.eyebrow}>How we work</p>
+            <p className={styles.eyebrow}>Project delivery</p>
             <h2 id="work-title">{headline}</h2>
           </div>
           <p>
-            Follow a project from the site survey through equipment selection,
-            commissioning and operator training.
+            From room requirements to a system ready for daily use.
           </p>
         </header>
         <div
@@ -253,21 +273,21 @@ export function HowWeWork({
                   key={item.image}
                   initial={false}
                   animate={{
-                    opacity: index === active % VISUALS.length ? 1 : 0,
+                    opacity: index === visualIndex ? 1 : 0,
                     scale:
-                      index === active % VISUALS.length ? 1 : reduce ? 1 : 0.98,
+                      index === visualIndex ? 1 : reduce ? 1 : 0.98,
                   }}
                   transition={{ duration: reduce ? 0 : 0.45 }}
                   className={styles.productLayer}
-                  aria-hidden={index !== active % VISUALS.length}
+                  aria-hidden={index !== visualIndex}
                 >
                   <Image
-                    src={`/images/home-engineering/${item.image}.webp`}
-                    alt={`${item.name} — ${item.type}; catalog product photograph`}
+                    src={item.image}
+                    alt={item.alt}
                     unoptimized
                     fill
                     sizes="(min-width:1024px) 50vw, 100vw"
-                    className={styles.workProduct}
+                    className={item.credit ? "rounded-sm object-cover" : styles.workProduct}
                   />
                 </motion.div>
               ))}
@@ -275,13 +295,20 @@ export function HowWeWork({
             <div className={styles.visualBottom}>
               <div>
                 <strong>{visual.name}</strong>
-                <span>{visual.type}</span>
+                {visual.credit ? (
+                  <span>
+                    Reference photo (cropped) ·{" "}
+                    <a className="underline underline-offset-2" href={visual.credit.source}>{visual.credit.author}</a>
+                    {" · "}
+                    <a className="underline underline-offset-2" href={visual.credit.terms}>{visual.credit.license}</a>
+                  </span>
+                ) : <span>Catalog product photograph</span>}
               </div>
               <span className={styles.crosshair} aria-hidden="true">
                 +
               </span>
             </div>
-            <div className={styles.workOutput}>{visual.output}</div>
+            {current.output && <div className={styles.workOutput}>Stage output · {current.output}</div>}
           </div>
         </div>
       </div>

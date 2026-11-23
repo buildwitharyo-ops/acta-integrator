@@ -22,12 +22,12 @@ const SCENARIOS = [
   {
     title: "Speech across the room",
     role: "Facilities",
-    description: "Auditorium design needs to consider room acoustics and listening positions alongside loudspeaker selection."
+    description: "In a performance hall, the operator mixes speech and music at the console and sends the signal to the loudspeakers that cover the audience."
   },
   {
-    title: "A familiar start to meetings",
+    title: "Recall a room preset",
     role: "Daily use",
-    description: "A clear room interface helps staff select a source, start a call, and adjust the audio."
+    description: "With ACTA Core, operators can recall settings for divided or combined rooms, adjust audio levels and select a camera from one interface."
   },
   {
     title: "Installation with a record",
@@ -37,7 +37,7 @@ const SCENARIOS = [
   {
     title: "Support after installation",
     role: "Maintenance",
-    description: "Support scope, escalation contacts, and access requirements should be agreed as part of the project."
+    description: "For rooms configured with ACTA Core, the operating team can open a service ticket, check warranty information and find system guides in the same portal."
   },
   {
     title: "Operators who know the room",

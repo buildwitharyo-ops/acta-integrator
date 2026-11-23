@@ -4,6 +4,7 @@ import type { HeroContent } from "@/lib/home-hero";
 import { mediaUrl } from "@/lib/media";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPublicClient } from "@/lib/supabase/public";
+import { normalizeCommercialCopy } from "@/lib/commercial-service-copy";
 
 // Hub page_sections revalidate under their collection tag, not page:{key} (09 §4.2).
 const HUB_TAGS: Record<string, string> = {
@@ -26,12 +27,18 @@ export function getPageSections(pageKey: string) {
       const sections: Record<string, Record<string, unknown>> = {};
       for (const row of data ?? []) {
         if (row.section_key) {
-          sections[row.section_key] = (row.content ?? {}) as Record<string, unknown>;
+          const content = (row.content ?? {}) as Record<string, unknown>;
+          // Retired service copy occurs in these commercial sections only.
+          // Hero payloads and educational page content remain untouched.
+          const retiredCommercialSection = pageKey === "about" && row.section_key === "pillars";
+          sections[row.section_key] = retiredCommercialSection
+            ? normalizeCommercialCopy(content)
+            : content;
         }
       }
       return sections;
     },
-    ["page-sections", pageKey],
+    ["page-sections", pageKey, ...(pageKey === "about" ? ["service-scope-20261123"] : [])],
     { tags: [tag] },
   )();
 }

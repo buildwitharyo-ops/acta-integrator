@@ -4,7 +4,7 @@ import { MarqueeStrip } from "@/components/shared/MarqueeStrip";
 import { MeterDivider } from "@/components/shared/MeterDivider";
 import { Reveal } from "@/components/shared/Reveal";
 import { ScopePillars } from "@/components/solutions/ScopePillars";
-import { BRAND_LOGOS } from "@/lib/brand-logos";
+import { HOMEPAGE_BRAND_PARTNERS } from "@/lib/homepage-brand-partners";
 import { aboutPageNode } from "@/lib/jsonld";
 import { getPageSections } from "@/lib/queries/pages";
 import { buildMetadata } from "@/lib/seo";
@@ -98,7 +98,7 @@ export default async function AboutPage() {
         </Reveal>
       ) : null}
 
-      <MarqueeStrip logos={BRAND_LOGOS} heading={techStrip.label ?? "Technology We Work With"} />
+      <MarqueeStrip logos={HOMEPAGE_BRAND_PARTNERS} heading={techStrip.label ?? "Technology We Work With"} />
     </>
   );
 }

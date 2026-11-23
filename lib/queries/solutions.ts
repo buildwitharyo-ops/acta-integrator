@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizeCommercialSolution } from "@/lib/commercial-service-copy";
 
 const SOLUTION_BASE_COLS =
   "id,slug,name,tier,value_prop,hero_headline,hero_subcopy,hero_media_id,hero_annotations,signal_chain,related_category_slugs,tags,wa_message,seo_title,seo_description,sort_order,updated_at";
@@ -16,9 +17,9 @@ export const getSolutions = unstable_cache(
       .select("*")
       .order("tier")
       .order("sort_order");
-    return data ?? [];
+    return (data ?? []).map(normalizeCommercialSolution);
   },
-  ["solutions-list"],
+  ["solutions-list", "service-scope-20261123"],
   { tags: ["solutions"] },
 );
 
@@ -37,7 +38,7 @@ async function loadSolutionDetail(slug: string) {
     .eq("solution_id", solution.id!)
     .order("sort_order");
 
-  return { ...solution, sections: sections ?? [] };
+  return normalizeCommercialSolution({ ...solution, sections: sections ?? [] });
 }
 
 async function loadSolutionDetailDraft(slug: string) {
@@ -60,19 +61,19 @@ async function loadSolutionDetailDraft(slug: string) {
       .order("sort_order"),
   ]);
 
-  return {
+  return normalizeCommercialSolution({
     ...s,
     hero_image_path: media?.storage_path ?? null,
     hero_image_url_ext: media?.external_url ?? null,
     hero_image_alt: media?.alt ?? null,
     hero_is_placeholder: media?.is_placeholder ?? null,
     sections: sections ?? [],
-  };
+  });
 }
 
 export async function getSolutionBySlug(slug: string, { preview = false } = {}) {
   if (preview) return loadSolutionDetailDraft(slug);
-  return unstable_cache(() => loadSolutionDetail(slug), ["solution", slug], {
+  return unstable_cache(() => loadSolutionDetail(slug), ["solution", slug, "service-scope-20261123"], {
     tags: ["solutions", `solution:${slug}`],
   })();
 }
@@ -94,9 +95,9 @@ export function getSolutionsForCategory(categorySlug: string) {
         .contains("related_category_slugs", [categorySlug])
         .order("tier")
         .order("sort_order");
-      return data ?? [];
+      return (data ?? []).map(normalizeCommercialSolution);
     },
-    ["category-solutions", categorySlug],
+    ["category-solutions", categorySlug, "service-scope-20261123"],
     { tags: ["solutions", "products"] },
   )();
 }

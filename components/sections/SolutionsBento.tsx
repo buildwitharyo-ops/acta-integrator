@@ -22,7 +22,7 @@ type Solution = {
 
 const CORE_ANNOTATIONS: Record<string, string> = {
   "smart-meeting-room": "One-touch join",
-  "auditorium-performance-hall": "Room acoustics",
+  "auditorium-performance-hall": "Sound reinforcement",
   "divisible-room-multipurpose-hall": "Zone routing",
   "pa-commercial-sound-system": "Distributed audio",
   "smart-classroom-training-room": "Interactive display",
@@ -43,10 +43,10 @@ export function SolutionsBento({
     <section lang="en" aria-labelledby="home-solutions-title" className="container py-section">
       <header className="mb-6 grid gap-4 border-t border-border pt-5 md:mb-8 md:grid-cols-2 md:items-end md:gap-8">
         <h2 id="home-solutions-title" className="display-lg text-balance">
-          {homepageEquipmentCopy(content.headline, "AV Systems by Space")}
+          {homepageEquipmentCopy(content.headline, "Solutions for Your Space")}
         </h2>
         <p className="body-md max-w-[52ch] text-muted-foreground md:justify-self-end">
-          {homepageEquipmentCopy(content.subheadline, "Explore audio, video and control systems for the way each room is used.")}
+          {homepageEquipmentCopy(content.subheadline, "ACTA designs, supplies and integrates audio, video and control systems around the way each room is used.")}
         </p>
       </header>
 

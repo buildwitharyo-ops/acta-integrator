@@ -1,0 +1,34 @@
+{
+  "sourcePage": 4,
+  "groups": [
+    { "id": "audio", "label": "Audio system", "slugs": ["shure", "sennheiser", "wharfedale-pro", "yamaha", "audac", "martin-audio", "biamp"] },
+    { "id": "visual", "label": "Visual system", "slugs": ["telycam", "blackmagic-design", "rgblink", "samsung", "aver", "avmatrix", "avion", "cnd-live", "kiloview"] },
+    { "id": "processing-connectivity", "label": "Processing & connectivity", "slugs": ["xilica", "dante", "lindy", "allen-and-heath", "ndi", "audac", "waves", "s-track", "netgear-av"] }
+  ],
+  "brands": [
+    { "slug": "shure", "name": "Shure", "xref": 883, "maskMode": "remove-black" },
+    { "slug": "sennheiser", "name": "Sennheiser", "xref": 889, "maskMode": "alpha" },
+    { "slug": "wharfedale-pro", "name": "Wharfedale Pro", "xref": 944, "maskMode": "alpha" },
+    { "slug": "yamaha", "name": "Yamaha", "xref": 886, "maskMode": "remove-black" },
+    { "slug": "audac", "name": "AUDAC", "xref": 892, "maskMode": "alpha" },
+    { "slug": "martin-audio", "name": "Martin Audio", "xref": 895, "maskMode": "remove-black" },
+    { "slug": "biamp", "name": "Biamp", "xref": 962, "maskMode": "alpha" },
+    { "slug": "telycam", "name": "Telycam", "xref": 902, "maskMode": "alpha" },
+    { "slug": "blackmagic-design", "name": "Blackmagic Design", "xref": 905, "maskMode": "alpha" },
+    { "slug": "rgblink", "name": "RGBlink", "xref": 911, "maskMode": "alpha" },
+    { "slug": "samsung", "name": "Samsung", "xref": 953, "maskMode": "alpha" },
+    { "slug": "aver", "name": "AVer", "xref": 956, "maskMode": "alpha" },
+    { "slug": "avmatrix", "name": "AVMATRIX", "xref": 908, "maskMode": "alpha" },
+    { "slug": "avion", "name": "AVION", "xref": 938, "maskMode": "alpha" },
+    { "slug": "cnd-live", "name": "CND Live", "xref": 950, "maskMode": "alpha" },
+    { "slug": "kiloview", "name": "Kiloview", "xref": 965, "maskMode": "alpha" },
+    { "slug": "xilica", "name": "Xilica", "xref": 923, "maskMode": "alpha" },
+    { "slug": "dante", "name": "Dante", "xref": 926, "maskMode": "alpha" },
+    { "slug": "lindy", "name": "Lindy", "xref": 941, "maskMode": "alpha" },
+    { "slug": "allen-and-heath", "name": "Allen & Heath", "xref": 920, "maskMode": "alpha" },
+    { "slug": "ndi", "name": "NDI", "xref": 935, "maskMode": "alpha" },
+    { "slug": "waves", "name": "Waves", "xref": 959, "maskMode": "alpha" },
+    { "slug": "s-track", "name": "S-Track", "xref": 947, "maskMode": "alpha" },
+    { "slug": "netgear-av", "name": "NETGEAR AV", "xref": 968, "maskMode": "alpha" }
+  ]
+}

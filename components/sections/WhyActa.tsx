@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MeterDivider } from "@/components/shared/MeterDivider";
+import { normalizeCommercialCopy } from "@/lib/commercial-service-copy";
 
 type Point = { title?: string; description?: string };
 
@@ -7,7 +8,7 @@ const DEFAULT_POINTS: Point[] = [
   {
     title: "Berangkat dari kebutuhan, bukan katalog.",
     description:
-      "Kami analisis ruang, akustik, dan cara tim Anda bekerja — lalu merancang sistem tepat ukuran. Tidak kurang, tidak berlebihan.",
+      "Kami analisis ruang, konektivitas, dan cara tim Anda bekerja — lalu merancang sistem audio visual sesuai kebutuhan.",
   },
   {
     title: "Satu sistem, bukan kumpulan perangkat.",
@@ -31,7 +32,9 @@ export function WhyActa({
 }: {
   content: { headline?: string; intro?: string; points?: Point[] };
 }) {
-  const points = content.points && content.points.length > 0 ? content.points : DEFAULT_POINTS;
+  const points = normalizeCommercialCopy(
+    content.points && content.points.length > 0 ? content.points : DEFAULT_POINTS,
+  );
 
   return (
     <section className="container py-section">

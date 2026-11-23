@@ -1,0 +1,150 @@
+{
+  "sourceDocument": "ACTA — Company Profile 2027.pdf",
+  "sha256": "b425990749637895fa405b83ebadbc9213fabaf17d63cf0e18f68343dc21cf65",
+  "pageNumbering": "PDF page number, one-based",
+  "method": "Original embedded image extraction. Crops isolate original photographs from slide black space and adjacent panels; no generated or composited content added.",
+  "assets": [
+    {
+      "slug": "triputra-agro-persada",
+      "page": 10,
+      "xref": 238,
+      "crop": {
+        "left": 83,
+        "top": 299,
+        "width": 1040,
+        "height": 626
+      },
+      "client": "PT Triputra Agro Persada",
+      "scope": "Divisible meeting room",
+      "documented": "Three rooms, six AV presets, with audio zoning and camera selection.",
+      "outputs": [
+        {
+          "file": "triputra-agro-persada-480.webp",
+          "width": 480,
+          "height": 289,
+          "bytes": 26772,
+          "sha256": "5160ce5768573b7a7b92027837179856e184b78c8ae713771aeffb7defd9143b"
+        },
+        {
+          "file": "triputra-agro-persada-800.webp",
+          "width": 800,
+          "height": 482,
+          "bytes": 67528,
+          "sha256": "7d33a7ce16d4f25b1842cef383a6ce45e9b9cc2078b2b2ac80fc8e92746ae1b2"
+        },
+        {
+          "file": "triputra-agro-persada-1040.webp",
+          "width": 1040,
+          "height": 626,
+          "bytes": 117388,
+          "sha256": "6a5614024de7fa9c1d1f7d18e1a4d18dbea703b08d5718e878a7c87871bfe4e2"
+        }
+      ]
+    },
+    {
+      "slug": "airin-graha-solusindo",
+      "page": 11,
+      "xref": 244,
+      "client": "PT Airin Graha Solusindo",
+      "scope": "Entertainment Audio System",
+      "documented": "Speaker coverage and audio control organised by floor and zone.",
+      "outputs": [
+        {
+          "file": "airin-graha-solusindo-480.webp",
+          "width": 480,
+          "height": 360,
+          "bytes": 35728,
+          "sha256": "f6f4a62fd84fb6becdfe5353c835d85093634eaab65748444aeb9ff6785318f8"
+        },
+        {
+          "file": "airin-graha-solusindo-800.webp",
+          "width": 800,
+          "height": 600,
+          "bytes": 91242,
+          "sha256": "5101b16a90675560bf4a89e826e79074c653c8ae81504a010f868557605ac96d"
+        },
+        {
+          "file": "airin-graha-solusindo-1040.webp",
+          "width": 1040,
+          "height": 780,
+          "bytes": 146806,
+          "sha256": "003abea07ff7643a8bb2fbb14848e9cb8037d6f4605047a0467400894345c3c4"
+        }
+      ]
+    },
+    {
+      "slug": "john-bosco-church",
+      "page": 13,
+      "xref": 255,
+      "crop": {
+        "left": 83,
+        "top": 299,
+        "width": 1082,
+        "height": 626
+      },
+      "client": "St. John Bosco Church",
+      "scope": "Broadcast system",
+      "documented": "Camera placement and live production control for worship services.",
+      "outputs": [
+        {
+          "file": "john-bosco-church-480.webp",
+          "width": 480,
+          "height": 278,
+          "bytes": 27888,
+          "sha256": "4ace32010a651b1c5d635f6b2d3717cb141a205a71d4e11e338153b2450ba8cb"
+        },
+        {
+          "file": "john-bosco-church-800.webp",
+          "width": 800,
+          "height": 463,
+          "bytes": 54902,
+          "sha256": "0b23e0b727be9c001720f5472a261fa9eb259e820679e9ffb43bd6a10668cbbd"
+        },
+        {
+          "file": "john-bosco-church-1040.webp",
+          "width": 1040,
+          "height": 602,
+          "bytes": 79034,
+          "sha256": "6d58c02e02bb95c55f0e229e23d76a7efa4b30dee151856755a38d7070629a72"
+        }
+      ]
+    },
+    {
+      "slug": "ronald-capital",
+      "page": 14,
+      "xref": 260,
+      "crop": {
+        "left": 83,
+        "top": 299,
+        "width": 1040,
+        "height": 626
+      },
+      "client": "Ronald Capital",
+      "scope": "Broadcast & podcast studio",
+      "documented": "Video, audio and operator controls arranged for studio production.",
+      "outputs": [
+        {
+          "file": "ronald-capital-480.webp",
+          "width": 480,
+          "height": 289,
+          "bytes": 15934,
+          "sha256": "1fd1a67f799a4e9d38e5615f3302d10da60cea775d7bc6e0e60f72847fcc6beb"
+        },
+        {
+          "file": "ronald-capital-800.webp",
+          "width": 800,
+          "height": 482,
+          "bytes": 29170,
+          "sha256": "72f21daec2dee214f1f6b71cd89c660558b2a76f8d8a116f08769feaf39108de"
+        },
+        {
+          "file": "ronald-capital-1040.webp",
+          "width": 1040,
+          "height": 626,
+          "bytes": 38334,
+          "sha256": "d0b5bf15fbe143c943322276f1e7e38184c59142a30474af92e814c51e15887d"
+        }
+      ]
+    }
+  ]
+}

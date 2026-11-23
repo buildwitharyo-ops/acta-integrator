@@ -10,7 +10,7 @@ import { HowWeWork } from "@/components/sections/HowWeWork";
 import { ImpactSection } from "@/components/sections/ImpactSection";
 import { SolutionsBento } from "@/components/sections/SolutionsBento";
 import { Testimonials } from "@/components/sections/Testimonials";
-import { BRAND_LOGOS } from "@/lib/brand-logos";
+import { HOMEPAGE_BRAND_PARTNERS } from "@/lib/homepage-brand-partners";
 import { getMixedArticleFeed } from "@/lib/queries/articles";
 import { getCategoryPreviews } from "@/lib/queries/products";
 import { getPageSections } from "@/lib/queries/pages";
@@ -55,7 +55,7 @@ export default async function Home() {
 
       <Hero content={get<HeroContent>("hero")} image={null} />
 
-      <HomeTechnologyStrip logos={BRAND_LOGOS} heading={trust.label ?? "Technology We Work With"} />
+      <HomeTechnologyStrip logos={HOMEPAGE_BRAND_PARTNERS} heading={trust.label ?? "Technology We Work With"} />
 
       <SolutionsBento
         content={get<{ headline?: string; subheadline?: string }>("solutions")}

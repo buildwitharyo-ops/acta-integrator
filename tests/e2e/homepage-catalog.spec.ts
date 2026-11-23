@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { HOMEPAGE_BRAND_GROUPS, HOMEPAGE_BRAND_PARTNERS } from "../../lib/homepage-brand-partners";
 
 test("keyboard category changes update the equipment panel and its destination together", async ({ page }) => {
   await page.goto("/");
@@ -64,6 +65,25 @@ for (const preview of [
   });
 }
 
+
+test("homepage partner marquee uses the profile lineup and preserves grouped access", async ({ page }) => {
+  await page.goto("/");
+  const brands = page.locator("#home-technology");
+  await expect(brands.getByRole("img")).toHaveCount(HOMEPAGE_BRAND_PARTNERS.length);
+  const movingNames = await brands.getByRole("img").evaluateAll((items) => items.map((item) => item.getAttribute("aria-label")));
+  expect(movingNames.sort()).toEqual(HOMEPAGE_BRAND_PARTNERS.map((logo) => logo.name).sort());
+  await brands.getByRole("button", { name: "View all brands", exact: true }).click();
+  await expect(brands.getByRole("button", { name: "Show moving brands", exact: true })).toHaveAttribute("aria-expanded", "true");
+  for (const group of HOMEPAGE_BRAND_GROUPS) {
+    const region = brands.getByRole("group", { name: group.label, exact: true });
+    await expect(region).toBeVisible();
+    await expect(region.getByRole("img")).toHaveCount(group.logos.length);
+  }
+  await brands.getByRole("button", { name: "Show moving brands", exact: true }).click();
+  await expect(brands.getByRole("button", { name: "Pause", exact: true })).toBeVisible();
+  await expect(brands.getByRole("img")).toHaveCount(HOMEPAGE_BRAND_PARTNERS.length);
+});
+
 test.describe("homepage without JavaScript", () => {
   test.use({ javaScriptEnabled: false, viewport: { width: 320, height: 740 } });
 
@@ -71,7 +91,14 @@ test.describe("homepage without JavaScript", () => {
     await page.goto("/");
     const brands = page.locator("#home-technology");
     const scenarios = page.locator("#home-testimonials");
-    await expect(brands.getByRole("img")).toHaveCount(29);
+    const placements = HOMEPAGE_BRAND_GROUPS.flatMap((group) => group.logos.map((logo) => logo.name));
+    await expect(brands.getByRole("img")).toHaveCount(placements.length);
+    const labels = await brands.getByRole("img").evaluateAll((items) => items.map((item) => item.getAttribute("aria-label")));
+    expect(labels.sort()).toEqual(placements.sort());
+    expect(new Set(labels).size).toBe(HOMEPAGE_BRAND_PARTNERS.length);
+    for (const group of HOMEPAGE_BRAND_GROUPS) {
+      await expect(brands.getByRole("group", { name: group.label, exact: true })).toBeVisible();
+    }
     await expect(scenarios.getByRole("article")).toHaveCount(9);
     await expect(brands.getByRole("button")).toHaveCount(0);
     await expect(scenarios.getByRole("button")).toHaveCount(0);

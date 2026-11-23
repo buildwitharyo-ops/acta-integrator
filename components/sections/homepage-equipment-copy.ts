@@ -1,14 +1,14 @@
 // Translate the published defaults by value so future CMS edits still reach the page.
 const copy: Record<string, string> = {
-  "A Solution for Every Space.": "AV Systems by Space",
+  "A Solution for Every Space.": "Solutions for Your Space",
   "Delapan tipe ruang, satu standar perancangan.":
-    "Select a space to see how its layout and daily use shape the audio, video and control design.",
+    "ACTA designs, supplies and integrates audio, video and control systems around the way each room is used.",
   "Professional Gear, Curated by Need.": "Equipment Catalog",
   "Jelajahi katalog perangkat berdasarkan kategori — dan minta penawaran untuk kebutuhan Anda.":
     "Browse equipment by function, compare specifications and request a quote for your project.",
   "Ruang rapat hybrid yang siap pakai dalam satu sentuhan — audio, video, dan kontrol terintegrasi penuh.":
     "Start a hybrid meeting from one control panel, with cameras, sound and displays working together.",
-  "Sistem audio visual auditorium yang dirancang dari akustik ruangan, bukan dari daftar perangkat.":
+  "Sistem tata suara, mikrofon dan display untuk auditorium dan pertunjukan.":
     "Sound coverage and display placement designed around the hall.",
   "Satu ballroom, banyak acara paralel — routing audio per zona yang mengikuti sekat, tanpa teknisi tambahan.":
     "Audio zones follow the partitions as rooms divide or combine.",
@@ -18,7 +18,7 @@ const copy: Record<string, string> = {
     "Bring teaching materials to learners in the room and online.",
   "Room Smart Meeting Room dengan sistem audio visual terintegrasi untuk ruang rapat hybrid, video conference, display interaktif, dan solusi AV kantor di Indonesia.":
     "Meeting room with a conference camera and interactive display",
-  "Auditorium modern dengan sistem audio visual profesional, LED wall, line array speaker, akustik ruangan, dan solusi AV auditorium di Indonesia.":
+  "Auditorium dengan LED wall, line array speaker, dan sistem audio visual terintegrasi.":
     "Auditorium with a stage display and suspended loudspeakers",
   "Ballroom divisible dengan sistem audio visual terintegrasi, audio zonasi, movable partition, dan solusi AV multipurpose hall untuk hotel dan convention center di Indonesia.":
     "Multipurpose ballroom with partitioned event areas",
@@ -28,7 +28,7 @@ const copy: Record<string, string> = {
     "Training room with an interactive teaching display",
   "Sistem audio visual House of Worship dengan LED display, sound system profesional, live streaming, dan solusi AV rumah ibadah di Indonesia.":
     "Worship space with a sound system and video display",
-  "Studio broadcast dan podcast profesional dengan sistem audio visual, akustik ruangan, kamera, lighting, dan solusi produksi konten di Indonesia":
+  "Studio broadcast dan podcast dengan mikrofon, kamera, lighting, dan sistem audio visual untuk produksi konten.":
     "Broadcast studio with microphones, cameras and lighting",
   "Entertainment Venue Sports arena dan entertainment venue dengan LED display, sound system stadion, digital signage, dan solusi audio visual venue olahraga di Indonesia.":
     "Sports venue with displays and a stadium sound system",

@@ -1,0 +1,251 @@
+{
+  "sourceFile": "ACTA \u2014 Company Profile 2027.pdf",
+  "sourcePdfSha256": "b425990749637895fa405b83ebadbc9213fabaf17d63cf0e18f68343dc21cf65",
+  "sourceDocumentTitle": "ACTA \u2014 Company Profile 2026 | FINAL V1",
+  "sourcePage": 4,
+  "sourceHeading": "OUR BRAND PARTNERS / Technology we work with",
+  "groupingNote": "Functional groups, not dealership or certification tiers. AUDAC occurs in two groups.",
+  "extraction": "Embedded PDF images with original soft masks; no redrawing or invented marks.",
+  "assets": [
+    {
+      "slug": "shure",
+      "name": "Shure",
+      "xref": 883,
+      "maskMode": "remove-black",
+      "width": 230,
+      "height": 116,
+      "sourceUrl": "/brands/homepage-profile/shure.png",
+      "sha256": "a13ca78a5a021ea828930e6ad4a916d3a78714d2390eab7abcc858f5ae9ec4f5"
+    },
+    {
+      "slug": "sennheiser",
+      "name": "Sennheiser",
+      "xref": 889,
+      "maskMode": "alpha",
+      "width": 346,
+      "height": 254,
+      "sourceUrl": "/brands/homepage-profile/sennheiser.png",
+      "sha256": "6eb4e7f614a80c389639923157e9bf15b815dc8e8c4acfef88f824ff52466d46"
+    },
+    {
+      "slug": "wharfedale-pro",
+      "name": "Wharfedale Pro",
+      "xref": 944,
+      "maskMode": "alpha",
+      "width": 576,
+      "height": 324,
+      "sourceUrl": "/brands/homepage-profile/wharfedale-pro.png",
+      "sha256": "c8bf8f374a54bd40e7b41c06f6e40ec6aaadbc07e4aeb0752af919fa92688a72"
+    },
+    {
+      "slug": "yamaha",
+      "name": "Yamaha",
+      "xref": 886,
+      "maskMode": "remove-black",
+      "width": 130,
+      "height": 132,
+      "sourceUrl": "/brands/homepage-profile/yamaha.png",
+      "sha256": "e42e4f543ba009c3c1259bf343314a25ad7d66ca0bbbeee61be5f04f190d0058"
+    },
+    {
+      "slug": "audac",
+      "name": "AUDAC",
+      "xref": 892,
+      "maskMode": "alpha",
+      "width": 108,
+      "height": 117,
+      "sourceUrl": "/brands/homepage-profile/audac.png",
+      "sha256": "e2aaed4d0843e5c4dab3cd01d82782d572f551854d3eca86e28acb9b9b035b8c"
+    },
+    {
+      "slug": "martin-audio",
+      "name": "Martin Audio",
+      "xref": 895,
+      "maskMode": "remove-black",
+      "width": 116,
+      "height": 118,
+      "sourceUrl": "/brands/homepage-profile/martin-audio.png",
+      "sha256": "07a21a99ef84e7b49c03eb34a4fe9934f8a5941cdb62423ccb8db45657e29365"
+    },
+    {
+      "slug": "biamp",
+      "name": "Biamp",
+      "xref": 962,
+      "maskMode": "alpha",
+      "width": 356,
+      "height": 120,
+      "sourceUrl": "/brands/homepage-profile/biamp.png",
+      "sha256": "9a117fe67855a4b86a545c4399eb9830824711cbeb09ed6e5e5e1011a5679768"
+    },
+    {
+      "slug": "telycam",
+      "name": "Telycam",
+      "xref": 902,
+      "maskMode": "alpha",
+      "width": 212,
+      "height": 134,
+      "sourceUrl": "/brands/homepage-profile/telycam.png",
+      "sha256": "dcdb1e6d555d4f6c386a3f8c0003760902a0f44542b961707ff074ac90c7155e"
+    },
+    {
+      "slug": "blackmagic-design",
+      "name": "Blackmagic Design",
+      "xref": 905,
+      "maskMode": "alpha",
+      "width": 269,
+      "height": 129,
+      "sourceUrl": "/brands/homepage-profile/blackmagic-design.png",
+      "sha256": "b1f4eba2e075650f8a5950b21689a7ab6ee7b94d198973e597990a7d91499d8b"
+    },
+    {
+      "slug": "rgblink",
+      "name": "RGBlink",
+      "xref": 911,
+      "maskMode": "alpha",
+      "width": 202,
+      "height": 96,
+      "sourceUrl": "/brands/homepage-profile/rgblink.png",
+      "sha256": "c79fe120bc3aae3b746dd988e41125b6ba6c203510c34bcd98e4cb98a8f4b2e7"
+    },
+    {
+      "slug": "samsung",
+      "name": "Samsung",
+      "xref": 953,
+      "maskMode": "alpha",
+      "width": 369,
+      "height": 63,
+      "sourceUrl": "/brands/homepage-profile/samsung.png",
+      "sha256": "a7eeae367b2cfbf4e933211c98cbf3d25a7a8e8d8e00a2f2c55d84a57ffd6aef"
+    },
+    {
+      "slug": "aver",
+      "name": "AVer",
+      "xref": 956,
+      "maskMode": "alpha",
+      "width": 275,
+      "height": 86,
+      "sourceUrl": "/brands/homepage-profile/aver.png",
+      "sha256": "0b38efdfbd3439202bdcb1c124eb8b9982a238bd68619a879546865d59bd9090"
+    },
+    {
+      "slug": "avmatrix",
+      "name": "AVMATRIX",
+      "xref": 908,
+      "maskMode": "alpha",
+      "width": 360,
+      "height": 189,
+      "sourceUrl": "/brands/homepage-profile/avmatrix.png",
+      "sha256": "74e5b77569652e59bbbba5c8dbcc390cdf93beb50e236c58236345622806652f"
+    },
+    {
+      "slug": "avion",
+      "name": "AVION",
+      "xref": 938,
+      "maskMode": "alpha",
+      "width": 576,
+      "height": 324,
+      "sourceUrl": "/brands/homepage-profile/avion.png",
+      "sha256": "41ea0e0df7620f2d93bd9ecd056f9d990bcfd1f47d4f37aea1eccf44083ab078"
+    },
+    {
+      "slug": "cnd-live",
+      "name": "CND Live",
+      "xref": 950,
+      "maskMode": "alpha",
+      "width": 400,
+      "height": 400,
+      "sourceUrl": "/brands/homepage-profile/cnd-live.png",
+      "sha256": "12e36def24784ad66596f8e7a00b605cfb9510e49e661acfdc9f88d4bcd127d3"
+    },
+    {
+      "slug": "kiloview",
+      "name": "Kiloview",
+      "xref": 965,
+      "maskMode": "alpha",
+      "width": 450,
+      "height": 145,
+      "sourceUrl": "/brands/homepage-profile/kiloview.png",
+      "sha256": "c4817dea2bf61edc0d4f1639e730246f7848edf0aad0e0f5f85ebd014aa70c4b"
+    },
+    {
+      "slug": "xilica",
+      "name": "Xilica",
+      "xref": 923,
+      "maskMode": "alpha",
+      "width": 362,
+      "height": 272,
+      "sourceUrl": "/brands/homepage-profile/xilica.png",
+      "sha256": "d9685a1d519331ffc2725f914d0298546d9d53e59257b2c3f98d47bfaca33420"
+    },
+    {
+      "slug": "dante",
+      "name": "Dante",
+      "xref": 926,
+      "maskMode": "alpha",
+      "width": 353,
+      "height": 130,
+      "sourceUrl": "/brands/homepage-profile/dante.png",
+      "sha256": "4c22bdead03084a3126249ea03ea3d2f99eab28ffc8d166eafbdaa88783d6277"
+    },
+    {
+      "slug": "lindy",
+      "name": "Lindy",
+      "xref": 941,
+      "maskMode": "alpha",
+      "width": 384,
+      "height": 216,
+      "sourceUrl": "/brands/homepage-profile/lindy.png",
+      "sha256": "d20cad5e6cf9b22c69f0e1a04d8d83c52b53164938071f7197f0fbfba4fbd284"
+    },
+    {
+      "slug": "allen-and-heath",
+      "name": "Allen & Heath",
+      "xref": 920,
+      "maskMode": "alpha",
+      "width": 324,
+      "height": 141,
+      "sourceUrl": "/brands/homepage-profile/allen-and-heath.png",
+      "sha256": "74a3809f8ea7c2ca4f0444569247a90439ab66632cc9010ad9a0ecc7b008f637"
+    },
+    {
+      "slug": "ndi",
+      "name": "NDI",
+      "xref": 935,
+      "maskMode": "alpha",
+      "width": 384,
+      "height": 216,
+      "sourceUrl": "/brands/homepage-profile/ndi.png",
+      "sha256": "1a923d4694c80fa6734ed08d613463045d5ae82fa8bb86a375d10c54f85eacdc"
+    },
+    {
+      "slug": "waves",
+      "name": "Waves",
+      "xref": 959,
+      "maskMode": "alpha",
+      "width": 417,
+      "height": 417,
+      "sourceUrl": "/brands/homepage-profile/waves.png",
+      "sha256": "769bd206d55eb1de61213e9a49f49ddb9c08fa6dca88871ad59b8a5420785f1f"
+    },
+    {
+      "slug": "s-track",
+      "name": "S-Track",
+      "xref": 947,
+      "maskMode": "alpha",
+      "width": 215,
+      "height": 233,
+      "sourceUrl": "/brands/homepage-profile/s-track.png",
+      "sha256": "081375cb1d8c8ea3081001ac1c5aa77add4ce5f82d28ab18970af48c4e894f8d"
+    },
+    {
+      "slug": "netgear-av",
+      "name": "NETGEAR AV",
+      "xref": 968,
+      "maskMode": "alpha",
+      "width": 244,
+      "height": 40,
+      "sourceUrl": "/brands/homepage-profile/netgear-av.png",
+      "sha256": "e2bc0b8911aa34e21f00be0b54a0ea6c1112bb37c4f5728875a871b03fec2b63"
+    }
+  ]
+}

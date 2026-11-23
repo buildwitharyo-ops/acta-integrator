@@ -3,9 +3,8 @@
 import { useState } from "react";
 import type { MarqueeLogo } from "./MarqueeStrip";
 import styles from "./HomeTechnologyStrip.module.css";
-import maskSources from "@/lib/homepage-brand-masks.json";
+import { HOMEPAGE_BRAND_GROUPS } from "@/lib/homepage-brand-partners";
 
-const homepageMasks = new Map(Object.entries(maskSources));
 
 type HomeTechnologyStripProps = {
   logos: MarqueeLogo[];
@@ -14,8 +13,6 @@ type HomeTechnologyStripProps = {
 };
 
 function Brand({ logo }: { logo: MarqueeLogo }) {
-  // Only generated, known sources are replaced; other caller-supplied logos retain their source.
-  const source = homepageMasks.get(logo.src) ?? logo.src;
   return (
     <span
       role="img"
@@ -23,8 +20,8 @@ function Brand({ logo }: { logo: MarqueeLogo }) {
       title={logo.name}
       className={styles.logo}
       style={{
-        maskImage: `url(${source})`,
-        WebkitMaskImage: `url(${source})`,
+        maskImage: `url(${logo.src})`,
+        WebkitMaskImage: `url(${logo.src})`,
       }}
     />
   );
@@ -33,6 +30,11 @@ function Brand({ logo }: { logo: MarqueeLogo }) {
 export function HomeTechnologyStrip({ logos, heading, className }: HomeTechnologyStripProps) {
   const [paused, setPaused] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const available = new Set(logos.map((logo) => logo.src));
+  const groups = HOMEPAGE_BRAND_GROUPS.map((group) => ({
+    ...group,
+    logos: group.logos.filter((logo) => available.has(logo.src)),
+  })).filter((group) => group.logos.length > 0);
 
   return (
     <section
@@ -51,16 +53,8 @@ export function HomeTechnologyStrip({ logos, heading, className }: HomeTechnolog
             margin-inline: auto;
             padding-inline: 24px;
           }
-          #home-technology .${styles.track} { animation: none; width: 100%; }
-          #home-technology .${styles.row} {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
-            gap: 28px 24px;
-            width: 100%;
-            padding: 0;
-          }
-          #home-technology .${styles.row} li { display: flex; justify-content: center; }
-          #home-technology .${styles.clone} { display: none; }
+          #home-technology .${styles.track} { display: none; }
+          #home-technology .${styles.groups} { display: grid; }
         `}</style>
       </noscript>
       <div className={`container ${styles.heading}`}>
@@ -105,6 +99,23 @@ export function HomeTechnologyStrip({ logos, heading, className }: HomeTechnolog
               <li key={logo.name}><Brand logo={logo} /></li>
             ))}
           </ul>
+        </div>
+        <div className={styles.groups}>
+          {groups.map((group) => (
+            <div
+              key={group.id}
+              role="group"
+              aria-labelledby={`home-partners-${group.id}`}
+              className={styles.partnerGroup}
+            >
+              <h3 id={`home-partners-${group.id}`}>{group.label}</h3>
+              <ul className={styles.groupLogos}>
+                {group.logos.map((logo) => (
+                  <li key={logo.name}><Brand logo={logo} /></li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
     </section>
