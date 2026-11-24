@@ -34,12 +34,46 @@
  * take down a subtree by accident.
  */
 export const GONE_PATHS: readonly string[] = [
-  // Control System — withdrawn from the catalog 2026-08-07.
+  // Individual Control System products withdrawn on 2026-08-07.
   // See supabase/archive-control-system.sql for the record and the rollback.
-  "/products/c/control-system",
   "/products/cue-controlcue-three",
   "/products/audac-rivea-amk10-b",
   "/products/cue-relaycue-8",
+
+  // Products permanently withdrawn on 2026-11-24.
+  "/products/bose-panaray-ma12ex-modular-line-array-loudspeaker",
+  "/products/bose-powersharex-psx4804d-adaptable-power-amplifier",
+  "/products/bose-powerspace-p2600a-versatile-power-amplifier",
+  "/products/bose-powerspace-p4150-plus-versatile-power-amplifier",
+  "/products/bose-powerspace-p4300a-versatile-power-amplifier",
+  "/products/bose-professional-designmax-dm10s-sub",
+  "/products/bose-professional-designmax-dm3c-1-pasang",
+  "/products/bose-professional-designmax-dm5c-1-pasang",
+  "/products/bose-professional-designmax-dm5se-1-pasang",
+  "/products/bose-professional-designmax-dm8c-sub",
+  "/products/bose-professional-freespace-360p-series-ii",
+  "/products/lindy-25039",
+  "/products/lindy-40927",
+  "/products/lindy-43298",
+  "/products/lindy-43299",
+  "/products/lindy-43313",
+  "/products/lindy-43412",
+  "/products/mipro-dvu",
+  "/products/mipro-mr-58ge",
+  "/products/mipro-mr-58vl",
+  "/products/tp-link-archer-ax10",
+  "/products/tp-link-archer-ax12",
+  "/products/wavesplitter-sfp-port-blocker-hijau",
+  "/products/wavesplitter-sfp-port-blocker-merah",
+  "/products/wavesplitter-wst-cdp002",
+  "/products/wavesplitter-wst-cdp003",
+  "/products/wavesplitter-wst-cdp006",
+  "/products/wavesplitter-wst-mnt",
+  "/products/wavesplitter-wst-mnt-004-007",
+  "/products/wavesplitter-wst-oth001",
+  "/products/wavesplitter-wst-oth002",
+  "/products/wavesplitter-wst-s28-sr-c",
+  "/products/wavesplitter-wst-uot003",
 ];
 
 const GONE_SET = new Set(GONE_PATHS.map((p) => p.toLowerCase()));

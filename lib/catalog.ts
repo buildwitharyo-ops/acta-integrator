@@ -1,9 +1,12 @@
 import type { CatalogProduct, SpecDefinition } from "@/lib/queries/products";
 
-export type SortKey = "newest" | "brand" | "name";
+import { catalogGroupLabel, compareCatalogPriority, matchesCatalogGroup } from "@/lib/catalog-groups";
+
+export type SortKey = "recommended" | "newest" | "brand" | "name";
 
 export type FilterState = {
   category: string | null;
+  group: string | null;
   brands: string[];
   solutions: string[]; // solution slugs
   specs: Record<string, string[]>; // spec key -> selected tokens
@@ -13,19 +16,21 @@ export type FilterState = {
 
 export const EMPTY_FILTERS: FilterState = {
   category: null,
+  group: null,
   brands: [],
   solutions: [],
   specs: {},
   q: "",
-  sort: "newest",
+  sort: "recommended",
 };
 
-const RESERVED = new Set(["category", "brand", "solution", "q", "sort"]);
-const SORTS: SortKey[] = ["newest", "brand", "name"];
+const RESERVED = new Set(["category", "group", "brand", "solution", "q", "sort"]);
+const SORTS: SortKey[] = ["recommended", "newest", "brand", "name"];
 
 export function parseFilters(params: URLSearchParams, specKeys: Set<string>): FilterState {
   const list = (v: string | null) => (v ? v.split(",").map((s) => s.trim()).filter(Boolean) : []);
   const sortParam = params.get("sort");
+  const groupParam = params.get("group");
   const specs: Record<string, string[]> = {};
   for (const [key, value] of params.entries()) {
     if (RESERVED.has(key)) continue;
@@ -33,30 +38,33 @@ export function parseFilters(params: URLSearchParams, specKeys: Set<string>): Fi
   }
   return {
     category: params.get("category") || null,
+    group: groupParam && catalogGroupLabel(groupParam) ? groupParam : null,
     brands: list(params.get("brand")),
     solutions: list(params.get("solution")),
     specs,
     q: params.get("q") ?? "",
-    sort: SORTS.includes(sortParam as SortKey) ? (sortParam as SortKey) : "newest",
+    sort: SORTS.includes(sortParam as SortKey) ? (sortParam as SortKey) : "recommended",
   };
 }
 
 export function buildQuery(state: FilterState): string {
   const p = new URLSearchParams();
   if (state.category) p.set("category", state.category);
+  if (state.group) p.set("group", state.group);
   if (state.brands.length) p.set("brand", state.brands.join(","));
   if (state.solutions.length) p.set("solution", state.solutions.join(","));
   for (const [key, tokens] of Object.entries(state.specs)) {
     if (tokens.length) p.set(key, tokens.join(","));
   }
   if (state.q.trim().length >= 2) p.set("q", state.q.trim());
-  if (state.sort !== "newest") p.set("sort", state.sort);
+  if (state.sort !== "recommended") p.set("sort", state.sort);
   return p.toString();
 }
 
 export function hasActiveFilters(state: FilterState): boolean {
   return Boolean(
     state.category ||
+      state.group ||
       state.brands.length ||
       state.solutions.length ||
       Object.values(state.specs).some((t) => t.length) ||
@@ -130,7 +138,7 @@ function matchesSearch(product: CatalogProduct, q: string): boolean {
     product.name,
     product.brand_name,
     product.short_spec,
-    ...product.specs.map((s) => s.value_text ?? ""),
+    ...product.specs.flatMap((s) => [s.label, s.value_text]),
   ]
     .filter(Boolean)
     .join(" ")
@@ -149,6 +157,7 @@ export function applyFilters(
 
   const filtered = products.filter((p) => {
     if (state.category && p.category_slug !== state.category) return false;
+    if (!matchesCatalogGroup(p, state.group, state.category)) return false;
     if (state.brands.length && !(p.brand_slug && state.brands.includes(p.brand_slug))) return false;
     if (wantSolIds.length && !wantSolIds.some((id) => p.solution_ids.includes(id))) return false;
     for (const [key, tokens] of Object.entries(state.specs)) {
@@ -163,6 +172,8 @@ export function applyFilters(
     sorted.sort((a, b) => (a.brand_name ?? "").localeCompare(b.brand_name ?? "") || (a.name ?? "").localeCompare(b.name ?? ""));
   } else if (state.sort === "name") {
     sorted.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""));
+  } else if (state.sort === "recommended") {
+    sorted.sort(compareCatalogPriority);
   } else {
     sorted.sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
   }

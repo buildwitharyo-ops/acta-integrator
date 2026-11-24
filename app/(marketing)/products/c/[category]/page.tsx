@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { compareCatalogPriority } from "@/lib/catalog-groups";
 import { CatalogBrowser } from "@/components/catalog/CatalogBrowser";
 import { GridSkeleton } from "@/components/catalog/GridSkeleton";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
@@ -47,7 +48,7 @@ export default async function CategoryLandingPage({ params }: { params: Promise<
 
   const cats = categories.filter((c) => c.slug && c.name).map((c) => ({ slug: c.slug!, name: c.name! }));
   const sols = solutions.filter((s) => s.id && s.slug && s.name).map((s) => ({ id: s.id!, slug: s.slug!, name: s.name! }));
-  const inCategory = products.filter((p) => p.category_slug === category);
+  const inCategory = products.filter((p) => p.category_slug === category).sort(compareCatalogPriority);
 
   const jsonLd = [
     breadcrumbNode([

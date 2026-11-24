@@ -3,6 +3,8 @@ import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { fetchAllRows } from "@/lib/admin/paginate";
+import { catalogProductPriority, compareCatalogPriority } from "@/lib/catalog-groups";
 
 // Explicit public columns for draft reads off the base table — never internal_price.
 const PRODUCT_BASE_COLS =
@@ -120,7 +122,7 @@ export const getProductCategories = unstable_cache(
   { tags: ["products"] },
 );
 
-// Each category with its product count + one representative image (featured first, else newest,
+// Each category with its product count + one representative image (core equipment first,
 // or an admin-picked override from the homepage Catalog Teaser section — 09 §4.2 `category_products`).
 // Drives the Products mega-menu hover preview and the homepage catalog carousel.
 export const getCategoryPreviews = unstable_cache(
@@ -130,7 +132,7 @@ export const getCategoryPreviews = unstable_cache(
       supabase.from("v_product_categories").select("id, name, slug, description").order("sort_order"),
       supabase
         .from("v_products")
-        .select("id, category_slug, is_featured, created_at")
+        .select("id, slug, category_slug, product_type_slug, is_featured, created_at")
         .order("created_at", { ascending: false }),
       // v_page_sections filters `is_enabled`, so a disabled Catalog Teaser section's overrides are
       // treated as inactive too — consistent with "off" meaning its content isn't authoritative.
@@ -159,12 +161,16 @@ export const getCategoryPreviews = unstable_cache(
       }
     }
 
-    // Representative image = first product (featured, then newest) in the category that actually has one.
+    // Pick the highest-priority product in each category that actually has an image.
     const catImage = new Map<string, { storage_path: string | null; external_url: string | null }>();
-    for (const p of [...(products ?? [])].sort((a, b) => Number(!!b.is_featured) - Number(!!a.is_featured))) {
+    const imagePriority = new Map<string, number>();
+    for (const p of [...(products ?? [])].sort(compareCatalogPriority)) {
       if (!p.category_slug || catImage.has(p.category_slug)) continue;
       const img = p.id ? firstImage.get(p.id) : undefined;
-      if (img) catImage.set(p.category_slug, img);
+      if (img) {
+        catImage.set(p.category_slug, img);
+        imagePriority.set(p.category_slug, catalogProductPriority(p));
+      }
     }
 
     // Same empty-category rule as getProductCategories, applied independently because this
@@ -180,7 +186,9 @@ export const getCategoryPreviews = unstable_cache(
       if (overrideId) {
         const overrideProduct = (products ?? []).find((p) => p.id === overrideId && p.category_slug === c.slug);
         const overrideImg = overrideProduct?.id ? firstImage.get(overrideProduct.id) : undefined;
-        if (overrideImg) image = overrideImg;
+        if (overrideImg && overrideProduct && (catalogProductPriority(overrideProduct) < 2 || imagePriority.get(c.slug!) === 2)) {
+          image = overrideImg;
+        }
       }
       return {
         slug: c.slug,
@@ -227,17 +235,21 @@ export const getCatalogProducts = unstable_cache(
     if (!products?.length) return [];
 
     const ids = products.map((p) => p.id).filter((id): id is string => Boolean(id));
-    const [{ data: images }, { data: links }, { data: specVals }] = await Promise.all([
+    const [{ data: images }, { data: links }, specVals] = await Promise.all([
       supabase
         .from("v_product_images")
         .select("product_id, sort_order, storage_path, external_url")
         .in("product_id", ids)
         .order("sort_order"),
       supabase.from("v_product_solutions").select("product_id, solution_id").in("product_id", ids),
-      supabase
-        .from("v_product_spec_values")
-        .select("product_id, key, label, spec_group, data_type, unit, is_filterable, value_text, value_number, value_boolean, value_options")
-        .in("product_id", ids),
+      fetchAllRows<CatalogSpecValue & { product_id: string | null }>((from, to) =>
+        supabase
+          .from("v_product_spec_values")
+          .select("product_id, key, label, spec_group, data_type, unit, is_filterable, value_text, value_number, value_boolean, value_options")
+          .order("product_id")
+          .order("key")
+          .range(from, to),
+      ),
     ]);
 
     const firstImage = new Map<string, { storage_path: string | null; external_url: string | null }>();
@@ -255,7 +267,7 @@ export const getCatalogProducts = unstable_cache(
       }
     }
     const specByProduct = new Map<string, CatalogSpecValue[]>();
-    for (const s of specVals ?? []) {
+    for (const s of specVals) {
       if (!s.product_id) continue;
       const arr = specByProduct.get(s.product_id) ?? [];
       arr.push(s as CatalogSpecValue);
@@ -281,8 +293,8 @@ export type CatalogProduct = Awaited<ReturnType<typeof getCatalogProducts>>[numb
 export const getSpecDefinitions = unstable_cache(
   async () => {
     const supabase = createPublicClient();
-    const [{ data: defs }, { data: types }, { data: cats }] = await Promise.all([
-      supabase.from("v_spec_definitions").select("*").order("sort_order"),
+    const [defs, { data: types }, { data: cats }] = await Promise.all([
+      fetchAllRows((from, to) => supabase.from("v_spec_definitions").select("*").order("sort_order").order("id").range(from, to)),
       supabase.from("v_product_types").select("id, category_id, slug, name"),
       supabase.from("v_product_categories").select("id, slug"),
     ]);

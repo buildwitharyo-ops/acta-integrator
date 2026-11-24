@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { compareCatalogPriority } from "@/lib/catalog-groups";
 import { CatalogBrowser } from "@/components/catalog/CatalogBrowser";
 import { GridSkeleton } from "@/components/catalog/GridSkeleton";
 import { JsonLd } from "@/components/shared/JsonLd";
@@ -41,7 +42,7 @@ export default async function ProductsHubPage() {
       { name: "Katalog", path: "/products" },
     ]),
     itemListNode(
-      products.filter((p) => p.slug).map((p) => ({ name: p.name ?? p.slug!, path: `/products/${p.slug}` })),
+      products.filter((p) => p.slug).sort(compareCatalogPriority).map((p) => ({ name: p.name ?? p.slug!, path: `/products/${p.slug}` })),
     ),
   ];
 
@@ -50,7 +51,7 @@ export default async function ProductsHubPage() {
       <JsonLd data={jsonLd} />
       <section className="container py-section">
         <header className="max-w-3xl">
-          <p className="mono-label text-accent-text">{intro.eyebrow ?? "CATALOG — 6 KATEGORI"}</p>
+          <p className="mono-label text-accent-text">{intro.eyebrow ?? "KATALOG PRODUK"}</p>
           <h1 className="display-xl mt-4 text-balance">{intro.headline ?? "Professional Gear, Curated by Need."}</h1>
           <p className="body-lg mt-5 max-w-[56ch] text-muted-foreground">
             {intro.subheadline ??

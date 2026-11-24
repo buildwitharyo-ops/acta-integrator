@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { trackEvent } from "@/lib/analytics";
+import { catalogGroupChoices, catalogGroupLabel, matchesCatalogGroup } from "@/lib/catalog-groups";
+import { cn } from "@/lib/utils";
 import {
   applyFilters,
   buildQuery,
@@ -30,6 +32,7 @@ import { ProductCard } from "./ProductCard";
 const BATCH = 24;
 
 const SORT_LABELS: Record<SortKey, string> = {
+  recommended: "Rekomendasi",
   newest: "Terbaru",
   brand: "Brand A–Z",
   name: "Nama A–Z",
@@ -123,9 +126,13 @@ export function CatalogBrowser({
   useEffect(() => setVisible(BATCH), [queryKey]);
 
   const activeCategory = forcedCategory ?? state.category;
+  const groupChoices = useMemo(() => catalogGroupChoices(products, activeCategory), [products, activeCategory]);
   const inCategory = useMemo(
-    () => (activeCategory ? products.filter((p) => p.category_slug === activeCategory) : products),
-    [products, activeCategory],
+    () => products.filter((p) =>
+      (!activeCategory || p.category_slug === activeCategory)
+      && matchesCatalogGroup(p, state.group, activeCategory),
+    ),
+    [products, activeCategory, state.group],
   );
 
   const brandFacets = useMemo(() => {
@@ -182,6 +189,7 @@ export function CatalogBrowser({
         for (const p of inCategory) {
           const sv = p.specs.find((s) => s.key === key);
           for (const o of sv?.value_options ?? []) set.add(o);
+          if (sv?.data_type === "text" && sv.value_text) set.add(sv.value_text);
         }
         const options = [...set].sort();
         if (options.length > 1) out.push({ key, label, kind: "enum", buckets: [], options });
@@ -197,6 +205,8 @@ export function CatalogBrowser({
   // Handlers
   const setCategory = (slug: string | null) =>
     commit({ ...EMPTY_FILTERS, sort: state.sort, category: slug }, { filterEvent: true });
+  const setGroup = (group: string | null) =>
+    commit({ ...state, group, specs: {} }, { filterEvent: true });
   const toggleBrand = (slug: string) =>
     commit(
       { ...state, brands: state.brands.includes(slug) ? state.brands.filter((b) => b !== slug) : [...state.brands, slug] },
@@ -299,6 +309,27 @@ export function CatalogBrowser({
             </Select>
           </div>
         </div>
+
+        {groupChoices.length > 0 ? (
+          <nav aria-label={activeCategory ? "Subkategori produk" : "Aksesori dan kabel"} className="mt-4 flex flex-wrap gap-2">
+            {[{ slug: null, label: activeCategory ? "Semua jenis" : "Semua produk" }, ...groupChoices].map(({ slug, label }) => (
+              <button
+                key={slug ?? "all"}
+                type="button"
+                aria-pressed={state.group === slug}
+                onClick={() => setGroup(slug)}
+                className={cn(
+                  "min-h-9 rounded-pill border px-3 py-2 text-left text-sm transition-colors",
+                  state.group === slug
+                    ? "border-primary bg-primary/10 font-medium text-foreground"
+                    : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+        ) : null}
 
         {chips.length > 0 ? (
           <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -407,7 +438,14 @@ function buildChips(
     chips.push({
       id: `cat`,
       label: labels.categoryName.get(state.category) ?? state.category,
-      remove: (commit, s) => commit({ ...s, category: null }),
+      remove: (commit, s) => commit({ ...s, category: null, group: null, specs: {} }),
+    });
+  }
+  if (state.group) {
+    chips.push({
+      id: "group",
+      label: catalogGroupLabel(state.group) ?? state.group,
+      remove: (commit, s) => commit({ ...s, group: null, specs: {} }),
     });
   }
   for (const b of state.brands) {
