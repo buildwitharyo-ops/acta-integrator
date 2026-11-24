@@ -12,15 +12,17 @@ function cardFor(page: import("@playwright/test").Page, name: string) {
 
 test.describe("Compare", () => {
   test("adds 2 same-category products and opens the compare table; blocks a cross-category pick", async ({ page }) => {
+    const drive12x = "Telycam Drive 12x — FHD IP PTZ Camera";
+    const drive20x = "Telycam Drive 20x — FHD IP PTZ Camera";
     // The catalog has 50+ products and CatalogBrowser only renders the first BATCH (24) of the
     // default/unfiltered listing (client-side "Muat lebih banyak" paging) — neither target product
     // is guaranteed to be in that first page. Search narrows to just the products under test instead.
     // Compare selection persists across these full navigations via sessionStorage (CompareProvider).
-    await page.goto("/products?q=Shure");
-    await cardFor(page, "Shure SM58").getByLabel("Bandingkan").check();
-    await cardFor(page, "Shure SM57").getByLabel("Bandingkan").check();
+    await page.goto("/products?q=Telycam");
+    await cardFor(page, drive12x).getByLabel("Bandingkan").check();
+    await cardFor(page, drive20x).getByLabel("Bandingkan").check();
 
-    // Cross-category: a Display product's checkbox must be disabled while an Audio comparison is active.
+    // A Display product's checkbox stays disabled during a PTZ camera comparison.
     await page.goto("/products?q=AVION");
     await expect(cardFor(page, "AVION AX Series").getByLabel("Bandingkan")).toBeDisabled();
 
@@ -30,7 +32,7 @@ test.describe("Compare", () => {
 
     // Both products' spec columns should render on the compare table (CompareTable renders each
     // product as a <table> columnheader containing a plain <p> name, not a heading element).
-    await expect(page.getByRole("columnheader", { name: "Shure SM58" })).toBeVisible();
-    await expect(page.getByRole("columnheader", { name: "Shure SM57" })).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: drive12x })).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: drive20x })).toBeVisible();
   });
 });

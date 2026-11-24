@@ -189,7 +189,6 @@ export function CatalogBrowser({
         for (const p of inCategory) {
           const sv = p.specs.find((s) => s.key === key);
           for (const o of sv?.value_options ?? []) set.add(o);
-          if (sv?.data_type === "text" && sv.value_text) set.add(sv.value_text);
         }
         const options = [...set].sort();
         if (options.length > 1) out.push({ key, label, kind: "enum", buckets: [], options });
